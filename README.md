@@ -1,6 +1,6 @@
 # Meals-on-Wheels – Smart Food Access Platform
 
-Overview
+# Overview
 Meals-on-Wheels is a web-based prototype designed to improve food accessibility in underserved communities by connecting residents with nearby food distribution points and meal providers.
 
 The platform visualizes food access points on an interactive map, allowing users to easily locate nearby meal distribution centers, community kitchens, and support services.

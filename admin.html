@@ -6,7 +6,7 @@
   <title>Meals on Wheels DC | Admin Operations</title>
   <meta name="description" content="Operations dashboard for Meals on Wheels DC — inventory, fleet, orders, pit stop analytics, and user verification." />
 
-  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     /* =========================================================
@@ -208,19 +208,6 @@
     .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(100px);background:var(--navy);color:white;border-radius:999px;padding:13px 18px;z-index:150;box-shadow:var(--shadow);font-weight:900;transition:.25s ease}
     .toast.show{transform:translateX(-50%) translateY(0)}
 
-    /* Auth gate */
-    body.gate-open{overflow:hidden}
-    .gate-shell{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(7,31,46,.5);backdrop-filter:blur(16px)}
-    .gate-card{
-      width:min(420px,calc(100% - 24px));
-      padding:28px;border-radius:30px;background:rgba(255,255,255,.96);
-      border:1px solid rgba(7,31,46,.1);box-shadow:var(--shadow)
-    }
-    .gate-card h1{margin:12px 0 10px;color:var(--navy);font-size:2.1rem;letter-spacing:-.05em;line-height:.98}
-    .gate-card p{color:var(--muted);font-weight:760;margin:0 0 16px}
-    .gate-actions{display:grid;gap:10px;margin-top:14px}
-    .gate-help{margin-top:12px;padding:12px 14px;border-radius:16px;background:rgba(0,199,190,.1);color:#005d5a;font-weight:860}
-
     /* Footer */
     footer{background:var(--navy);color:white;margin-top:50px;padding:42px 0 22px}
     .footer-grid{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:24px;margin-bottom:24px}
@@ -261,26 +248,7 @@
 </head>
 <body>
 
-  <div class="announcement">Admin operations dashboard: <b>Meals on Wheels DC</b> • inventory, fleet, and resident-hub analytics.</div>
-
-  <div class="gate-shell" id="authGate" hidden>
-    <div class="gate-card">
-      <span class="pill">Admin sign-in</span>
-      <h1>Operations access</h1>
-      <p>Use the demo credentials below to enter the admin dashboard.</p>
-      <form id="authGateForm" class="stack">
-        <label class="sr-only" for="authUser">User ID</label>
-        <input class="search-input" id="authUser" placeholder="User ID" autocomplete="username" />
-        <label class="sr-only" for="authPass">Password</label>
-        <input class="search-input" id="authPass" type="password" placeholder="Password" autocomplete="current-password" />
-        <div class="gate-actions">
-          <button class="btn btn-primary" type="submit">Open admin dashboard</button>
-          <a class="btn btn-light" href="index.html">Back to consumer site</a>
-        </div>
-        <div class="gate-help" id="authGateFeedback">Demo login: admin / admin</div>
-      </form>
-    </div>
-  </div>
+  <div class="announcement">Admin operations dashboard: <b>Meals on Wheels DC</b> • inventory, fleet, and pit stop analytics.</div>
 
   <header>
     <div class="container nav">
@@ -297,7 +265,7 @@
         <a href="#people">People</a>
       </nav>
       <div class="nav-actions">
-        <a class="btn btn-light" href="index.html">Back to consumer site</a>
+        <a class="btn btn-light" href="index.html">↩ Consumer site</a>
         <div class="admin-avatar" title="Admin">AM</div>
       </div>
     </div>
@@ -730,7 +698,7 @@
         </div>
         <div><h4>Operations</h4><a href="#dashboard">Dashboard</a><a href="#inventory">Inventory</a><a href="#fleet">Fleet</a></div>
         <div><h4>Insights</h4><a href="#orders">Orders</a><a href="#pitstops">Pit stops</a><a href="#people">People</a></div>
-        <div><h4>Consumer site</h4><a href="index.html#shop">Shop</a><a href="index.html#coverage">Find coverage</a><a href="index.html#support">Support boxes</a></div>
+        <div><h4>Consumer site</h4><a href="index.html">Shop</a><a href="index.html#map">Find pit stop</a><a href="index.html#boxes">Subsidized boxes</a></div>
       </div>
       <div class="fineprint">
         <span>© 2026 Meals on Wheels DC — admin prototype.</span>
@@ -740,7 +708,7 @@
   </footer>
 
   <!-- Leaflet + Chart.js -->
-  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
   <script>
@@ -1691,55 +1659,10 @@
     onScroll();
   }
 
-  function wireAdminGate() {
-    const gate = document.getElementById("authGate");
-    const form = document.getElementById("authGateForm");
-    const userInput = document.getElementById("authUser");
-    const passInput = document.getElementById("authPass");
-    const feedback = document.getElementById("authGateFeedback");
-
-    if (!gate || !form || !userInput || !passInput || !feedback) {
-      return;
-    }
-
-    function openGate() {
-      gate.hidden = false;
-      document.body.classList.add("gate-open");
-      window.setTimeout(() => userInput.focus(), 0);
-    }
-
-    function closeGate() {
-      gate.hidden = true;
-      document.body.classList.remove("gate-open");
-    }
-
-    form.addEventListener("submit", event => {
-      event.preventDefault();
-      const user = userInput.value.trim();
-      const pass = passInput.value.trim();
-
-      if (user === "admin" && pass === "admin") {
-        window.sessionStorage.setItem("mowAdminAuth", "ok");
-        closeGate();
-        return;
-      }
-
-      feedback.textContent = "Use admin / admin for the demo.";
-    });
-
-    if (window.sessionStorage.getItem("mowAdminAuth") === "ok") {
-      closeGate();
-      return;
-    }
-
-    openGate();
-  }
-
   /* ===========================================================
      Boot
      =========================================================== */
   document.addEventListener("DOMContentLoaded", () => {
-    wireAdminGate();
     renderDashboard();
 
     renderInventoryMetrics();
