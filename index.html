@@ -1,356 +1,1212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meals on Wheels DC | Resident Grocery Network</title>
-  <meta name="description" content="Fresh groceries delivered to 11 resident hubs across DC. Search your ZIP. Pick up today." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-  <link rel="stylesheet" href="styles/main.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meals on Wheels DC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0d2218;
+    --ink-soft: #4a6155;
+    --forest: #0f3528;
+    --pine: #1a5e44;
+    --teal: #2a8f6f;
+    --mint: #d6f5e8;
+    --lime: #c8ff5a;
+    --sun: #f5c842;
+    --cream: #f7f5ee;
+    --mist: #edf4ef;
+    --white: #ffffff;
+    --line: rgba(13,34,24,0.10);
+    --line-strong: rgba(13,34,24,0.18);
+    --shadow-lg: 0 24px 72px rgba(13,34,24,0.13);
+    --shadow-md: 0 12px 36px rgba(13,34,24,0.09);
+    --shadow-sm: 0 4px 16px rgba(13,34,24,0.07);
+    --r-xl: 28px;
+    --r-lg: 20px;
+    --r-md: 14px;
+    --r-sm: 10px;
+    --shell: 1240px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: var(--cream);
+    line-height: 1.6;
+    min-width: 320px;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input, select { font: inherit; cursor: pointer; border: none; background: none; }
+  img { display: block; max-width: 100%; }
+
+  .shell {
+    width: min(var(--shell), calc(100% - 48px));
+    margin: 0 auto;
+  }
+
+  /* ─── ANNOUNCEMENT ─── */
+  .announcement {
+    background: linear-gradient(90deg, var(--forest), var(--pine) 55%, #2a7a58);
+    color: rgba(255,255,255,0.92);
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .announcement a { color: var(--lime); text-underline-offset: 3px; }
+  .announcement a:hover { text-decoration: underline; }
+
+  /* ─── NAV ─── */
+  nav {
+    background: rgba(247,245,238,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--forest);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo-dot {
+    width: 10px; height: 10px;
+    background: var(--lime);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(200,255,90,0.25);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--forest); }
+  .btn-nav {
+    background: var(--forest);
+    color: var(--lime) !important;
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-nav:hover { background: var(--pine); transform: translateY(-1px); }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--forest);
+  }
+  .hero-bg-img {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=1800&auto=format&fit=crop&q=80');
+    background-size: cover;
+    background-position: center 30%;
+    opacity: 0.22;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,53,40,0.97) 0%, rgba(15,53,40,0.88) 50%, rgba(26,94,68,0.75) 100%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 100px 0 80px;
+    max-width: 660px;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(200,255,90,0.12);
+    border: 1px solid rgba(200,255,90,0.3);
+    color: var(--lime);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    border-radius: 50px;
+    margin-bottom: 28px;
+  }
+  .hero-badge-dot { width: 7px; height: 7px; background: var(--lime); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  .hero h1 span { color: var(--lime); }
+  .hero-sub {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.7;
+    margin-bottom: 44px;
+    max-width: 520px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+  }
+  .btn-primary {
+    background: var(--lime);
+    color: var(--forest);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 30px;
+    border-radius: 50px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,255,90,0.35); }
+  .btn-secondary-hero {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: var(--white);
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 14px 30px;
+    border-radius: 50px;
+    transition: background 0.2s;
+  }
+  .btn-secondary-hero:hover { background: rgba(255,255,255,0.18); }
+  .hero-stats {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+  }
+  .hero-stat strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--lime);
+    line-height: 1;
+  }
+  .hero-stat span {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 500;
+  }
+  .hero-img-side {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    width: 42%;
+    z-index: 2;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+  .hero-img-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    opacity: 0.6;
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.9) 60%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.9) 60%);
+  }
+
+  /* ─── FEATURES ─── */
+  .features {
+    padding: 88px 0;
+    background: var(--white);
+  }
+  .section-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 800;
+    color: var(--forest);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 520px;
+    line-height: 1.7;
+  }
+  .features-header { margin-bottom: 52px; }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .feature-card {
+    background: var(--mist);
+    border-radius: var(--r-xl);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s;
+  }
+  .feature-card:hover { transform: translateY(-4px); }
+  .feature-card.dark {
+    background: var(--forest);
+    color: var(--white);
+  }
+  .feature-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--r-md);
+    background: rgba(42,143,111,0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+  .feature-card.dark .feature-icon {
+    background: rgba(200,255,90,0.14);
+  }
+  .feature-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--forest);
+  }
+  .feature-card.dark h3 { color: var(--lime); }
+  .feature-card p {
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+  .feature-card.dark p { color: rgba(255,255,255,0.65); }
+
+  /* ─── COVERAGE MAP ─── */
+  .coverage {
+    padding: 88px 0;
+    background: var(--cream);
+  }
+  .coverage-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .coverage-info { padding-top: 12px; }
+  .coverage-cards { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+  .cov-card {
+    background: var(--white);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    box-shadow: var(--shadow-sm);
+  }
+  .cov-card-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .cov-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 4px;
+  }
+  .cov-card p { font-size: 0.88rem; color: var(--ink-soft); }
+  .map-container {
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    height: 460px;
+    background: #e5e0d8;
+    position: relative;
+  }
+  .map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+  .map-overlay-label {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: var(--forest);
+    color: var(--white);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 50px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .map-dot { width: 7px; height: 7px; background: var(--lime); border-radius: 50%; }
+
+  /* ─── CATALOG ─── */
+  .catalog {
+    padding: 88px 0;
+    background: var(--white);
+  }
+  .catalog-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .catalog-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .filter-tab {
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1.5px solid var(--line-strong);
+    color: var(--ink-soft);
+    background: transparent;
+    transition: all 0.18s;
+    cursor: pointer;
+  }
+  .filter-tab.active, .filter-tab:hover {
+    background: var(--forest);
+    color: var(--lime);
+    border-color: var(--forest);
+  }
+  .catalog-search-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 11px 18px;
+    border-radius: 50px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--mist);
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.18s;
+  }
+  .search-input:focus { border-color: var(--teal); }
+  .search-input::placeholder { color: var(--ink-soft); }
+  .select-filter {
+    padding: 11px 18px;
+    border-radius: 50px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--mist);
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+    min-width: 140px;
+  }
+
+  /* ─── FOOD GRID ─── */
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .food-card {
+    background: var(--white);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    transition: box-shadow 0.22s, transform 0.22s;
+    display: flex;
+    flex-direction: column;
+  }
+  .food-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+  .food-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    background: var(--mist);
+  }
+  .food-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+  .food-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 50px;
+  }
+  .tag-cat { background: var(--mint); color: var(--pine); }
+  .tag-stock { background: #d4f0e0; color: #1a6640; }
+  .tag-pct { background: var(--forest); color: var(--lime); }
+  .tag-label { background: rgba(42,143,111,0.1); color: var(--teal); }
+  .food-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .food-desc { font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 10px; }
+  .food-macros {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .macro { text-align: center; }
+  .macro-label { font-size: 0.62rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .macro-val { font-size: 0.88rem; font-weight: 700; color: var(--forest); }
+  .food-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 12px;
+  }
+  .food-price strong { font-size: 1.15rem; font-weight: 800; color: var(--forest); }
+  .food-price .retail { font-size: 0.75rem; color: var(--ink-soft); text-decoration: line-through; }
+  .btn-add {
+    background: var(--forest);
+    color: var(--lime);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 300;
+    transition: transform 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-add:hover { background: var(--pine); transform: scale(1.08); }
+
+  /* ─── BOXES ─── */
+  .boxes {
+    padding: 88px 0;
+    background: var(--cream);
+  }
+  .boxes-intro {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 64px;
+    margin-bottom: 52px;
+    align-items: center;
+  }
+  .boxes-aside {
+    background: var(--forest);
+    border-radius: var(--r-xl);
+    padding: 36px 32px;
+    color: var(--white);
+  }
+  .boxes-aside-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 14px;
+  }
+  .boxes-aside h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .boxes-aside p { font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.7; margin-bottom: 20px; }
+  .boxes-aside ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .boxes-aside li {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.78);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .boxes-aside li::before { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--lime); flex-shrink: 0; }
+  .boxes-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .box-card {
+    background: var(--white);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.22s, transform 0.22s;
+  }
+  .box-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+  .box-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    background: var(--mist);
+  }
+  .box-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+  .box-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .box-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 4px;
+  }
+  .box-desc { font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 12px; }
+  .box-macros {
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+    margin-bottom: 14px;
+  }
+  .box-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  .box-price strong { font-size: 1.2rem; font-weight: 800; color: var(--forest); }
+  .box-price .retail { font-size: 0.75rem; color: var(--ink-soft); text-decoration: line-through; }
+  .btn-add-box {
+    background: var(--forest);
+    color: var(--lime);
+    padding: 9px 20px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn-add-box:hover { background: var(--pine); transform: translateY(-1px); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--forest);
+    color: rgba(255,255,255,0.65);
+    padding: 56px 0 32px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-brand { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+  .footer-desc { font-size: 0.85rem; line-height: 1.7; max-width: 260px; }
+  .footer-col h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--lime); margin-bottom: 16px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col a { font-size: 0.88rem; color: rgba(255,255,255,0.55); transition: color 0.18s; }
+  .footer-col a:hover { color: var(--white); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .footer-bottom p { font-size: 0.82rem; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1024px) {
+    .food-grid { grid-template-columns: repeat(3, 1fr); }
+    .boxes-grid { grid-template-columns: repeat(2, 1fr); }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero-img-side { display: none; }
+    .food-grid { grid-template-columns: repeat(2, 1fr); }
+    .boxes-grid { grid-template-columns: repeat(2, 1fr); }
+    .coverage-layout { grid-template-columns: 1fr; }
+    .boxes-intro { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .food-grid { grid-template-columns: 1fr; }
+    .boxes-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="shell nav-shell">
-      <a class="brand" href="#top" aria-label="Meals on Wheels DC home">
-        <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
-        <span class="brand-copy">
-          <strong>DC resident grocery network</strong>
-          <small>Neighborhood hubs, lockers, and subsidized support boxes.</small>
-        </span>
-      </a>
+<!-- ANNOUNCEMENT -->
+<div class="announcement">
+  🌱 Now serving 11 DC neighborhoods — <a href="#coverage">See if you're covered</a>
+</div>
 
-      <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="siteNav">Menu</button>
-
-      <nav class="site-nav" id="siteNav" aria-label="Primary">
-        <a href="#coverage">Coverage</a>
-        <a href="#shop">Shop</a>
-        <a href="#support">Support boxes</a>
-        <a href="#lockers">Lockers</a>
-      </nav>
-
-      <div class="nav-actions">
-        <button class="cta-pill" type="button" data-scroll-target="coverage">Find coverage</button>
-        <button class="cart-button" id="cartButton" type="button" aria-haspopup="dialog">
-          <span>Cart</span>
-          <span class="cart-count" id="cartCount">0</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <main id="top">
-
-    <!-- HERO -->
-    <section class="hero">
-      <div class="shell hero-grid">
-        <div class="hero-left reveal">
-          <div class="hero-badge">FRESH &middot; LOCAL &middot; ELECTRIC</div>
-          <h1>Fresh groceries<br>for DC<br>residents.</h1>
-          <p class="hero-lead">Search any DC ZIP — we match the nearest resident hub. Resident households come first.</p>
-          <div class="hero-actions">
-            <button class="primary-button" type="button" data-scroll-target="coverage">Search coverage</button>
-            <button class="ghost-button" type="button" data-scroll-target="shop">Browse catalog</button>
-          </div>
-          <p class="hero-note">We do not preselect a hub. Matching starts only after you enter a location.</p>
-          <div class="hero-stats" id="heroStats" aria-label="Network highlights"></div>
-        </div>
-
-        <div class="hero-right reveal">
-          <div class="hero-truck-scene">
-            <img src="assets/hero-truck.png" alt="Meals on Wheels electric grocery truck" class="hero-truck-img" onerror="this.src='assets/electric-truck.png'" />
-            <div class="hero-float">
-              <span class="float-badge">RESIDENTS FIRST</span>
-              <strong>Search any DC ZIP before we assign a hub.</strong>
-              <p>Support-box pricing follows current USDA food-plan benchmarks.</p>
-            </div>
-          </div>
-          <div class="hero-chips-row">
-            <div class="hero-chip chip-dark">
-              <span class="chip-kicker">COVERAGE</span>
-              <strong>11 resident hubs across DC</strong>
-              <p>No monument-area hub. Network centered on where people live.</p>
-            </div>
-            <div class="hero-chip chip-light">
-              <span class="chip-kicker">PRICING</span>
-              <strong>Up to 40% below retail</strong>
-              <p>Residents, seniors, and under-served households lead pricing.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- COVERAGE -->
-    <section class="section" id="coverage">
-      <div class="shell">
-        <div class="section-title">
-          <h2>Search any DC ZIP.<br>We match the nearest<br>resident hub.</h2>
-          <p>Enter a DC ZIP, neighborhood, or campus alias to match the nearest resident hub and preview it in Google Maps.</p>
-        </div>
-
-        <div class="coverage-grid">
-          <article class="panel map-panel">
-            <div class="panel-top">
-              <div>
-                <p class="panel-kicker">Live coverage</p>
-                <h3>Resident hubs and 1-mile service rings.</h3>
-              </div>
-              <a class="inline-link" id="selectedStopMapLink" href="#" target="_blank" rel="noopener">Fit all hubs</a>
-            </div>
-            <div class="map-shell">
-              <div class="coverage-map" id="coverageMap" aria-label="Map showing DC resident hubs and 1-mile service rings"></div>
-              <div class="map-legend">
-                <span><i class="legend-swatch legend-swatch-ring"></i> 1-mile service ring</span>
-                <span><i class="legend-swatch legend-swatch-active"></i> Active hub</span>
-                <span><i class="legend-swatch legend-swatch-origin"></i> Your search origin</span>
-              </div>
-            </div>
-          </article>
-
-          <aside class="panel coverage-sidebar">
-            <div class="sidebar-block">
-              <p class="panel-kicker">Search your location</p>
-              <h3>We match after you search.</h3>
-              <form class="location-form" id="locationForm">
-                <label class="sr-only" for="locationInput">Search location</label>
-                <input id="locationInput" class="text-input" placeholder="Try 20011, 20019, Brookland, Anacostia, or Howard Unive" />
-                <div class="location-actions">
-                  <button class="primary-button" type="submit">Find nearest hub</button>
-                  <button class="ghost-button" type="button" id="gpsButton">Use GPS</button>
-                </div>
-              </form>
-              <div class="chip-row" id="quickPicks" aria-label="Quick location picks">
-                <button class="chip" type="button" data-query="20011">20011</button>
-                <button class="chip" type="button" data-query="Brookland">Brookland</button>
-                <button class="chip" type="button" data-query="Anacostia">Anacostia</button>
-                <button class="chip" type="button" data-query="20019">20019</button>
-                <button class="chip" type="button" data-query="Southwest DC">Southwest</button>
-                <button class="chip" type="button" data-query="Howard University">Howard University</button>
-              </div>
-            </div>
-
-            <div class="sidebar-block status-block">
-              <p class="panel-kicker">Your search</p>
-              <strong id="originLabel">No location entered yet</strong>
-              <p id="originSummary" class="status-copy">Enter a DC ZIP, neighborhood, or campus and we will assign the nearest resident-serving hub.</p>
-              <div class="status-badges" id="coverageBadges">
-                <span class="badge">22 resident ZIP areas</span>
-                <span class="badge">11 resident hubs</span>
-                <span class="badge">Students remain an add-on lane</span>
-              </div>
-            </div>
-
-            <div class="sidebar-block">
-              <div class="list-header">
-                <div>
-                  <p class="panel-kicker">Closest resident hubs</p>
-                  <h3>Resident coverage across DC.</h3>
-                </div>
-                <button class="ghost-button small-button" type="button" id="fitMapButton">Open DC in Google Maps</button>
-              </div>
-              <div class="nearest-list" id="nearestStops"></div>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <!-- SHOP / CATALOG -->
-    <section class="section" id="shop">
-      <div class="shell">
-        <div class="section-title">
-          <h2>Item visuals now match<br>the actual portion.</h2>
-          <p>Browse the catalog immediately, then search a location to unlock exact hub stock and directions.</p>
-        </div>
-
-        <div class="shop-grid">
-          <aside class="panel selected-stop-panel">
-            <img class="panel-spot-image" src="assets/deck/cat-shop-app.png" alt="Meals on Wheels shopping app illustration" />
-            <p class="panel-kicker">Matched hub</p>
-            <h3 id="selectedStopName">No hub selected yet</h3>
-            <p id="selectedStopSummary" class="status-copy">Search a location to activate resident-specific stock, directions, and pricing context.</p>
-            <div class="badge-row" id="selectedStopTags">
-              <span class="badge">Residents first</span>
-              <span class="badge">Subsidized pricing</span>
-              <span class="badge">Students add-on</span>
-            </div>
-            <dl class="info-list">
-              <div><dt>Distance</dt><dd id="selectedStopDistance">Search required</dd></div>
-              <div><dt>Pickup model</dt><dd id="selectedStopType">Hub assigned after location search</dd></div>
-              <div><dt>Primary service area</dt><dd id="selectedStopArea">DC resident ZIP codes, lockers, and support-box distribution</dd></div>
-            </dl>
-            <div class="panel-actions">
-              <a class="primary-button button-link" id="directionsButton" href="#" target="_blank" rel="noopener">Search to unlock directions</a>
-              <button class="ghost-button" type="button" data-scroll-target="support">View support boxes</button>
-            </div>
-          </aside>
-
-          <article class="panel catalog-panel">
-            <div class="catalog-top">
-              <div class="category-tabs" id="categoryTabs" aria-label="Catalog categories"></div>
-              <div class="catalog-filters">
-                <label class="sr-only" for="catalogSearch">Search products</label>
-                <input class="text-input" id="catalogSearch" placeholder="Search fruit, wraps, beans, support items…" />
-                <label class="sr-only" for="dietFilter">Diet filter</label>
-                <select class="select-input" id="dietFilter" aria-label="Diet filter">
-                  <option value="all">All diets</option>
-                  <option value="veg">Vegetarian</option>
-                  <option value="nonveg">Protein and meals</option>
-                  <option value="student">Student picks</option>
-                </select>
-                <label class="sr-only" for="sortFilter">Sort products</label>
-                <select class="select-input" id="sortFilter" aria-label="Sort products">
-                  <option value="featured">Featured</option>
-                  <option value="priceLow">Price low</option>
-                  <option value="protein">Protein high</option>
-                  <option value="savings">Savings high</option>
-                </select>
-              </div>
-            </div>
-            <div class="catalog-grid" id="catalogGrid"></div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- SUPPORT BOXES -->
-    <section class="section" id="support">
-      <div class="shell">
-        <div class="section-title">
-          <h2>Support boxes,<br>up to 40% below retail.</h2>
-          <p>Short list, clear bundles, real essentials.</p>
-        </div>
-        <div class="support-grid">
-          <article class="panel support-copy-panel">
-            <img class="support-inline-image" src="assets/deck/community-box.png" alt="Community grocery support illustration" />
-            <p class="panel-kicker">No family left behind</p>
-            <h3>One bundle. One week.<br>Real essentials.</h3>
-            <p>Protein, staples, and produce — all in one support box.</p>
-            <ul class="support-points">
-              <li>EBT and subsidy friendly.</li>
-              <li>Built for families, seniors, and low-income households.</li>
-              <li>Priced below retail through bulk purchasing.</li>
-            </ul>
-          </article>
-          <div class="box-grid" id="boxGrid"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- LOCKERS -->
-    <section class="section" id="lockers">
-      <div class="shell locker-grid">
-        <article class="panel locker-media-panel">
-          <img src="assets/deck/locker-photo.png" alt="Community grocery lockers outdoors" />
-        </article>
-        <article class="panel locker-copy-panel">
-          <p class="eyebrow">Locker operations</p>
-          <h2>Pickup in seconds.</h2>
-          <p class="locker-lead">Chilled, ambient, and frozen compartments in one locker bank.</p>
-          <div class="locker-feature-grid">
-            <article class="locker-feature">
-              <strong>Chilled storage</strong>
-              <p>Produce, dairy, and drinks stay cold.</p>
-            </article>
-            <article class="locker-feature">
-              <strong>Ambient shelves</strong>
-              <p>Bread, pantry goods, and snacks turn over fast.</p>
-            </article>
-            <article class="locker-feature">
-              <strong>Frozen reserve</strong>
-              <p>Backup veg and meal components for demand spikes.</p>
-            </article>
-            <article class="locker-feature">
-              <strong>PIN pickup flow</strong>
-              <p>Code-based pickup — no wait, no window.</p>
-            </article>
-          </div>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="shell footer-grid">
-      <div>
-        <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
-        <p>DC grocery coverage, locker pickup, and support boxes.</p>
-      </div>
-      <div>
-        <h3>Explore</h3>
-        <a href="#coverage">Coverage map</a>
-        <a href="#shop">Catalog</a>
-        <a href="#support">Support boxes</a>
-      </div>
-      <div>
-        <h3>Service model</h3>
-        <a href="#lockers">Locker flow</a>
-        <a href="#coverage">Resident hubs</a>
-        <a href="#shop">Hub inventory</a>
-      </div>
-      <div>
-        <h3>Prototype</h3>
-        <p>Live hub map with Google Maps directions.</p>
-      </div>
-    </div>
-  </footer>
-
-  <div class="cart-drawer" id="cartDrawer" hidden>
-    <div class="drawer-backdrop" data-close-cart></div>
-    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle" aria-describedby="cartDescription" tabindex="-1">
-      <div class="drawer-header">
-        <div>
-          <p class="panel-kicker">Order summary</p>
-          <h2 id="cartTitle">Your cart</h2>
-          <p id="cartDescription" class="status-copy">Inventory and totals reflect the active hub.</p>
-        </div>
-        <button class="close-button" id="closeCartButton" type="button" aria-label="Close cart">Close</button>
-      </div>
-      <div class="drawer-stop-card">
-        <span class="service-label">Current pickup hub</span>
-        <strong id="drawerStopName">GW Foggy Bottom Pit Stop</strong>
-        <p id="drawerStopSummary">Locker pickup and short-distance delivery around the active hub.</p>
-      </div>
-      <div class="cart-list" id="cartList"></div>
-      <div class="checkout-fields">
-        <label class="field-label" for="checkoutName">Pickup name</label>
-        <input class="text-input" id="checkoutName" placeholder="Name for pickup" />
-        <label class="field-label" for="checkoutPhone">Phone</label>
-        <input class="text-input" id="checkoutPhone" placeholder="Phone or text number" />
-        <label class="field-label" for="deliveryMode">Fulfillment</label>
-        <select class="select-input" id="deliveryMode">
-          <option value="pickup">Locker pickup — free</option>
-          <option value="dorm">Short-hop delivery — $1.49</option>
-          <option value="priority">Priority delivery — $4.99</option>
-        </select>
-        <label class="field-label" for="subPreference">Substitutions</label>
-        <select class="select-input" id="subPreference">
-          <option value="best">Best healthy substitute if out of stock</option>
-          <option value="text">Text me first</option>
-          <option value="remove">Remove item if unavailable</option>
-        </select>
-      </div>
-      <div class="summary-block">
-        <div class="summary-row"><span>Items</span><strong id="subtotalValue">$0.00</strong></div>
-        <div class="summary-row"><span>Delivery or pickup</span><strong id="deliveryValue">$0.00</strong></div>
-        <div class="summary-row"><span>Estimated savings</span><strong id="savingsValue">$0.00</strong></div>
-        <div class="summary-row summary-total"><span>Total</span><strong id="totalValue">$0.00</strong></div>
-      </div>
-      <button class="primary-button full-width" id="checkoutButton" type="button">Place demo order</button>
-      <p class="checkout-feedback" id="checkoutFeedback" hidden></p>
-    </aside>
+<!-- NAV -->
+<nav>
+  <div class="shell nav-inner">
+    <a class="nav-logo" href="#">
+      <span class="nav-logo-dot"></span>
+      Meals on Wheels DC
+    </a>
+    <ul class="nav-links">
+      <li><a href="#coverage">Coverage</a></li>
+      <li><a href="#catalog">Shop</a></li>
+      <li><a href="#boxes">Support boxes</a></li>
+      <li><a href="#coverage">Lockers</a></li>
+      <li><a class="btn-nav" href="#coverage">Find coverage</a></li>
+    </ul>
   </div>
+</nav>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-img"></div>
+  <div class="hero-overlay"></div>
+  <div class="shell hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Serving Washington DC
+    </div>
+    <h1>Fresh food.<br><span>Where you live.</span></h1>
+    <p class="hero-sub">
+      Up to 40% below retail. 11 resident hubs across DC. Groceries, snacks, and bundled support boxes — all priced for the people who live here.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#catalog">Shop groceries</a>
+      <a class="btn-secondary-hero" href="#coverage">Find your hub</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong>11</strong><span>Resident hubs</span></div>
+      <div class="hero-stat"><strong>40%</strong><span>Below retail</span></div>
+      <div class="hero-stat"><strong>1 mi</strong><span>Service radius</span></div>
+      <div class="hero-stat"><strong>25+</strong><span>Catalog items</span></div>
+    </div>
+  </div>
+  <div class="hero-img-side">
+    <img src="https://images.unsplash.com/photo-1576402187878-974f70c890a5?w=900&auto=format&fit=crop&q=80" alt="Fresh produce" />
+  </div>
+</section>
 
-  <script src="vendor/leaflet/leaflet.js"></script>
-  <script defer src="scripts/data.js"></script>
-  <script defer src="scripts/utils.js"></script>
-  <script defer src="scripts/map.js"></script>
-  <script defer src="scripts/app.js"></script>
+<!-- FEATURES -->
+<section class="features">
+  <div class="shell">
+    <div class="features-header">
+      <span class="section-label">Why Meals on Wheels</span>
+      <h2 class="section-title">Built for DC residents,<br>not visitors</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card dark">
+        <div class="feature-icon">🗺️</div>
+        <h3>11 resident hubs across DC</h3>
+        <p>No monument-area hub. Network centered on where people actually live — not tourists or commuters.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Up to 40% below retail</h3>
+        <p>Residents, seniors, and under-served households lead pricing. Bulk purchasing keeps costs down.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>Bundled support boxes</h3>
+        <p>EBT and subsidy-friendly bundles built for families, seniors, and low-income households — one box, one week.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COVERAGE MAP -->
+<section class="coverage" id="coverage">
+  <div class="shell">
+    <div class="coverage-layout">
+      <div class="coverage-info">
+        <span class="section-label">Coverage</span>
+        <h2 class="section-title">Find your nearest hub</h2>
+        <p class="section-sub">Our 11 hubs are located in residential neighborhoods. Locker pickup and short-hop delivery available at most stops.</p>
+        <div class="coverage-cards">
+          <div class="cov-card" style="background: var(--forest); color: white;">
+            <div class="cov-card-label" style="color: var(--lime);">Coverage</div>
+            <h4 style="color: white;">11 resident hubs</h4>
+            <p style="color: rgba(255,255,255,0.65);">Network centered on where people live — not the monument district.</p>
+          </div>
+          <div class="cov-card">
+            <div class="cov-card-label">Matched hub</div>
+            <h4>Foggy Bottom West Hub</h4>
+            <p>Campus and apartment pickup. 0.82 mi — Foggy Bottom, West End, GW-area.</p>
+          </div>
+          <div class="cov-card">
+            <div class="cov-card-label">Pricing</div>
+            <h4>Up to 40% below retail</h4>
+            <p>Residents, seniors, and under-served households lead pricing.</p>
+          </div>
+        </div>
+      </div>
+      <div class="map-container">
+        <iframe
+          title="DC Meals on Wheels hub locations"
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d24901.8!2d-77.0369!3d38.9072!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1713000000000!5m2!1sen!2sus"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <div class="map-overlay-label">
+          <span class="map-dot"></span>
+          11 hubs across DC
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATALOG -->
+<section class="catalog" id="catalog">
+  <div class="shell">
+    <div class="catalog-header">
+      <div>
+        <span class="section-label">Shop</span>
+        <h2 class="section-title">All groceries</h2>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <select class="select-filter" id="dietFilter">
+          <option>All diets</option>
+          <option>Vegetarian</option>
+          <option>Vegan</option>
+          <option>High protein</option>
+          <option>Low sodium</option>
+        </select>
+        <select class="select-filter" id="sortFilter">
+          <option>Featured</option>
+          <option>Price: Low</option>
+          <option>Price: High</option>
+          <option>Savings</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="catalog-filters">
+      <button class="filter-tab active" data-cat="all">All groceries (25)</button>
+      <button class="filter-tab" data-cat="snacks">Healthy snacks (6)</button>
+      <button class="filter-tab" data-cat="produce">Produce and veg (5)</button>
+      <button class="filter-tab" data-cat="protein">Protein and meals (5)</button>
+      <button class="filter-tab" data-cat="bread">Bread and wraps (4)</button>
+      <button class="filter-tab" data-cat="pantry">Pantry staples (5)</button>
+    </div>
+
+    <div class="catalog-search-row">
+      <input class="search-input" type="search" placeholder="Search fruit, wraps, beans, support items..." id="catalogSearch" />
+    </div>
+
+    <div class="food-grid" id="foodGrid">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- SUPPORT BOXES -->
+<section class="boxes" id="boxes">
+  <div class="shell">
+    <div class="boxes-intro">
+      <div class="boxes-aside">
+        <div class="boxes-aside-label">No family left behind</div>
+        <h3>One bundle.<br>One week.<br>Real essentials.</h3>
+        <p>Protein, staples, and produce — all in one support box.</p>
+        <ul>
+          <li>EBT and subsidy friendly</li>
+          <li>Built for families, seniors, and low-income households</li>
+          <li>Priced below retail through bulk purchasing</li>
+        </ul>
+      </div>
+      <div>
+        <span class="section-label">Support boxes</span>
+        <h2 class="section-title">Bundled for real life</h2>
+        <p class="section-sub">All boxes include protein, fiber-rich produce, and pantry staples. Priced well below retail. EBT accepted at all hubs.</p>
+      </div>
+    </div>
+
+    <div class="boxes-grid" id="boxGrid">
+      <!-- injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Meals on Wheels DC</div>
+        <p class="footer-desc">Fresh groceries at fair prices for DC residents. 11 hubs across the city, centered on where people live.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="#coverage">Coverage map</a></li>
+          <li><a href="#catalog">Shop groceries</a></li>
+          <li><a href="#boxes">Support boxes</a></li>
+          <li><a href="#">Lockers</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Programs</h4>
+        <ul>
+          <li><a href="#">EBT / SNAP</a></li>
+          <li><a href="#">Senior pricing</a></li>
+          <li><a href="#">Family subsidy</a></li>
+          <li><a href="#">Partner hubs</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>About</h4>
+        <ul>
+          <li><a href="#">Our mission</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Volunteer</a></li>
+          <li><a href="#">Donate</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Meals on Wheels DC. All rights reserved.</p>
+      <p>Built for the community, by the community.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+const foods = [
+  {
+    id: 1, cat: "snacks",
+    name: "Apple & peanut butter snack",
+    desc: "1 apple · 1.5 oz peanut butter · 1 snack",
+    img: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&auto=format&fit=crop&q=80",
+    tags: ["Healthy snack", "Student pick"],
+    pct: "35% below retail",
+    protein: "8g", fiber: "6g", energy: "260",
+    price: "$1.49", retail: "$2.29"
+  },
+  {
+    id: 2, cat: "snacks",
+    name: "Greek yogurt parfait",
+    desc: "7 oz cup · 1 cup",
+    img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&auto=format&fit=crop&q=80",
+    tags: ["High protein", "Student pick"],
+    pct: "40% below retail",
+    protein: "15g", fiber: "3g", energy: "190",
+    price: "$1.79", retail: "$2.99"
+  },
+  {
+    id: 3, cat: "snacks",
+    name: "Hummus & carrot cup",
+    desc: "6 oz cup · 1 snack",
+    img: "https://images.unsplash.com/photo-1614935151651-0bea6508db6b?w=400&auto=format&fit=crop&q=80",
+    tags: ["Veg snack", "Student pick"],
+    pct: "39% below retail",
+    protein: "7g", fiber: "7g", energy: "210",
+    price: "$1.69", retail: "$2.79"
+  },
+  {
+    id: 4, cat: "snacks",
+    name: "Trail mix mini",
+    desc: "3 oz pouch · 1 pouch",
+    img: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&auto=format&fit=crop&q=80",
+    tags: ["Shelf stable", "Student pick"],
+    pct: "43% below retail",
+    protein: "10g", fiber: "4g", energy: "360",
+    price: "$1.99", retail: "$3.49"
+  },
+  {
+    id: 5, cat: "produce",
+    name: "Mixed leafy greens bag",
+    desc: "5 oz bag · ready to eat",
+    img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80",
+    tags: ["Veg", "In stock"],
+    pct: "36% below retail",
+    protein: "3g", fiber: "2g", energy: "35",
+    price: "$1.29", retail: "$2.09"
+  },
+  {
+    id: 6, cat: "produce",
+    name: "Ripe banana bunch",
+    desc: "4 bananas · approx 1.2 lb",
+    img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&auto=format&fit=crop&q=80",
+    tags: ["Fruit", "Student pick"],
+    pct: "30% below retail",
+    protein: "4g", fiber: "3g", energy: "420",
+    price: "$0.89", retail: "$1.29"
+  },
+  {
+    id: 7, cat: "produce",
+    name: "Roma tomatoes pack",
+    desc: "4 tomatoes · approx 1 lb",
+    img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&auto=format&fit=crop&q=80",
+    tags: ["Veg", "In stock"],
+    pct: "33% below retail",
+    protein: "2g", fiber: "2g", energy: "80",
+    price: "$1.19", retail: "$1.79"
+  },
+  {
+    id: 8, cat: "protein",
+    name: "Hard-boiled eggs (6 pack)",
+    desc: "6 eggs · ready to eat",
+    img: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&auto=format&fit=crop&q=80",
+    tags: ["High protein", "In stock"],
+    pct: "38% below retail",
+    protein: "36g", fiber: "0g", energy: "420",
+    price: "$1.99", retail: "$3.29"
+  },
+  {
+    id: 9, cat: "protein",
+    name: "Black bean cup",
+    desc: "15 oz can, drained · 2 cups",
+    img: "https://images.unsplash.com/photo-1599371081055-b7c8aa8cdb3b?w=400&auto=format&fit=crop&q=80",
+    tags: ["Vegan", "High protein"],
+    pct: "41% below retail",
+    protein: "30g", fiber: "24g", energy: "660",
+    price: "$1.09", retail: "$1.89"
+  },
+  {
+    id: 10, cat: "protein",
+    name: "Tuna pouch",
+    desc: "2.6 oz · 1 pouch",
+    img: "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&auto=format&fit=crop&q=80",
+    tags: ["High protein", "Shelf stable"],
+    pct: "35% below retail",
+    protein: "17g", fiber: "0g", energy: "90",
+    price: "$1.49", retail: "$2.29"
+  },
+  {
+    id: 11, cat: "bread",
+    name: "Whole wheat tortillas (4pk)",
+    desc: "4 tortillas · 8-inch",
+    img: "https://images.unsplash.com/photo-1509482560494-4126f8225994?w=400&auto=format&fit=crop&q=80",
+    tags: ["Bread", "In stock"],
+    pct: "37% below retail",
+    protein: "12g", fiber: "8g", energy: "480",
+    price: "$1.39", retail: "$2.29"
+  },
+  {
+    id: 12, cat: "bread",
+    name: "Sourdough sandwich loaf",
+    desc: "Half loaf · 8 slices",
+    img: "https://images.unsplash.com/photo-1585478259715-876acc5be8eb?w=400&auto=format&fit=crop&q=80",
+    tags: ["Bread", "Student pick"],
+    pct: "32% below retail",
+    protein: "14g", fiber: "4g", energy: "560",
+    price: "$1.99", retail: "$2.99"
+  },
+  {
+    id: 13, cat: "pantry",
+    name: "Rolled oats bag",
+    desc: "1 lb bag · 8 servings",
+    img: "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&auto=format&fit=crop&q=80",
+    tags: ["Pantry", "Shelf stable"],
+    pct: "45% below retail",
+    protein: "20g", fiber: "16g", energy: "1200",
+    price: "$1.29", retail: "$2.39"
+  },
+  {
+    id: 14, cat: "pantry",
+    name: "Brown rice (2 lb bag)",
+    desc: "2 lb · approx 10 servings",
+    img: "https://images.unsplash.com/photo-1536304993881-ff86e0c68e62?w=400&auto=format&fit=crop&q=80",
+    tags: ["Pantry", "Shelf stable"],
+    pct: "40% below retail",
+    protein: "20g", fiber: "8g", energy: "3400",
+    price: "$1.79", retail: "$3.09"
+  },
+  {
+    id: 15, cat: "pantry",
+    name: "Canned diced tomatoes",
+    desc: "14.5 oz can",
+    img: "https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=400&auto=format&fit=crop&q=80",
+    tags: ["Pantry", "Vegan"],
+    pct: "38% below retail",
+    protein: "4g", fiber: "3g", energy: "140",
+    price: "$0.89", retail: "$1.49"
+  },
+  {
+    id: 16, cat: "produce",
+    name: "Baby spinach bag",
+    desc: "5 oz bag · pre-washed",
+    img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80",
+    tags: ["Veg", "In stock"],
+    pct: "34% below retail",
+    protein: "3g", fiber: "2g", energy: "30",
+    price: "$1.49", retail: "$2.29"
+  }
+];
+
+const boxes = [
+  {
+    name: "Campus dorm box",
+    desc: "Mixed grocery box · 6 meal or snack portions",
+    img: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&auto=format&fit=crop&q=80",
+    tags: ["Support box", "Student pick", "53% below retail"],
+    protein: "60g", fiber: "26g", energy: "2450",
+    price: "$8.49", retail: "$18.20"
+  },
+  {
+    name: "Solo low-cost box",
+    desc: "Mixed grocery box · 4 portions",
+    img: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80",
+    tags: ["Support box", "Student pick", "49% below retail"],
+    protein: "42g", fiber: "20g", energy: "1650",
+    price: "$6.49", retail: "$12.80"
+  },
+  {
+    name: "Vegetarian support box",
+    desc: "Mixed veg box · 5 portions",
+    img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&auto=format&fit=crop&q=80",
+    tags: ["Veg support", "Student pick", "52% below retail"],
+    protein: "55g", fiber: "34g", energy: "2050",
+    price: "$7.99", retail: "$16.40"
+  },
+  {
+    name: "Family community box",
+    desc: "Family mixed box · 10 portions",
+    img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400&auto=format&fit=crop&q=80",
+    tags: ["Support box", "47% below retail"],
+    protein: "118g", fiber: "48g", energy: "4300",
+    price: "$14.99", retail: "$28.40"
+  }
+];
+
+function renderFoods(items) {
+  const grid = document.getElementById('foodGrid');
+  grid.innerHTML = items.map(f => `
+    <div class="food-card">
+      <img class="food-img" src="${f.img}" alt="${f.name}" loading="lazy" />
+      <div class="food-body">
+        <div class="food-tags">
+          <span class="tag tag-cat">${f.cat === 'snacks' ? 'Snacks' : f.cat === 'produce' ? 'Veg' : f.cat === 'protein' ? 'Protein' : f.cat === 'bread' ? 'Bread' : 'Pantry'}</span>
+          <span class="tag tag-stock">In stock</span>
+        </div>
+        <div class="food-name">${f.name}</div>
+        <div class="food-desc">${f.desc}</div>
+        <div class="food-tags" style="margin-bottom:8px;">
+          ${f.tags.map(t => `<span class="tag tag-label">${t}</span>`).join('')}
+          <span class="tag tag-pct">${f.pct}</span>
+        </div>
+        <div class="food-macros">
+          <div class="macro"><div class="macro-label">Protein</div><div class="macro-val">${f.protein}</div></div>
+          <div class="macro"><div class="macro-label">Fiber</div><div class="macro-val">${f.fiber}</div></div>
+          <div class="macro"><div class="macro-label">Energy</div><div class="macro-val">${f.energy}</div></div>
+        </div>
+        <div class="food-footer">
+          <div class="food-price">
+            <strong>${f.price}</strong>
+            <div class="retail">Retail ${f.retail}</div>
+          </div>
+          <button class="btn-add" aria-label="Add to cart">+</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderBoxes() {
+  const grid = document.getElementById('boxGrid');
+  grid.innerHTML = boxes.map(b => `
+    <div class="box-card">
+      <img class="box-img" src="${b.img}" alt="${b.name}" loading="lazy" />
+      <div class="box-body">
+        <div class="box-tags">
+          <span class="tag tag-stock">Boxes</span>
+          <span class="tag tag-stock">In stock</span>
+        </div>
+        <div class="box-name">${b.name}</div>
+        <div class="box-desc">${b.desc}</div>
+        <div class="box-tags" style="margin-bottom:8px;">
+          ${b.tags.map(t => `<span class="tag tag-label">${t}</span>`).join('')}
+        </div>
+        <div class="box-macros">
+          <div class="macro"><div class="macro-label">Protein</div><div class="macro-val">${b.protein}</div></div>
+          <div class="macro"><div class="macro-label">Fiber</div><div class="macro-val">${b.fiber}</div></div>
+          <div class="macro"><div class="macro-label">Energy</div><div class="macro-val">${b.energy}</div></div>
+        </div>
+        <div class="box-footer">
+          <div class="box-price">
+            <strong>${b.price}</strong>
+            <div class="retail">Retail ${b.retail}</div>
+          </div>
+          <button class="btn-add-box">Add</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Category tabs
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const cat = tab.dataset.cat;
+    const filtered = cat === 'all' ? foods : foods.filter(f => f.cat === cat);
+    renderFoods(filtered);
+  });
+});
+
+// Search
+document.getElementById('catalogSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  const filtered = foods.filter(f => f.name.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q));
+  renderFoods(filtered);
+});
+
+renderFoods(foods);
+renderBoxes();
+</script>
 </body>
 </html>
