@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meals on Wheels DC | DC Grocery Coverage Network</title>
+  <title>Meals on Wheels DC | Resident Grocery Access</title>
   <meta
     name="description"
-    content="Meals on Wheels DC prototype for citywide grocery pickup coverage, pit stops, lockers, subsidized boxes, and campus, apartment, and community service across DC."
+    content="Meals on Wheels DC resident-first grocery access prototype with neighborhood hubs, live catalog, subsidized support boxes, lockers, and DC ZIP search."
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,15 +18,15 @@
   <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
-  <div class="announcement">Fresh. Local. Electric.</div>
+  <div class="announcement">Resident-first grocery access across DC.</div>
 
   <header class="site-header">
     <div class="shell nav-shell">
       <a class="brand" href="#top" aria-label="Meals on Wheels DC home">
         <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
         <span class="brand-copy">
-          <strong>DC grocery coverage network</strong>
-          <small>DC pit stops and locker pickup.</small>
+          <strong>DC resident grocery network</strong>
+          <small>Neighborhood hubs, lockers, and subsidized support boxes.</small>
         </span>
       </a>
 
@@ -48,8 +48,11 @@
       </nav>
 
       <div class="nav-actions">
-        <button class="secondary-button" type="button" data-scroll-target="coverage">
-          View coverage
+        <button class="secondary-button nav-find-button" type="button" data-scroll-target="coverage">
+          Find coverage
+        </button>
+        <button class="secondary-button" id="adminButton" type="button">
+          Admin login
         </button>
         <button class="cart-button" id="cartButton" type="button" aria-haspopup="dialog">
           <span>Cart</span>
@@ -64,37 +67,58 @@
       <div class="shell hero-grid">
         <div class="hero-copy reveal">
           <p class="eyebrow">Meals on Wheels DC</p>
-          <h1>Fresh. Local. Electric.</h1>
-          <p class="lead">Affordable groceries delivered to DC pit stops with a 1-mile neighborhood reach.</p>
+          <h1>Fresh groceries for DC residents.</h1>
+          <p class="lead">
+            Search any DC ZIP code or neighborhood and we match the nearest resident hub.
+            Students and campuses stay available, but resident households come first.
+          </p>
           <div class="hero-actions">
             <button class="primary-button" type="button" data-scroll-target="coverage">
-              Explore all pit stops
+              Search coverage
             </button>
             <button class="secondary-button" type="button" data-scroll-target="shop">
-              Shop the catalog
+              Browse the catalog
             </button>
           </div>
+          <p class="hero-note">
+            We do not preselect a hub. Matching starts only after you enter a location.
+          </p>
           <div class="hero-stats" id="heroStats" aria-label="Network highlights"></div>
         </div>
 
         <div class="hero-visual reveal">
           <div class="hero-stage">
             <div class="hero-stage-copy">
-              <span class="stage-chip">DC metro area</span>
-              <h2>Order, pick up, eat fresh.</h2>
-              <p>Search a ZIP, choose a hub, and open directions.</p>
+              <span class="stage-chip">Fresh. Local. Electric.</span>
+              <h2>Resident hubs, lockers, and subsidized boxes in one clean flow.</h2>
+              <p>
+                Inspired by the deck, rebuilt with tighter ratios, shorter copy, and a resident-first service story.
+              </p>
             </div>
 
             <div class="hero-media hero-media-plate">
               <img
                 src="assets/deck/hero-truck.png"
-                alt="Painted Meals on Wheels electric grocery truck"
+                alt="Meals on Wheels electric grocery truck illustration"
               />
               <div class="media-float">
-                <span class="media-float-label">Serving</span>
-                <strong>50,000+ DC residents</strong>
-                <p>Fast pickup and short-hop delivery.</p>
+                <span class="media-float-label">Residents first</span>
+                <strong>Search any DC ZIP before we assign a hub.</strong>
+                <p>Support-box pricing now follows current USDA food-plan benchmarks.</p>
               </div>
+            </div>
+
+            <div class="hero-asides">
+              <article class="service-card">
+                <p class="service-label">Coverage</p>
+                <strong>11 resident hubs across DC</strong>
+                <p>No monument-area hub. The network is centered on neighborhoods where people live.</p>
+              </article>
+              <article class="service-card service-card-highlight">
+                <p class="service-label">Pricing</p>
+                <strong>Subsidized essentials, up to 40% below retail</strong>
+                <p>Residents, seniors, and under-served households lead the pricing strategy.</p>
+              </article>
             </div>
           </div>
         </div>
@@ -106,9 +130,11 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Coverage map</p>
-            <h2>Every pit stop covers 1 mile.</h2>
+            <h2>Search any DC ZIP. We match the nearest resident hub.</h2>
           </div>
-          <p class="section-copy">Search by ZIP, neighborhood, or campus and compare hubs on one map.</p>
+          <p class="section-copy">
+            Enter a DC ZIP, neighborhood, or campus alias to match the nearest resident hub and preview it in Google Maps.
+          </p>
         </div>
 
         <div class="coverage-grid">
@@ -116,28 +142,22 @@
             <div class="panel-top">
               <div>
                 <p class="panel-kicker">Live coverage</p>
-                <h3>All pit stops on one map.</h3>
+                <h3>Resident hubs and 1-mile service rings.</h3>
               </div>
-              <a
-                class="inline-link"
-                id="selectedStopMapLink"
-                href="#"
-                target="_blank"
-                rel="noopener"
-              >
-                Open selected stop in Google Maps
-              </a>
+              <button class="ghost-button small-button" type="button" id="fitMapButton">
+                Fit all hubs
+              </button>
             </div>
 
             <div class="map-shell">
               <div
                 class="coverage-map"
                 id="coverageMap"
-                aria-label="Map showing DC pit stops and their 1-mile service rings"
+                aria-label="Map showing resident hubs and their 1-mile service rings"
               ></div>
               <div class="map-legend">
                 <span><i class="legend-swatch legend-swatch-ring"></i> 1-mile service ring</span>
-                <span><i class="legend-swatch legend-swatch-active"></i> Active pit stop</span>
+                <span><i class="legend-swatch legend-swatch-active"></i> Active hub</span>
                 <span><i class="legend-swatch legend-swatch-origin"></i> Your search origin</span>
               </div>
             </div>
@@ -145,47 +165,85 @@
 
           <aside class="panel coverage-sidebar">
             <div class="sidebar-block">
-              <p class="panel-kicker">Find your nearest hub</p>
-              <h3>Search ZIP, campus, or coordinates.</h3>
+              <p class="panel-kicker">Search your location</p>
+              <h3>We match after you search.</h3>
               <form class="location-form" id="locationForm">
                 <label class="sr-only" for="locationInput">Search location</label>
                 <input
                   id="locationInput"
                   class="text-input"
-                  placeholder="Try Shaw, Brookland, 20052, Georgetown, or 38.90,-77.04"
+                  placeholder="Try 20011, 20019, Brookland, Anacostia, or Howard University"
                 />
                 <div class="location-actions">
-                  <button class="primary-button" type="submit">Find hub</button>
+                  <button class="primary-button" type="submit">Find nearest hub</button>
                   <button class="ghost-button" type="button" id="gpsButton">Use GPS</button>
                 </div>
               </form>
 
               <div class="chip-row" id="quickPicks" aria-label="Quick location picks">
-                <button class="chip" type="button" data-query="Downtown DC">Downtown DC</button>
-                <button class="chip" type="button" data-query="Shaw">Shaw</button>
+                <button class="chip" type="button" data-query="20011">20011</button>
                 <button class="chip" type="button" data-query="Brookland">Brookland</button>
-                <button class="chip" type="button" data-query="Van Ness">Van Ness</button>
-                <button class="chip" type="button" data-query="Georgetown">Georgetown</button>
-                <button class="chip" type="button" data-query="Howard University">Howard</button>
+                <button class="chip" type="button" data-query="Anacostia">Anacostia</button>
+                <button class="chip" type="button" data-query="20019">20019</button>
+                <button class="chip" type="button" data-query="Southwest">Southwest</button>
+                <button class="chip" type="button" data-query="Howard University">Howard University</button>
               </div>
             </div>
 
             <div class="sidebar-block status-block">
-              <p class="panel-kicker">Origin</p>
-              <strong id="originLabel">Downtown DC</strong>
-              <p id="originSummary" class="status-copy">Nearest live service ring.</p>
+              <p class="panel-kicker">Your search</p>
+              <strong id="originLabel">No location entered yet</strong>
+              <p id="originSummary" class="status-copy">
+                Enter a DC ZIP, neighborhood, or campus and we will assign the nearest resident-serving hub.
+              </p>
               <div class="status-badges" id="coverageBadges"></div>
+            </div>
+
+            <div class="sidebar-block google-panel">
+              <div class="list-header">
+                <div>
+                  <p class="panel-kicker">Google Maps</p>
+                  <h3>Live preview.</h3>
+                </div>
+                <a
+                  class="inline-link"
+                  id="googleMapLink"
+                  href="https://www.google.com/maps/search/?api=1&query=Washington%2C%20DC"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open in Google Maps
+                </a>
+              </div>
+              <div class="google-frame-wrap">
+                <iframe
+                  id="googleMapFrame"
+                  title="Google Maps preview for Meals on Wheels DC coverage"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps?q=Washington%2C%20DC&z=12&output=embed"
+                ></iframe>
+              </div>
+              <p id="googleMapCaption" class="status-copy">
+                Google Maps stays visible here even before a hub is selected.
+              </p>
             </div>
 
             <div class="sidebar-block">
               <div class="list-header">
                 <div>
-                  <p class="panel-kicker">Closest pit stops</p>
-                  <h3>Nearest hubs.</h3>
+                  <p class="panel-kicker">Closest resident hubs</p>
+                  <h3 id="nearestTitle">Search to compare distance.</h3>
                 </div>
-                <button class="ghost-button small-button" type="button" id="fitMapButton">
-                  Fit all coverage
-                </button>
+                <a
+                  class="inline-link"
+                  id="selectedStopMapLink"
+                  href="https://www.google.com/maps/search/?api=1&query=Washington%2C%20DC"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open DC in Google Maps
+                </a>
               </div>
               <div class="nearest-list" id="nearestStops"></div>
             </div>
@@ -199,35 +257,50 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Catalog</p>
-            <h2>Browse the live catalog.</h2>
+            <h2>Item visuals now match the actual portion.</h2>
           </div>
-          <p class="section-copy">Cleaner cards, faster scanning, same hub-based stock.</p>
+          <p class="section-copy">
+            Browse the catalog immediately, then search a location to unlock exact hub stock and directions.
+          </p>
         </div>
 
         <div class="shop-grid">
           <aside class="panel selected-stop-panel">
-            <img class="panel-spot-image" src="assets/deck/cat-shop-app.png" alt="Meals on Wheels shopping app illustration" />
-            <p class="panel-kicker">Active pit stop</p>
-            <h3 id="selectedStopName">GW Foggy Bottom Pit Stop</h3>
-            <p id="selectedStopSummary" class="status-copy"></p>
+            <img
+              class="panel-spot-image"
+              src="assets/deck/app-hero.png"
+              alt="Meals on Wheels ordering illustration"
+            />
+            <p class="panel-kicker">Matched hub</p>
+            <h3 id="selectedStopName">No hub selected yet</h3>
+            <p id="selectedStopSummary" class="status-copy">
+              Search a location to activate resident-specific stock, directions, and pricing context.
+            </p>
             <div class="badge-row" id="selectedStopTags"></div>
             <dl class="info-list">
               <div>
-                <dt>Distance from origin</dt>
-                <dd id="selectedStopDistance">0.00 mi</dd>
+                <dt>Distance</dt>
+                <dd id="selectedStopDistance">Search required</dd>
               </div>
               <div>
                 <dt>Pickup model</dt>
-                <dd id="selectedStopType">Dorm locker and pickup</dd>
+                <dd id="selectedStopType">Hub assigned after location search</dd>
               </div>
               <div>
-                <dt>Service area</dt>
-                <dd id="selectedStopArea">Foggy Bottom, West End, and nearby pickups</dd>
+                <dt>Primary service area</dt>
+                <dd id="selectedStopArea">DC resident ZIP codes, lockers, and support-box distribution</dd>
               </div>
             </dl>
             <div class="panel-actions">
-              <a class="primary-button button-link" id="directionsButton" href="#" target="_blank" rel="noopener">
-                Directions in Google Maps
+              <a
+                class="primary-button button-link is-disabled"
+                id="directionsButton"
+                href="https://www.google.com/maps/search/?api=1&query=Washington%2C%20DC"
+                target="_blank"
+                rel="noopener"
+                aria-disabled="true"
+              >
+                Search to unlock directions
               </a>
               <button class="secondary-button" type="button" data-scroll-target="support">
                 View support boxes
@@ -243,14 +316,14 @@
                 <input
                   class="text-input"
                   id="catalogSearch"
-                  placeholder="Search snacks, produce, proteins, bread, pantry..."
+                  placeholder="Search fruit, wraps, beans, support boxes..."
                 />
                 <label class="sr-only" for="dietFilter">Diet filter</label>
                 <select class="select-input" id="dietFilter" aria-label="Diet filter">
                   <option value="all">All diets</option>
                   <option value="veg">Vegetarian</option>
                   <option value="nonveg">Protein and meals</option>
-                  <option value="student">Student picks</option>
+                  <option value="budget">Budget friendly</option>
                 </select>
                 <label class="sr-only" for="sortFilter">Sort products</label>
                 <select class="select-input" id="sortFilter" aria-label="Sort products">
@@ -272,21 +345,29 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Support pricing</p>
-            <h2>Support boxes, up to 40% below retail.</h2>
+            <h2>Resident boxes priced for real household pressure.</h2>
           </div>
-          <p class="section-copy">Short list, clear bundles, real essentials.</p>
+          <p class="section-copy">
+            Resident subsidy messaging now follows current USDA Food Plans monthly updates, not only the 2007 report.
+          </p>
         </div>
 
         <div class="support-grid">
           <article class="panel support-copy-panel">
-            <img class="support-inline-image" src="assets/deck/community-box.png" alt="Community grocery support illustration" />
-            <p class="panel-kicker">No family left behind</p>
-            <h3>One bundle, one week, real essentials.</h3>
-            <p>Protein, staples, and produce in one support box.</p>
+            <img
+              class="support-inline-image"
+              src="assets/deck/support-basket.png"
+              alt="Support basket illustration from Meals on Wheels presentation"
+            />
+            <p class="panel-kicker">Resident pricing</p>
+            <h3>Short list. Clear portions. Actual essentials.</h3>
+            <p>
+              Solo adults, families, seniors, and under-served households are the priority. Campus pickup remains available, but it is not the main service story.
+            </p>
             <ul class="support-points">
-              <li>EBT and subsidy friendly.</li>
-              <li>Built for families, seniors, and low-income households.</li>
-              <li>Priced below retail through bulk purchasing.</li>
+              <li>Benchmarked to the latest USDA Food Plans monthly cost updates.</li>
+              <li>Built around weekly pickup, pantry restock, and repeat use.</li>
+              <li>Designed to stay visibly below normal retail pricing.</li>
             </ul>
           </article>
           <div class="box-grid" id="boxGrid"></div>
@@ -305,7 +386,9 @@
         <article class="panel locker-copy-panel">
           <p class="eyebrow">Locker operations</p>
           <h2>Pickup in seconds.</h2>
-          <p class="section-copy locker-copy">Chilled, ambient, and frozen compartments in one locker bank.</p>
+          <p class="section-copy locker-copy">
+            Chilled, ambient, and frozen compartments keep resident pickup fast without forcing everyone into a delivery route.
+          </p>
           <div class="locker-feature-grid">
             <article class="locker-feature">
               <strong>Chilled storage</strong>
@@ -317,11 +400,11 @@
             </article>
             <article class="locker-feature">
               <strong>Frozen reserve</strong>
-              <p>Backup vegetables and meal components extend coverage during spikes.</p>
+              <p>Backup vegetables and meal components extend neighborhood availability.</p>
             </article>
             <article class="locker-feature">
               <strong>PIN pickup flow</strong>
-              <p>Users receive a pickup code instead of waiting on a full delivery window.</p>
+              <p>Users receive a pickup code instead of waiting for a broad delivery window.</p>
             </article>
           </div>
         </article>
@@ -333,7 +416,7 @@
     <div class="shell footer-grid">
       <div>
         <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
-        <p>DC grocery coverage, locker pickup, and support boxes.</p>
+        <p>Resident-first grocery access, neighborhood hubs, lockers, and support boxes across DC.</p>
       </div>
       <div>
         <h3>Explore</h3>
@@ -344,12 +427,12 @@
       <div>
         <h3>Service model</h3>
         <a href="#lockers">Locker flow</a>
-        <a href="#coverage">Pit stops</a>
-        <a href="#shop">Selected hub inventory</a>
+        <a href="#coverage">Resident hubs</a>
+        <a href="#shop">Matched inventory</a>
       </div>
       <div>
         <h3>Prototype note</h3>
-        <p>Live pit stop map plus Google Maps directions.</p>
+        <p>Live coverage map plus a visible Google Maps preview on the page.</p>
       </div>
     </div>
   </footer>
@@ -368,7 +451,7 @@
         <div>
           <p class="panel-kicker">Order summary</p>
           <h2 id="cartTitle">Your cart</h2>
-          <p id="cartDescription" class="status-copy">Inventory and totals reflect the currently active pit stop.</p>
+          <p id="cartDescription" class="status-copy">Inventory and totals reflect the matched resident hub.</p>
         </div>
         <button class="close-button" id="closeCartButton" type="button" aria-label="Close cart">
           Close
@@ -376,9 +459,9 @@
       </div>
 
       <div class="drawer-stop-card">
-        <span class="service-label">Current pickup hub</span>
-        <strong id="drawerStopName">GW Foggy Bottom Pit Stop</strong>
-        <p id="drawerStopSummary">Locker pickup and short-distance delivery around the active hub.</p>
+        <span class="service-label">Current hub</span>
+        <strong id="drawerStopName">Search your ZIP first</strong>
+        <p id="drawerStopSummary">Cart totals stay generic until a resident hub is matched.</p>
       </div>
 
       <div class="cart-list" id="cartList"></div>
@@ -391,7 +474,7 @@
         <label class="field-label" for="deliveryMode">Fulfillment</label>
         <select class="select-input" id="deliveryMode">
           <option value="pickup">Locker pickup - free</option>
-          <option value="dorm">Short-hop delivery - $1.49</option>
+          <option value="neighbor">Neighborhood handoff - $1.99</option>
           <option value="priority">Priority delivery - $4.99</option>
         </select>
         <label class="field-label" for="subPreference">Substitutions</label>
@@ -425,6 +508,39 @@
         Place demo order
       </button>
       <p class="checkout-feedback" id="checkoutFeedback" hidden></p>
+    </aside>
+  </div>
+
+  <div class="modal-shell" id="adminModal" hidden>
+    <div class="drawer-backdrop" data-close-admin></div>
+    <aside
+      class="modal-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="adminTitle"
+      tabindex="-1"
+    >
+      <div class="drawer-header">
+        <div>
+          <p class="panel-kicker">Admin access</p>
+          <h2 id="adminTitle">Log in to the operations page</h2>
+          <p class="status-copy">For the demo, use <strong>admin</strong> for both user ID and password.</p>
+        </div>
+        <button class="close-button" id="closeAdminButton" type="button" aria-label="Close admin login">
+          Close
+        </button>
+      </div>
+
+      <form class="checkout-fields admin-form" id="adminLoginForm">
+        <label class="field-label" for="adminUser">User ID</label>
+        <input class="text-input" id="adminUser" autocomplete="username" />
+        <label class="field-label" for="adminPass">Password</label>
+        <input class="text-input" id="adminPass" type="password" autocomplete="current-password" />
+        <button class="primary-button full-width" type="submit">
+          Open admin page
+        </button>
+        <p class="checkout-feedback" id="adminLoginFeedback" hidden></p>
+      </form>
     </aside>
   </div>
 

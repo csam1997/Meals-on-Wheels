@@ -11,8 +11,8 @@
         '">' +
         utils.escapeHtml(stop.shortLabel || stop.short) +
         "</div>",
-      iconSize: [92, 36],
-      iconAnchor: [46, 18]
+      iconSize: [108, 40],
+      iconAnchor: [54, 20]
     });
   }
 
@@ -34,16 +34,18 @@
 
   function createCoverageMap(options) {
     const map = L.map(options.elementId, {
+      center: [38.9072, -77.0369],
+      zoom: 11.5,
       zoomControl: false,
       scrollWheelZoom: true,
-      minZoom: 10
+      minZoom: 10,
+      attributionControl: false
     });
 
     L.control.zoom({ position: "topright" }).addTo(map);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "&copy; OpenStreetMap contributors"
+      maxZoom: 19
     }).addTo(map);
 
     const stopGroup = L.featureGroup().addTo(map);
@@ -55,7 +57,7 @@
         return;
       }
 
-      map.fitBounds(stopGroup.getBounds().pad(0.15));
+      map.fitBounds(stopGroup.getBounds().pad(0.12));
     }
 
     function setStops(stops, activeStopId) {
@@ -68,8 +70,8 @@
           radius: options.radiusMeters,
           color: isActive ? "#d86c34" : "#1a6a59",
           fillColor: isActive ? "#f3b44d" : "#3aa083",
-          fillOpacity: isActive ? 0.18 : 0.11,
-          weight: isActive ? 2 : 1.5
+          fillOpacity: isActive ? 0.19 : 0.1,
+          weight: isActive ? 2.2 : 1.5
         });
 
         const marker = L.marker([stop.lat, stop.lng], {
@@ -80,7 +82,6 @@
 
         circle.addTo(stopGroup);
         marker.addTo(stopGroup);
-
         marker.bindPopup(popupMarkup(stop));
 
         circle.on("click", function () {
@@ -108,15 +109,16 @@
         entry.circle.setStyle({
           color: isActive ? "#d86c34" : "#1a6a59",
           fillColor: isActive ? "#f3b44d" : "#3aa083",
-          fillOpacity: isActive ? 0.18 : 0.11,
-          weight: isActive ? 2 : 1.5
+          fillOpacity: isActive ? 0.19 : 0.1,
+          weight: isActive ? 2.2 : 1.5
         });
 
         entry.marker.setIcon(markerIcon(entry.stop, isActive));
 
         if (isActive && focusMap !== false) {
-          const nextZoom = Math.max(map.getZoom(), 12);
-          map.flyTo([entry.stop.lat, entry.stop.lng], nextZoom, { duration: 0.45 });
+          map.flyTo([entry.stop.lat, entry.stop.lng], Math.max(map.getZoom(), 12), {
+            duration: 0.45
+          });
           entry.marker.openPopup();
         }
       });
@@ -133,8 +135,8 @@
         icon: L.divIcon({
           className: "hub-marker",
           html: '<div class="origin-dot"></div>',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
+          iconSize: [22, 22],
+          iconAnchor: [11, 11]
         }),
         keyboard: false
       });

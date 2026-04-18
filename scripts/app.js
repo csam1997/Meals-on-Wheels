@@ -5,8 +5,8 @@
 
   const state = {
     activeCategory: "all",
-    activePitStop: data.pitStops[0],
-    currentOrigin: Object.assign({}, data.defaultOrigin),
+    activePitStop: null,
+    currentOrigin: null,
     cart: {},
     lastFocusedElement: null,
     toastTimer: null,
@@ -18,6 +18,7 @@
   function cacheDom() {
     dom.menuButton = document.getElementById("menuButton");
     dom.siteNav = document.getElementById("siteNav");
+    dom.adminButton = document.getElementById("adminButton");
     dom.cartButton = document.getElementById("cartButton");
     dom.cartCount = document.getElementById("cartCount");
     dom.heroStats = document.getElementById("heroStats");
@@ -28,9 +29,13 @@
     dom.originLabel = document.getElementById("originLabel");
     dom.originSummary = document.getElementById("originSummary");
     dom.coverageBadges = document.getElementById("coverageBadges");
+    dom.nearestTitle = document.getElementById("nearestTitle");
     dom.nearestStops = document.getElementById("nearestStops");
     dom.fitMapButton = document.getElementById("fitMapButton");
     dom.selectedStopMapLink = document.getElementById("selectedStopMapLink");
+    dom.googleMapFrame = document.getElementById("googleMapFrame");
+    dom.googleMapLink = document.getElementById("googleMapLink");
+    dom.googleMapCaption = document.getElementById("googleMapCaption");
     dom.selectedStopName = document.getElementById("selectedStopName");
     dom.selectedStopSummary = document.getElementById("selectedStopSummary");
     dom.selectedStopTags = document.getElementById("selectedStopTags");
@@ -59,6 +64,12 @@
     dom.savingsValue = document.getElementById("savingsValue");
     dom.totalValue = document.getElementById("totalValue");
     dom.toast = document.getElementById("toast");
+    dom.adminModal = document.getElementById("adminModal");
+    dom.closeAdminButton = document.getElementById("closeAdminButton");
+    dom.adminLoginForm = document.getElementById("adminLoginForm");
+    dom.adminUser = document.getElementById("adminUser");
+    dom.adminPass = document.getElementById("adminPass");
+    dom.adminLoginFeedback = document.getElementById("adminLoginFeedback");
   }
 
   function showToast(message) {
@@ -83,16 +94,22 @@
     });
   }
 
-  function nearestStops(origin) {
-    return data.pitStops
-      .map(function (stop) {
-        return Object.assign({}, stop, {
-          distance: utils.haversineMiles(origin, stop)
-        });
-      })
-      .sort(function (left, right) {
-        return left.distance - right.distance;
+  function rankedStops(origin) {
+    const list = data.pitStops.map(function (stop) {
+      return Object.assign({}, stop, {
+        distance: origin ? utils.haversineMiles(origin, stop) : null
       });
+    });
+
+    list.sort(function (left, right) {
+      if (origin) {
+        return left.distance - right.distance;
+      }
+
+      return left.priority - right.priority;
+    });
+
+    return list;
   }
 
   function categoryCounts() {
@@ -104,9 +121,9 @@
 
   function renderHeroStats() {
     const stats = [
-      { value: String(data.pitStops.length), label: "pit stops" },
-      { value: "1 mile", label: "coverage radius" },
-      { value: "40%", label: "below retail on support boxes" }
+      { value: String(data.residentZipAreas.length), label: "resident ZIP areas supported" },
+      { value: String(data.pitStops.length), label: "resident hubs on the network" },
+      { value: "40%", label: "support-box savings vs. retail" }
     ];
 
     dom.heroStats.innerHTML = stats
@@ -177,9 +194,9 @@
       });
     }
 
-    if (dietValue === "student") {
+    if (dietValue === "budget") {
       list = list.filter(function (item) {
-        return item.student;
+        return item.budget;
       });
     }
 
@@ -231,21 +248,23 @@
 
   function itemCardMarkup(item) {
     const meta = data.categoryMeta[item.cat];
-    const stock = utils.stockFor(item, state.activePitStop);
-    const status = stockStatus(stock);
+    const hasHub = Boolean(state.activePitStop);
+    const stock = hasHub ? utils.stockFor(item, state.activePitStop) : null;
+    const status = hasHub ? stockStatus(stock) : { className: "zip", label: "Search ZIP for stock" };
     const savings = Math.max(0, Math.round((1 - item.price / item.retail) * 100));
     const detail = item.unit + " · " + item.portion;
     const badges = ['<span class="pill-badge">' + utils.escapeHtml(item.tag) + "</span>"];
+    const buttonLabel = hasHub ? "Add" : "Match ZIP";
 
-    if (item.student) {
-      badges.push('<span class="pill-badge">Student pick</span>');
+    if (item.budget) {
+      badges.push('<span class="pill-badge">Budget friendly</span>');
     }
 
     return (
       '<article class="product-card">' +
       '<div class="product-visual">' +
       '<img class="product-image" src="' +
-      utils.escapeHtml(meta.image) +
+      utils.escapeHtml(utils.itemIllustrationUrl(item)) +
       '" alt="' +
       utils.escapeHtml(item.name) +
       '" loading="lazy" />' +
@@ -272,7 +291,9 @@
       "</div>" +
       '<div class="product-badges">' +
       badges.join("") +
-      '<span class="pill-badge">' + String(savings) + "% below retail</span>" +
+      '<span class="pill-badge">' +
+      String(savings) +
+      "% below retail</span>" +
       "</div>" +
       '<dl class="nutrition-grid">' +
       '<div class="nutrition-card"><dt>Protein</dt><dd>' +
@@ -294,8 +315,10 @@
       '<button class="card-button" type="button" data-add-id="' +
       utils.escapeHtml(item.id) +
       '"' +
-      (stock <= 0 ? " disabled" : "") +
-      ">Add</button>" +
+      (hasHub && stock <= 0 ? " disabled" : "") +
+      ">" +
+      buttonLabel +
+      "</button>" +
       "</div>" +
       "</article>"
     );
@@ -318,16 +341,42 @@
     dom.boxGrid.innerHTML = data.boxes.map(itemCardMarkup).join("");
   }
 
+  function setActionLink(link, href, label, enabled) {
+    link.href = href;
+    link.textContent = label;
+    link.classList.toggle("is-disabled", !enabled);
+    link.setAttribute("aria-disabled", String(!enabled));
+    if (!enabled) {
+      link.setAttribute("tabindex", "-1");
+    } else {
+      link.removeAttribute("tabindex");
+    }
+  }
+
   function renderOriginSummary() {
-    const rankedStops = nearestStops(state.currentOrigin);
-    const nearest = rankedStops[0];
+    if (!state.currentOrigin) {
+      dom.originLabel.textContent = "No location entered yet";
+      dom.originSummary.textContent =
+        "Enter a DC ZIP, neighborhood, or campus and we will assign the nearest resident-serving hub.";
+      dom.coverageBadges.innerHTML =
+        '<span class="badge">' +
+        String(data.residentZipAreas.length) +
+        " resident ZIP areas</span>" +
+        '<span class="badge">' +
+        String(data.pitStops.length) +
+        " resident hubs</span>" +
+        '<span class="badge">Students remain an add-on lane</span>';
+      dom.nearestTitle.textContent = "Resident coverage across DC.";
+      return;
+    }
+
+    const nearest = rankedStops(state.currentOrigin)[0];
     const insideCoverage = nearest.distance <= data.mapRadiusMiles;
 
     dom.originLabel.textContent = state.currentOrigin.label;
     dom.originSummary.textContent = insideCoverage
-      ? "Inside " + nearest.short + "'s 1-mile ring."
-      : "Closest hub: " + nearest.short + ".";
-
+      ? "Inside " + nearest.short + "'s 1-mile service ring."
+      : nearest.short + " is the nearest resident hub.";
     dom.coverageBadges.innerHTML =
       '<span class="badge">Closest hub: ' +
       utils.escapeHtml(nearest.short) +
@@ -336,38 +385,44 @@
       nearest.distance.toFixed(2) +
       " mi away</span>" +
       '<span class="badge">' +
-      (insideCoverage ? "Inside a live service ring" : "Outside the nearest ring") +
+      (insideCoverage ? "Live ring reached" : "Outside the nearest ring") +
       "</span>" +
-      '<span class="badge">Active hub: ' +
-      utils.escapeHtml(state.activePitStop.short) +
-      "</span>";
+      '<span class="badge">Residents first, students add-on</span>';
+    dom.nearestTitle.textContent = "Closest resident hubs.";
   }
 
   function renderNearestStops() {
-    dom.nearestStops.innerHTML = nearestStops(state.currentOrigin)
-      .slice(0, 5)
+    const showDistance = Boolean(state.currentOrigin);
+    const list = rankedStops(state.currentOrigin).slice(0, showDistance ? 5 : 6);
+
+    dom.nearestStops.innerHTML = list
       .map(function (stop, index) {
+        const isActive = state.activePitStop && stop.id === state.activePitStop.id;
+        const subtitle = utils.escapeHtml(stop.area);
+        const zipSummary = utils.escapeHtml("Primary ZIPs: " + stop.zips.join(", "));
+        const badgeText = showDistance ? stop.distance.toFixed(2) + " mi" : stop.zips.join(", ");
+
         return (
           '<button class="stop-card' +
-          (stop.id === state.activePitStop.id ? " active" : "") +
+          (isActive ? " active" : "") +
           '" type="button" data-stop-id="' +
           utils.escapeHtml(stop.id) +
           '">' +
           "<div>" +
           "<strong>" +
-          String(index + 1) +
-          ". " +
+          (showDistance ? String(index + 1) + ". " : "") +
           utils.escapeHtml(stop.name) +
           "</strong>" +
           "<span>" +
-          utils.escapeHtml(stop.area) +
-          "<br>" +
-          utils.escapeHtml(stop.type) +
+          subtitle +
+          "</span>" +
+          '<span class="stop-meta">' +
+          zipSummary +
           "</span>" +
           "</div>" +
           '<span class="distance-pill">' +
-          stop.distance.toFixed(2) +
-          " mi</span>" +
+          utils.escapeHtml(badgeText) +
+          "</span>" +
           "</button>"
         );
       })
@@ -375,12 +430,36 @@
   }
 
   function renderSelectedStop() {
+    if (!state.activePitStop) {
+      dom.selectedStopName.textContent = "No hub selected yet";
+      dom.selectedStopSummary.textContent =
+        "Search a location to activate resident-specific stock, directions, and pricing context.";
+      dom.selectedStopDistance.textContent = "Search required";
+      dom.selectedStopType.textContent = "Hub assigned after location search";
+      dom.selectedStopArea.textContent = "DC resident ZIP codes, lockers, and support-box distribution";
+      dom.selectedStopTags.innerHTML =
+        '<span class="badge">Residents first</span>' +
+        '<span class="badge">Subsidized pricing</span>' +
+        '<span class="badge">Students add-on</span>';
+      dom.drawerStopName.textContent = "Search your ZIP first";
+      dom.drawerStopSummary.textContent = "Cart totals stay generic until a resident hub is matched.";
+      dom.selectedStopMapLink.href = utils.buildGoogleSearchUrl("Washington, DC");
+      dom.selectedStopMapLink.textContent = "Open DC in Google Maps";
+      setActionLink(
+        dom.directionsButton,
+        utils.buildGoogleSearchUrl("Washington, DC"),
+        "Search to unlock directions",
+        false
+      );
+      return;
+    }
+
     const stop = state.activePitStop;
-    const distance = utils.haversineMiles(state.currentOrigin, stop);
+    const distance = state.currentOrigin ? utils.haversineMiles(state.currentOrigin, stop) : null;
 
     dom.selectedStopName.textContent = stop.name;
     dom.selectedStopSummary.textContent = stop.note;
-    dom.selectedStopDistance.textContent = distance.toFixed(2) + " mi";
+    dom.selectedStopDistance.textContent = distance ? distance.toFixed(2) + " mi" : "Matched";
     dom.selectedStopType.textContent = stop.type;
     dom.selectedStopArea.textContent = stop.area;
     dom.selectedStopTags.innerHTML = stop.services
@@ -391,15 +470,36 @@
 
     dom.selectedStopMapLink.href = utils.buildStopUrl(stop);
     dom.selectedStopMapLink.textContent = "Open " + stop.short + " in Google Maps";
-    dom.directionsButton.href = utils.buildDirectionsUrl(state.currentOrigin, stop);
     dom.drawerStopName.textContent = stop.name;
     dom.drawerStopSummary.textContent = stop.note;
+
+    setActionLink(
+      dom.directionsButton,
+      utils.buildDirectionsUrl(state.currentOrigin, stop),
+      "Directions in Google Maps",
+      true
+    );
+  }
+
+  function renderGooglePreview() {
+    const previewTarget = state.activePitStop || state.currentOrigin || "Washington, DC";
+    dom.googleMapFrame.src = utils.buildGoogleEmbedUrl(state.currentOrigin, state.activePitStop);
+    dom.googleMapLink.href = state.activePitStop
+      ? utils.buildStopUrl(state.activePitStop)
+      : utils.buildGoogleSearchUrl(previewTarget);
+    dom.googleMapCaption.textContent = state.activePitStop
+      ? state.activePitStop.name + " is shown here in Google Maps."
+      : "Google Maps stays visible here even before a hub is selected.";
+  }
+
+  function getCartItems() {
+    return Object.keys(state.cart).map(function (itemId) {
+      return state.cart[itemId];
+    });
   }
 
   function getTotals() {
-    const items = Object.keys(state.cart).map(function (itemId) {
-      return state.cart[itemId];
-    });
+    const items = getCartItems();
     const subtotal = items.reduce(function (total, item) {
       return total + item.price * item.qty;
     }, 0);
@@ -412,8 +512,8 @@
 
     let fee = 0;
     if (count > 0) {
-      if (dom.deliveryMode.value === "dorm") {
-        fee = 1.49;
+      if (dom.deliveryMode.value === "neighbor") {
+        fee = 1.99;
       } else if (dom.deliveryMode.value === "priority") {
         fee = 4.99;
       }
@@ -430,20 +530,18 @@
   }
 
   function renderCart() {
-    const items = Object.keys(state.cart).map(function (itemId) {
-      return state.cart[itemId];
-    });
+    const items = getCartItems();
 
     if (!items.length) {
       dom.cartList.innerHTML =
-        '<div class="empty-state">Your cart is empty. Pick a hub, add groceries, and this drawer will stay aligned with that hub&apos;s stock.</div>';
+        '<div class="empty-state">Your cart is empty. Search your ZIP, match a resident hub, and exact stock will stay aligned with that hub.</div>';
     } else {
       dom.cartList.innerHTML = items
         .map(function (item) {
           return (
             '<article class="cart-item">' +
             '<div class="cart-mark">' +
-            utils.escapeHtml(item.mark || utils.abbreviateLabel(item.name, "MW")) +
+            utils.escapeHtml(utils.abbreviateLabel(item.name, "MW")) +
             "</div>" +
             "<div>" +
             "<strong>" +
@@ -481,6 +579,10 @@
   }
 
   function reconcileCartStock() {
+    if (!state.activePitStop) {
+      return 0;
+    }
+
     let adjustedLines = 0;
 
     Object.keys(state.cart).forEach(function (itemId) {
@@ -502,6 +604,16 @@
     return adjustedLines;
   }
 
+  function rerenderLocationViews() {
+    renderOriginSummary();
+    renderNearestStops();
+    renderSelectedStop();
+    renderGooglePreview();
+    renderCatalog();
+    renderBoxes();
+    renderCart();
+  }
+
   function selectPitStop(stopId, options) {
     const stop = data.pitStops.find(function (candidate) {
       return candidate.id === stopId;
@@ -514,12 +626,7 @@
     state.activePitStop = stop;
     const adjustments = reconcileCartStock();
 
-    renderOriginSummary();
-    renderNearestStops();
-    renderSelectedStop();
-    renderCatalog();
-    renderBoxes();
-    renderCart();
+    rerenderLocationViews();
 
     if (state.map) {
       state.map.setActiveStop(stop.id, !(options && options.focusMap === false));
@@ -536,7 +643,7 @@
     }
 
     if (!options || options.announce !== false) {
-      showToast(stop.short + " selected.");
+      showToast(stop.short + " matched.");
     }
   }
 
@@ -544,7 +651,7 @@
     const origin = utils.geocodeLocal(query);
 
     if (!origin) {
-      showToast("Try a neighborhood, ZIP, campus, or coordinates.");
+      showToast("Try a DC ZIP, neighborhood, campus, or coordinates.");
       return;
     }
 
@@ -555,17 +662,24 @@
       state.map.setOrigin(state.currentOrigin);
     }
 
-    const nearest = nearestStops(state.currentOrigin)[0];
+    const nearest = rankedStops(state.currentOrigin)[0];
     selectPitStop(nearest.id, { announce: false, focusMap: true });
 
     if (shouldScroll !== false) {
       scrollToSection("coverage");
     }
 
-    showToast("Closest hub: " + nearest.short + ".");
+    showToast(nearest.short + " is closest to " + origin.label + ".");
   }
 
   function addToCart(itemId) {
+    if (!state.activePitStop) {
+      scrollToSection("coverage");
+      dom.locationInput.focus();
+      showToast("Enter your ZIP first to match a resident hub.");
+      return;
+    }
+
     const item = findItem(itemId);
     if (!item) {
       return;
@@ -597,7 +711,7 @@
 
     const item = findItem(itemId);
     const nextQty = state.cart[itemId].qty + delta;
-    const maxStock = utils.stockFor(item, state.activePitStop);
+    const maxStock = state.activePitStop ? utils.stockFor(item, state.activePitStop) : item.baseStock;
 
     if (nextQty > maxStock) {
       showToast("Quantity exceeds active hub stock.");
@@ -617,6 +731,43 @@
 
   function drawerIsOpen() {
     return !dom.cartDrawer.hidden;
+  }
+
+  function adminModalIsOpen() {
+    return !dom.adminModal.hidden;
+  }
+
+  function focusableElements(container) {
+    return Array.prototype.slice
+      .call(
+        container.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      )
+      .filter(function (element) {
+        return !element.hidden && element.offsetParent !== null;
+      });
+  }
+
+  function trapFocus(container, event) {
+    const elements = focusableElements(container);
+    if (!elements.length) {
+      return;
+    }
+
+    const first = elements[0];
+    const last = elements[elements.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+
+    if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   function openCart() {
@@ -643,36 +794,30 @@
     }
   }
 
-  function focusableElementsInDrawer() {
-    return Array.prototype.slice
-      .call(
-        dom.cartDrawer.querySelectorAll(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        )
-      )
-      .filter(function (element) {
-        return !element.hidden;
-      });
+  function openAdminModal() {
+    state.lastFocusedElement = document.activeElement;
+    dom.adminModal.hidden = false;
+    document.body.classList.add("drawer-open");
+    dom.adminLoginFeedback.hidden = true;
+    dom.adminLoginFeedback.textContent = "";
+    dom.adminLoginForm.reset();
+
+    window.requestAnimationFrame(function () {
+      dom.adminModal.classList.add("open");
+      dom.adminUser.focus();
+    });
   }
 
-  function trapDrawerFocus(event) {
-    const focusable = focusableElementsInDrawer();
-    if (!focusable.length) {
-      return;
-    }
+  function closeAdminModal() {
+    dom.adminModal.classList.remove("open");
+    document.body.classList.remove("drawer-open");
 
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    window.setTimeout(function () {
+      dom.adminModal.hidden = true;
+    }, 220);
 
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-      return;
-    }
-
-    if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
+    if (state.lastFocusedElement && typeof state.lastFocusedElement.focus === "function") {
+      state.lastFocusedElement.focus();
     }
   }
 
@@ -684,8 +829,9 @@
       return;
     }
 
-    const name = dom.checkoutName.value.trim() || "Guest";
+    const name = dom.checkoutName.value.trim() || "Resident";
     const pickupCode = "MOW-" + String(Math.floor(1000 + Math.random() * 9000));
+    const hubName = state.activePitStop ? state.activePitStop.name : "TBD";
 
     dom.checkoutFeedback.hidden = false;
     dom.checkoutFeedback.textContent =
@@ -694,7 +840,7 @@
       ". Pickup code: " +
       pickupCode +
       ". Hub: " +
-      state.activePitStop.name +
+      hubName +
       ". Total: " +
       utils.formatCurrency(totals.total) +
       ".";
@@ -702,6 +848,22 @@
     state.cart = {};
     renderCart();
     showToast("Demo order created.");
+  }
+
+  function handleAdminLogin(event) {
+    event.preventDefault();
+
+    const user = dom.adminUser.value.trim();
+    const pass = dom.adminPass.value.trim();
+
+    if (user === "admin" && pass === "admin") {
+      window.sessionStorage.setItem("mowAdminAuth", "ok");
+      window.location.href = "admin.html";
+      return;
+    }
+
+    dom.adminLoginFeedback.hidden = false;
+    dom.adminLoginFeedback.textContent = "Use admin / admin for the demo.";
   }
 
   function initializeMap() {
@@ -715,8 +877,8 @@
       mapElement.classList.add("map-fallback");
       mapElement.innerHTML =
         '<div class="map-fallback-message">' +
-        "<strong>Map unavailable</strong>" +
-        "<p>The catalog still works below.</p>" +
+        "<strong>Coverage map unavailable</strong>" +
+        "<p>Google Maps is still visible in the preview card.</p>" +
         "</div>";
       return;
     }
@@ -730,16 +892,16 @@
         }
       });
 
-      state.map.setStops(data.pitStops, state.activePitStop.id);
-      state.map.setOrigin(state.currentOrigin);
+      state.map.setStops(data.pitStops, null);
+      state.map.setOrigin(null);
     } catch (error) {
       console.error("Coverage map initialization failed.", error);
       state.map = null;
       mapElement.classList.add("map-fallback");
       mapElement.innerHTML =
         '<div class="map-fallback-message">' +
-        "<strong>Map unavailable</strong>" +
-        "<p>The catalog still works below.</p>" +
+        "<strong>Coverage map unavailable</strong>" +
+        "<p>Google Maps is still visible in the preview card.</p>" +
         "</div>";
     }
   }
@@ -799,9 +961,9 @@
             state.map.setOrigin(state.currentOrigin);
           }
 
-          const nearest = nearestStops(state.currentOrigin)[0];
+          const nearest = rankedStops(state.currentOrigin)[0];
           selectPitStop(nearest.id, { announce: false, focusMap: true });
-          showToast("Closest hub: " + nearest.short + ".");
+          showToast(nearest.short + " is closest to you.");
         },
         function () {
           showToast("Location access was denied.");
@@ -874,7 +1036,30 @@
     dom.deliveryMode.addEventListener("change", renderCart);
     dom.checkoutButton.addEventListener("click", handleCheckout);
 
+    dom.adminButton.addEventListener("click", openAdminModal);
+    dom.closeAdminButton.addEventListener("click", closeAdminModal);
+    dom.adminLoginForm.addEventListener("submit", handleAdminLogin);
+
+    dom.adminModal.addEventListener("click", function (event) {
+      if (event.target.hasAttribute("data-close-admin")) {
+        closeAdminModal();
+      }
+    });
+
     document.addEventListener("keydown", function (event) {
+      if (adminModalIsOpen()) {
+        if (event.key === "Escape") {
+          closeAdminModal();
+          return;
+        }
+
+        if (event.key === "Tab") {
+          trapFocus(dom.adminModal, event);
+        }
+
+        return;
+      }
+
       if (!drawerIsOpen()) {
         return;
       }
@@ -885,7 +1070,7 @@
       }
 
       if (event.key === "Tab") {
-        trapDrawerFocus(event);
+        trapFocus(dom.cartDrawer, event);
       }
     });
   }
@@ -893,9 +1078,14 @@
   function initialize() {
     cacheDom();
     renderHeroStats();
-    initializeMap();
-    selectPitStop(nearestStops(state.currentOrigin)[0].id, { announce: false, focusMap: false });
+    renderOriginSummary();
+    renderNearestStops();
+    renderSelectedStop();
+    renderGooglePreview();
+    renderCatalog();
+    renderBoxes();
     renderCart();
+    initializeMap();
     bindEvents();
   }
 
