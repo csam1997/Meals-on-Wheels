@@ -553,6 +553,33 @@ img {
   width: 100%;
 }
 
+.coverage-map.map-fallback {
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(209, 255, 114, 0.28), transparent 16rem),
+    linear-gradient(160deg, rgba(244, 249, 245, 0.98), rgba(237, 243, 239, 0.98));
+}
+
+.map-fallback-message {
+  max-width: 420px;
+  text-align: center;
+}
+
+.map-fallback-message strong {
+  display: block;
+  font-family: "Sora", "Segoe UI", sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: -0.04em;
+}
+
+.map-fallback-message p {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
 .map-legend {
   display: flex;
   flex-wrap: wrap;

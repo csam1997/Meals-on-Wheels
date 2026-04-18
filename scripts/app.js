@@ -712,16 +712,43 @@
   }
 
   function initializeMap() {
-    state.map = root.createCoverageMap({
-      elementId: "coverageMap",
-      radiusMeters: data.mapRadiusMeters,
-      onSelectStop: function (stopId) {
-        selectPitStop(stopId, { announce: true, focusMap: true });
-      }
-    });
+    const mapElement = document.getElementById("coverageMap");
 
-    state.map.setStops(data.pitStops, state.activePitStop.id);
-    state.map.setOrigin(state.currentOrigin);
+    if (!mapElement) {
+      return;
+    }
+
+    if (typeof root.createCoverageMap !== "function" || typeof window.L === "undefined") {
+      mapElement.classList.add("map-fallback");
+      mapElement.innerHTML =
+        '<div class="map-fallback-message">' +
+        "<strong>Coverage map unavailable</strong>" +
+        "<p>The live map library did not load, but the grocery catalog and pit stop list are still available below.</p>" +
+        "</div>";
+      return;
+    }
+
+    try {
+      state.map = root.createCoverageMap({
+        elementId: "coverageMap",
+        radiusMeters: data.mapRadiusMeters,
+        onSelectStop: function (stopId) {
+          selectPitStop(stopId, { announce: true, focusMap: true });
+        }
+      });
+
+      state.map.setStops(data.pitStops, state.activePitStop.id);
+      state.map.setOrigin(state.currentOrigin);
+    } catch (error) {
+      console.error("Coverage map initialization failed.", error);
+      state.map = null;
+      mapElement.classList.add("map-fallback");
+      mapElement.innerHTML =
+        '<div class="map-fallback-message">' +
+        "<strong>Coverage map unavailable</strong>" +
+        "<p>The live map could not initialize, but the grocery items and support boxes are still loaded on this page.</p>" +
+        "</div>";
+    }
   }
 
   function bindEvents() {
