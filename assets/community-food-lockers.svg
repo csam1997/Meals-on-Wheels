@@ -1,0 +1,57 @@
+<svg width="920" height="620" viewBox="0 0 920 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="lockerBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eaffff"/>
+      <stop offset=".54" stop-color="#f3fff7"/>
+      <stop offset="1" stop-color="#fff4de"/>
+    </linearGradient>
+    <linearGradient id="redge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a84ff"/>
+      <stop offset=".52" stop-color="#00c7be"/>
+      <stop offset="1" stop-color="#30d158"/>
+    </linearGradient>
+    <filter id="drop" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#061922" flood-opacity=".16"/>
+    </filter>
+  </defs>
+  <rect width="920" height="620" rx="44" fill="url(#lockerBg)"/>
+  <g opacity=".7">
+    <rect x="80" y="120" width="120" height="360" rx="18" fill="#d0e9e8"/>
+    <rect x="720" y="102" width="90" height="380" rx="18" fill="#c5e1dc"/>
+    <circle cx="178" cy="96" r="42" fill="#b4e5d0"/>
+    <circle cx="751" cy="84" r="38" fill="#b4e5d0"/>
+  </g>
+  <g filter="url(#drop)">
+    <rect x="168" y="116" width="584" height="374" rx="30" fill="#ffffff"/>
+    <rect x="168" y="116" width="584" height="64" rx="30" fill="url(#redge)"/>
+    <text x="205" y="158" font-size="25" font-weight="900" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Arial" fill="white">Community Grocery Locker Hub</text>
+    <text x="585" y="158" font-size="25" font-weight="900" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Arial" fill="white">⚡</text>
+    <g transform="translate(198 205)">
+      <rect width="120" height="86" rx="18" fill="#ecfdff" stroke="#c7edf0" stroke-width="3"/>
+      <text x="18" y="39" font-size="30">🥬</text><text x="54" y="42" font-size="15" font-weight="900" fill="#07535e" font-family="Arial">Chilled</text>
+      <text x="54" y="62" font-size="12" font-weight="800" fill="#63808b" font-family="Arial">35–40°F</text>
+    </g>
+    <g transform="translate(338 205)">
+      <rect width="120" height="86" rx="18" fill="#fff9eb" stroke="#ffe4aa" stroke-width="3"/>
+      <text x="18" y="39" font-size="30">🍞</text><text x="54" y="42" font-size="15" font-weight="900" fill="#07535e" font-family="Arial">Ambient</text>
+      <text x="54" y="62" font-size="12" font-weight="800" fill="#63808b" font-family="Arial">Bread + pantry</text>
+    </g>
+    <g transform="translate(478 205)">
+      <rect width="120" height="86" rx="18" fill="#eff6ff" stroke="#c8deff" stroke-width="3"/>
+      <text x="18" y="39" font-size="30">❄️</text><text x="54" y="42" font-size="15" font-weight="900" fill="#07535e" font-family="Arial">Frozen</text>
+      <text x="54" y="62" font-size="12" font-weight="800" fill="#63808b" font-family="Arial">Meal packs</text>
+    </g>
+    <g transform="translate(618 205)">
+      <rect width="84" height="86" rx="18" fill="#f3fff7" stroke="#c7f2d2" stroke-width="3"/>
+      <text x="22" y="38" font-size="30">🔐</text><text x="18" y="63" font-size="12" font-weight="900" fill="#07535e" font-family="Arial">PIN code</text>
+    </g>
+    <g transform="translate(198 315)">
+      <rect width="504" height="124" rx="22" fill="#f8fffb" stroke="#d7eee2" stroke-width="3"/>
+      <text x="28" y="42" font-size="24" font-weight="900" font-family="Arial" fill="#061922">Pickup flow</text>
+      <text x="28" y="76" font-size="20" font-weight="800" font-family="Arial" fill="#476b74">1. Order on site  2. Choose campus pit stop  3. Unlock locker with code</text>
+      <path d="M330 58h108" stroke="#00c7be" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="470" cy="58" r="20" fill="#30d158"/>
+      <text x="461" y="66" font-size="24" font-weight="900" font-family="Arial" fill="white">✓</text>
+    </g>
+  </g>
+</svg>
