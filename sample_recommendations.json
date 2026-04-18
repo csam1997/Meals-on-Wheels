@@ -1,0 +1,669 @@
+{
+  "individual_recommendations": {
+    "user_id": "user_0006",
+    "user_name": "Robert Rodriguez",
+    "scope": "individual",
+    "recommendations": [
+      {
+        "name": "Carrots (1 lb)",
+        "category": "vegetables",
+        "price": 0.89,
+        "nutrition": {
+          "calories": 176,
+          "protein": 4,
+          "fiber": 9,
+          "calcium": 96,
+          "iron": 1.2,
+          "vitamin_c": 21,
+          "vitamin_a_rae": 1911
+        },
+        "score": 817.8141986297463,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Pasta (1 lb)",
+        "category": "grains",
+        "price": 0.99,
+        "nutrition": {
+          "calories": 1648,
+          "protein": 54,
+          "fiber": 4,
+          "calcium": 0,
+          "iron": 4.2,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 780.3030989178476,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Peanut Butter (16 oz)",
+        "category": "protein",
+        "price": 2.99,
+        "nutrition": {
+          "calories": 2520,
+          "protein": 96,
+          "fiber": 16,
+          "calcium": 80,
+          "iron": 3.2,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 761.18643613691,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Cheese (8 oz)",
+        "category": "dairy",
+        "price": 3.99,
+        "nutrition": {
+          "calories": 896,
+          "protein": 56,
+          "fiber": 0,
+          "calcium": 1408,
+          "iron": 0.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 224
+        },
+        "score": 738.0390362843417,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Whole Wheat Bread (1 loaf)",
+        "category": "grains",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 1264,
+          "protein": 44,
+          "fiber": 36,
+          "calcium": 480,
+          "iron": 8.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 601.2836084532066,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Milk (1 gallon)",
+        "category": "dairy",
+        "price": 3.49,
+        "nutrition": {
+          "calories": 600,
+          "protein": 32,
+          "fiber": 0,
+          "calcium": 1176,
+          "iron": 0,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 112
+        },
+        "score": 582.4903491784108,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Oats (1 lb)",
+        "category": "grains",
+        "price": 2.99,
+        "nutrition": {
+          "calories": 1508,
+          "protein": 54,
+          "fiber": 27,
+          "calcium": 184,
+          "iron": 8.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 561.5209258498702,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Spinach (10 oz)",
+        "category": "vegetables",
+        "price": 1.99,
+        "nutrition": {
+          "calories": 69,
+          "protein": 9,
+          "fiber": 2,
+          "calcium": 554,
+          "iron": 6,
+          "vitamin_c": 28,
+          "vitamin_a_rae": 943
+        },
+        "score": 550.6740073553356,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Eggs (1 dozen)",
+        "category": "protein",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 715,
+          "protein": 63,
+          "fiber": 0,
+          "calcium": 280,
+          "iron": 4.8,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 320
+        },
+        "score": 453.24276154349667,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Broccoli (1 lb)",
+        "category": "vegetables",
+        "price": 1.49,
+        "nutrition": {
+          "calories": 124,
+          "protein": 12,
+          "fiber": 8,
+          "calcium": 240,
+          "iron": 1.5,
+          "vitamin_c": 283,
+          "vitamin_a_rae": 604
+        },
+        "score": 439.24775687596224,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Yogurt (32 oz)",
+        "category": "dairy",
+        "price": 3.99,
+        "nutrition": {
+          "calories": 320,
+          "protein": 28,
+          "fiber": 0,
+          "calcium": 1040,
+          "iron": 0.4,
+          "vitamin_c": 1,
+          "vitamin_a_rae": 32
+        },
+        "score": 421.24678970929796,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Canned Beans (4 cans)",
+        "category": "protein",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 832,
+          "protein": 60,
+          "fiber": 44,
+          "calcium": 320,
+          "iron": 8,
+          "vitamin_c": 2,
+          "vitamin_a_rae": 0
+        },
+        "score": 414.2136980739477,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Frozen Vegetables (2 lb)",
+        "category": "vegetables",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 164,
+          "protein": 12,
+          "fiber": 12,
+          "calcium": 96,
+          "iron": 1.6,
+          "vitamin_c": 80,
+          "vitamin_a_rae": 600
+        },
+        "score": 316.48154639856466,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Brown Rice (2 lb)",
+        "category": "grains",
+        "price": 1.49,
+        "nutrition": {
+          "calories": 684,
+          "protein": 14,
+          "fiber": 7,
+          "calcium": 33,
+          "iron": 1.8,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 288.07395144012344,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Ground Beef (1 lb)",
+        "category": "protein",
+        "price": 4.99,
+        "nutrition": {
+          "calories": 894,
+          "protein": 81,
+          "fiber": 0,
+          "calcium": 18,
+          "iron": 2.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 279.97183297720665,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      }
+    ],
+    "dietary_restrictions": [
+      "nut_allergy"
+    ],
+    "budget": 100,
+    "nutritional_needs": {
+      "calories": 2200,
+      "protein": 52,
+      "fiber": 38,
+      "calcium": 1300,
+      "iron": 11,
+      "vitamin_c": 75,
+      "vitamin_a_rae": 900
+    },
+    "current_nutrition": {
+      "calories": 0,
+      "protein": 0,
+      "fiber": 0,
+      "calcium": 0,
+      "iron": 0,
+      "vitamin_c": 0,
+      "vitamin_a_rae": 0
+    },
+    "generated_at": "2026-04-18T18:32:01.802830",
+    "summary": {
+      "total_recommendations": 15,
+      "estimated_cost": 39.25,
+      "primary_strategy": "Hybrid (content-based + collaborative + knowledge-based)",
+      "note": "Recommendations tailored for individual shopping"
+    }
+  },
+  "family_recommendations": {
+    "user_id": "family_user_0002",
+    "user_name": "user_0002 (Family)",
+    "scope": "family",
+    "recommendations": [
+      {
+        "name": "Carrots (1 lb)",
+        "category": "vegetables",
+        "price": 0.89,
+        "nutrition": {
+          "calories": 176,
+          "protein": 4,
+          "fiber": 9,
+          "calcium": 96,
+          "iron": 1.2,
+          "vitamin_c": 21,
+          "vitamin_a_rae": 1911
+        },
+        "score": 1059.9854685412365,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Peanut Butter (16 oz)",
+        "category": "protein",
+        "price": 2.99,
+        "nutrition": {
+          "calories": 2520,
+          "protein": 96,
+          "fiber": 16,
+          "calcium": 80,
+          "iron": 3.2,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 848.5725792198847,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Pasta (1 lb)",
+        "category": "grains",
+        "price": 0.99,
+        "nutrition": {
+          "calories": 1648,
+          "protein": 54,
+          "fiber": 4,
+          "calcium": 0,
+          "iron": 4.2,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 781.20726847571,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Cheese (8 oz)",
+        "category": "dairy",
+        "price": 3.99,
+        "nutrition": {
+          "calories": 896,
+          "protein": 56,
+          "fiber": 0,
+          "calcium": 1408,
+          "iron": 0.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 224
+        },
+        "score": 762.9401267576455,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Whole Wheat Bread (1 loaf)",
+        "category": "grains",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 1264,
+          "protein": 44,
+          "fiber": 36,
+          "calcium": 480,
+          "iron": 8.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 601.3499751413118,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Milk (1 gallon)",
+        "category": "dairy",
+        "price": 3.49,
+        "nutrition": {
+          "calories": 600,
+          "protein": 32,
+          "fiber": 0,
+          "calcium": 1176,
+          "iron": 0,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 112
+        },
+        "score": 582.5927894596302,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Spinach (10 oz)",
+        "category": "vegetables",
+        "price": 1.99,
+        "nutrition": {
+          "calories": 69,
+          "protein": 9,
+          "fiber": 2,
+          "calcium": 554,
+          "iron": 6,
+          "vitamin_c": 28,
+          "vitamin_a_rae": 943
+        },
+        "score": 562.3148642442422,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Oats (1 lb)",
+        "category": "grains",
+        "price": 2.99,
+        "nutrition": {
+          "calories": 1508,
+          "protein": 54,
+          "fiber": 27,
+          "calcium": 184,
+          "iron": 8.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 559.1674781347215,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Broccoli (1 lb)",
+        "category": "vegetables",
+        "price": 1.49,
+        "nutrition": {
+          "calories": 124,
+          "protein": 12,
+          "fiber": 8,
+          "calcium": 240,
+          "iron": 1.5,
+          "vitamin_c": 283,
+          "vitamin_a_rae": 604
+        },
+        "score": 480.15418210092554,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Eggs (1 dozen)",
+        "category": "protein",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 715,
+          "protein": 63,
+          "fiber": 0,
+          "calcium": 280,
+          "iron": 4.8,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 320
+        },
+        "score": 455.8463030244447,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Yogurt (32 oz)",
+        "category": "dairy",
+        "price": 3.99,
+        "nutrition": {
+          "calories": 320,
+          "protein": 28,
+          "fiber": 0,
+          "calcium": 1040,
+          "iron": 0.4,
+          "vitamin_c": 1,
+          "vitamin_a_rae": 32
+        },
+        "score": 422.4348106305847,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Canned Beans (4 cans)",
+        "category": "protein",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 832,
+          "protein": 60,
+          "fiber": 44,
+          "calcium": 320,
+          "iron": 8,
+          "vitamin_c": 2,
+          "vitamin_a_rae": 0
+        },
+        "score": 417.6397199307469,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Frozen Vegetables (2 lb)",
+        "category": "vegetables",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 164,
+          "protein": 12,
+          "fiber": 12,
+          "calcium": 96,
+          "iron": 1.6,
+          "vitamin_c": 80,
+          "vitamin_a_rae": 600
+        },
+        "score": 318.9290790424007,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Brown Rice (2 lb)",
+        "category": "grains",
+        "price": 1.49,
+        "nutrition": {
+          "calories": 684,
+          "protein": 14,
+          "fiber": 7,
+          "calcium": 33,
+          "iron": 1.8,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 289.155549182839,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Ground Beef (1 lb)",
+        "category": "protein",
+        "price": 4.99,
+        "nutrition": {
+          "calories": 894,
+          "protein": 81,
+          "fiber": 0,
+          "calcium": 18,
+          "iron": 2.4,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 288.6519140723244,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Chicken Breast (2 lb)",
+        "category": "protein",
+        "price": 5.99,
+        "nutrition": {
+          "calories": 616,
+          "protein": 130,
+          "fiber": 0,
+          "calcium": 26,
+          "iron": 1.3,
+          "vitamin_c": 0,
+          "vitamin_a_rae": 0
+        },
+        "score": 218.85445985865184,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Bell Peppers (3 pack)",
+        "category": "vegetables",
+        "price": 2.49,
+        "nutrition": {
+          "calories": 149,
+          "protein": 5,
+          "fiber": 5,
+          "calcium": 40,
+          "iron": 1,
+          "vitamin_c": 569,
+          "vitamin_a_rae": 117
+        },
+        "score": 210.77137479466188,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Bananas (3 lb)",
+        "category": "fruits",
+        "price": 0.69,
+        "nutrition": {
+          "calories": 267,
+          "protein": 3,
+          "fiber": 7,
+          "calcium": 9,
+          "iron": 0.6,
+          "vitamin_c": 17,
+          "vitamin_a_rae": 32
+        },
+        "score": 190.61779447697643,
+        "reason": "Fills calories, protein, fiber",
+        "source": "collaborative + nutritional"
+      },
+      {
+        "name": "Canned Tomatoes (4 cans)",
+        "category": "vegetables",
+        "price": 1.99,
+        "nutrition": {
+          "calories": 144,
+          "protein": 7,
+          "fiber": 4,
+          "calcium": 120,
+          "iron": 3.2,
+          "vitamin_c": 20,
+          "vitamin_a_rae": 96
+        },
+        "score": 143.50999993522166,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      },
+      {
+        "name": "Onions (2 lb)",
+        "category": "vegetables",
+        "price": 0.99,
+        "nutrition": {
+          "calories": 180,
+          "protein": 5,
+          "fiber": 7,
+          "calcium": 80,
+          "iron": 0.5,
+          "vitamin_c": 20,
+          "vitamin_a_rae": 0
+        },
+        "score": 139.32285968810046,
+        "reason": "Fills calories, protein, fiber",
+        "source": "nutritional need"
+      }
+    ],
+    "dietary_restrictions": [
+      "vegetarian"
+    ],
+    "budget": 50,
+    "nutritional_needs": {
+      "calories": 8200,
+      "protein": 168,
+      "fiber": 145,
+      "calcium": 5000,
+      "iron": 41,
+      "vitamin_c": 240,
+      "vitamin_a_rae": 3000
+    },
+    "current_nutrition": {
+      "calories": 0,
+      "protein": 0,
+      "fiber": 0,
+      "calcium": 0,
+      "iron": 0,
+      "vitamin_c": 0,
+      "vitamin_a_rae": 0
+    },
+    "generated_at": "2026-04-18T18:32:01.803751",
+    "summary": {
+      "total_recommendations": 20,
+      "estimated_cost": 51.4,
+      "primary_strategy": "Hybrid (content-based + collaborative + knowledge-based)",
+      "note": "Recommendations tailored for family shopping"
+    }
+  }
+}
