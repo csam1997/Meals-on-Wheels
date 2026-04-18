@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meals on Wheels DC | Admin Operations</title>
+  <meta name="description" content="Operations dashboard for Meals on Wheels DC — inventory, fleet, orders, pit stop analytics, and user verification." />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    /* =========================================================
+       Tokens — matched to Meals on Wheels DC consumer site
+       ========================================================= */
+    :root{
+      --ink:#071922; --navy:#071f2e; --deep:#083f55; --blue:#0a84ff; --cyan:#00c7be;
+      --teal:#00a99d; --green:#30d158; --lime:#c8f558; --yellow:#ffd60a; --orange:#ff9f0a;
+      --red:#ff453a; --mint:#eafff6; --ice:#eefbff; --cream:#fff8e8; --white:#fff;
+      --muted:#5e7681; --line:rgba(7,31,46,.12); --glass:rgba(255,255,255,.76);
+      --shadow:0 26px 80px rgba(7,31,46,.16); --soft:0 16px 38px rgba(7,31,46,.10);
+      --radius:28px; --max:1280px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 0 0, rgba(0,199,190,.20), transparent 30rem),
+        radial-gradient(circle at 95% 5%, rgba(10,132,255,.17), transparent 34rem),
+        linear-gradient(180deg,#f8fdff 0%,#f5fff8 46%,#fff9eb 100%);
+      line-height:1.42; overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    img{max-width:100%}
+    table{border-collapse:collapse;width:100%}
+    .container{width:min(var(--max),calc(100% - 34px));margin:0 auto}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Top banner */
+    .announcement{
+      background:linear-gradient(90deg,#071f2e,#06445a 52%,#00645f);
+      color:white;padding:9px 14px;text-align:center;font-weight:850;font-size:.9rem;letter-spacing:-.015em
+    }
+    .announcement b{color:var(--lime)}
+
+    /* Header / nav */
+    header{
+      position:sticky;top:0;z-index:80;
+      backdrop-filter:blur(24px) saturate(1.2);
+      background:rgba(255,255,255,.82);border-bottom:1px solid rgba(7,31,46,.08)
+    }
+    .nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:10px;min-width:174px}
+    .brand img{width:170px;height:64px;object-fit:contain;object-position:left center;filter:drop-shadow(0 10px 16px rgba(0,99,98,.10))}
+    .brand-suffix{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;background:rgba(10,132,255,.12);color:var(--blue);font-weight:1000;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+    .nav-links{display:flex;gap:18px;align-items:center;color:var(--deep);font-weight:850;font-size:.94rem;letter-spacing:-.015em}
+    .nav-links a{opacity:.78;transition:.2s ease;padding:6px 2px;border-bottom:2px solid transparent}
+    .nav-links a:hover{color:var(--blue);opacity:1;transform:translateY(-1px)}
+    .nav-links a.active{opacity:1;color:var(--navy);border-bottom-color:var(--cyan)}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .admin-avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--cyan) 52%,var(--green));color:white;font-weight:1000;font-size:.92rem;box-shadow:0 12px 24px rgba(10,132,255,.20);border:2px solid white}
+
+    /* Buttons */
+    .btn,.icon-btn,.chip,.cat-btn,.tab-btn{border:0;font-weight:900;letter-spacing:-.015em;white-space:nowrap;transition:.2s ease}
+    .btn:hover,.icon-btn:hover,.chip:hover,.cat-btn:hover,.tab-btn:hover{transform:translateY(-2px)}
+    .btn-primary{color:white;border-radius:999px;padding:13px 18px;background:linear-gradient(135deg,var(--blue),var(--cyan) 52%,var(--green));box-shadow:0 16px 34px rgba(10,132,255,.22)}
+    .btn-dark{color:white;border-radius:999px;padding:13px 18px;background:var(--navy);box-shadow:0 16px 34px rgba(7,31,46,.20)}
+    .btn-light{color:var(--navy);border-radius:999px;padding:12px 17px;background:rgba(255,255,255,.9);border:1px solid var(--line);box-shadow:var(--soft)}
+    .btn-soft{color:#005d5a;border-radius:999px;padding:11px 15px;background:rgba(0,199,190,.12);border:1px solid rgba(0,199,190,.22)}
+    .btn-sm{padding:8px 13px;font-size:.84rem}
+    .btn-ghost{background:transparent;border:0;color:var(--deep);padding:8px 12px;border-radius:14px}
+    .btn-ghost:hover{background:rgba(7,31,46,.06);transform:none}
+    .icon-btn{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;color:var(--navy);background:white;border:1px solid rgba(7,31,46,.10);box-shadow:0 14px 30px rgba(7,31,46,.08);position:relative;font-size:1.08rem}
+
+    /* Pills */
+    .pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:7px 12px;color:#00524f;background:rgba(0,199,190,.12);border:1px solid rgba(0,199,190,.22);font-weight:910;font-size:.87rem}
+    .pill-sm{padding:4px 10px;font-size:.72rem;font-weight:1000;letter-spacing:.02em}
+    .pill-dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:currentColor}
+
+    /* Status pill variants */
+    .pill.ok{background:rgba(48,209,88,.14);color:#117a36;border-color:rgba(48,209,88,.28)}
+    .pill.warn{background:rgba(255,214,10,.18);color:#8a5a00;border-color:rgba(255,159,10,.32)}
+    .pill.alert{background:rgba(255,69,58,.14);color:#a31b12;border-color:rgba(255,69,58,.32)}
+    .pill.info{background:rgba(10,132,255,.12);color:#0a4aa0;border-color:rgba(10,132,255,.26)}
+    .pill.neutral{background:rgba(7,31,46,.08);color:var(--deep);border-color:rgba(7,31,46,.12)}
+
+    /* Headings & sections */
+    h1,h2,h3,p{margin-top:0}
+    .section{padding:60px 0;scroll-margin-top:92px}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:22px;margin-bottom:24px;flex-wrap:wrap}
+    .section-head h2{font-size:clamp(2rem,3.8vw,3.35rem);line-height:.98;letter-spacing:-.058em;color:var(--navy);margin:10px 0}
+    .section-copy{color:var(--muted);font-weight:700;max-width:610px;margin:0}
+    .gradient-text{background:linear-gradient(135deg,var(--blue),var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+    /* Metric cards */
+    .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+    .metric{
+      position:relative;background:rgba(255,255,255,.86);border:1px solid var(--line);
+      border-radius:26px;box-shadow:var(--soft);padding:20px;overflow:hidden
+    }
+    .metric::before{content:"";position:absolute;inset:-40% -40% auto auto;width:190px;height:190px;border-radius:50%;background:rgba(0,199,190,.10);pointer-events:none}
+    .metric.blue::before{background:rgba(10,132,255,.11)}
+    .metric.orange::before{background:rgba(255,159,10,.13)}
+    .metric.red::before{background:rgba(255,69,58,.12)}
+    .metric-label{position:relative;color:var(--muted);font-weight:900;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+    .metric-value{position:relative;color:var(--navy);font-weight:1000;font-size:2.4rem;letter-spacing:-.048em;line-height:1}
+    .metric-value .unit{font-size:1.1rem;color:var(--muted);font-weight:800;letter-spacing:-.02em;margin-left:4px}
+    .metric-delta{position:relative;margin-top:8px;color:var(--muted);font-weight:820;font-size:.84rem}
+    .metric-delta.up{color:#117a36}
+    .metric-delta.down{color:#a31b12}
+
+    /* Cards */
+    .card{border-radius:30px;background:rgba(255,255,255,.86);border:1px solid var(--line);box-shadow:var(--soft);overflow:hidden}
+    .card-head{padding:18px 22px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap}
+    .card-title{font-weight:1000;font-size:1.22rem;color:var(--navy);letter-spacing:-.035em;margin:0}
+    .card-sub{color:var(--muted);font-weight:760;font-size:.86rem;margin:4px 0 0}
+    .card-body{padding:20px 22px}
+    .card-flush{padding:0}
+
+    /* Two-column grid */
+    .grid-2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+    .grid-7-5{display:grid;grid-template-columns:7fr 5fr;gap:16px}
+    .grid-5-7{display:grid;grid-template-columns:5fr 7fr;gap:16px}
+
+    /* Tables */
+    .table{width:100%}
+    .table th,.table td{padding:14px 22px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+    .table thead tr{background:rgba(7,31,46,.03)}
+    .table th{color:var(--muted);font-weight:900;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--line)}
+    .table tbody tr{transition:.15s ease;background:transparent}
+    .table tbody tr:hover{background:#f4fcfb}
+    .table tbody tr.clickable{cursor:pointer}
+    .table tbody tr:last-child td{border-bottom:0}
+    .table td strong{color:var(--navy);font-weight:910;letter-spacing:-.02em}
+    .mono{font-family:"SF Mono",ui-monospace,monospace;font-size:.82rem;color:var(--deep);font-weight:800}
+    .emoji-tile{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:14px;background:linear-gradient(145deg,#fff,#effff8);border:1px solid rgba(0,199,190,.14);font-size:1.3rem;flex-shrink:0}
+
+    /* Filter bar */
+    .toolbar{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;margin-bottom:16px}
+    .search-input,.select{height:48px;border-radius:17px;border:1px solid var(--line);background:#fbfffd;color:var(--deep);font-weight:850;outline:0;padding:0 14px;transition:.15s}
+    .search-input{width:100%}
+    .search-input:focus,.select:focus{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(0,199,190,.16)}
+
+    /* Status tabs */
+    .tabs-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+    .tab-btn{padding:11px 17px;border-radius:999px;background:rgba(255,255,255,.82);border:1px solid var(--line);color:var(--deep);font-weight:910;font-size:.88rem}
+    .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy);box-shadow:0 14px 28px rgba(7,31,46,.18)}
+    .tab-btn .count{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:rgba(0,0,0,.12);color:inherit;font-size:.72rem}
+    .tab-btn.active .count{background:rgba(255,255,255,.22)}
+
+    /* Progress bars */
+    .bar{height:8px;background:#e5f5ef;border-radius:999px;overflow:hidden}
+    .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--green));border-radius:999px;transition:width .5s ease}
+    .bar.warn i{background:linear-gradient(90deg,var(--yellow),var(--orange))}
+    .bar.danger i{background:linear-gradient(90deg,var(--orange),var(--red))}
+
+    /* Truck cards (fleet) */
+    .truck-row{padding:14px 18px;border:1px solid var(--line);border-radius:22px;background:#fbfffd;margin-bottom:10px;cursor:pointer;transition:.18s ease}
+    .truck-row:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(7,31,46,.08)}
+    .truck-row.selected{border-color:rgba(0,199,190,.48);background:#effffb;box-shadow:0 14px 30px rgba(0,199,190,.18)}
+    .truck-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
+    .truck-name{font-weight:1000;color:var(--navy);font-size:1rem;letter-spacing:-.03em}
+    .truck-sub{color:var(--muted);font-weight:780;font-size:.84rem}
+    .truck-meta{display:flex;gap:12px;margin-top:8px;font-size:.78rem;color:var(--deep);font-weight:850}
+
+    /* Map */
+    .map-card{border-radius:30px;background:rgba(255,255,255,.86);border:1px solid var(--line);box-shadow:var(--soft);overflow:hidden}
+    .map-wrap{height:520px;border-radius:24px;overflow:hidden;border:1px solid var(--line);background:#e8f2f4;margin:18px}
+    #adminMap{width:100%;height:100%}
+    .leaflet-container{background:#e8f2f4 !important;font-family:inherit !important}
+    .truck-marker{
+      background:linear-gradient(135deg,var(--blue),var(--cyan));
+      color:white;width:36px !important;height:36px !important;border-radius:50%;
+      border:3px solid white;box-shadow:0 6px 14px rgba(10,132,255,.35);
+      display:grid !important;place-items:center;font-size:.74rem;font-weight:1000;letter-spacing:-.01em;
+    }
+    .truck-marker.parked{background:linear-gradient(135deg,var(--green),var(--teal))}
+    .truck-marker.restocking{background:linear-gradient(135deg,var(--yellow),var(--orange))}
+    .truck-marker.selected{transform:scale(1.2);box-shadow:0 0 0 6px rgba(0,199,190,.22),0 6px 14px rgba(10,132,255,.35)}
+    .map-legend{display:flex;gap:14px;align-items:center;padding:0 22px 16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);font-weight:820}
+    .legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+    .lg-onroute{background:linear-gradient(135deg,var(--blue),var(--cyan))}
+    .lg-parked{background:linear-gradient(135deg,var(--green),var(--teal))}
+    .lg-restocking{background:linear-gradient(135deg,var(--yellow),var(--orange))}
+    .lg-depot{background:var(--orange)}
+
+    /* Alerts */
+    .alert-card{padding:14px 16px;border-radius:18px;background:#eafff6;border:1px solid rgba(48,209,88,.22);color:#117a36;font-weight:860;font-size:.92rem;display:flex;gap:10px;align-items:flex-start}
+    .alert-card.warn{background:#fff9ea;border-color:rgba(255,159,10,.26);color:#8a5a00}
+    .alert-card.alert{background:#fff0ef;border-color:rgba(255,69,58,.26);color:#a31b12}
+
+    /* Chart containers */
+    .chart-wrap{position:relative;height:280px}
+    .chart-wrap.tall{height:340px}
+
+    /* Drawer */
+    .drawer{position:fixed;inset:0;background:rgba(7,31,46,.38);z-index:120;display:none;justify-content:flex-end}
+    .drawer.open{display:flex}
+    .drawer-panel{width:min(480px,92vw);background:#fff;min-height:100%;box-shadow:-20px 0 60px rgba(7,31,46,.18);padding:24px;overflow:auto}
+    .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .drawer-head h3{font-size:1.6rem;margin:0;color:var(--navy);letter-spacing:-.04em}
+    .close-btn{border:0;width:42px;height:42px;border-radius:15px;background:rgba(7,31,46,.08);font-size:1.4rem;color:var(--navy);font-weight:1000}
+
+    /* Toast */
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(100px);background:var(--navy);color:white;border-radius:999px;padding:13px 18px;z-index:150;box-shadow:var(--shadow);font-weight:900;transition:.25s ease}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* Footer */
+    footer{background:var(--navy);color:white;margin-top:50px;padding:42px 0 22px}
+    .footer-grid{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:24px;margin-bottom:24px}
+    footer img{width:180px;filter:drop-shadow(0 12px 18px rgba(0,0,0,.16))}
+    footer p,footer a{color:rgba(255,255,255,.72);font-weight:680}
+    footer a{display:block;margin:7px 0}
+    footer h4{margin:0 0 12px}
+    .fineprint{border-top:1px solid rgba(255,255,255,.12);padding-top:16px;color:rgba(255,255,255,.64);font-weight:700;font-size:.88rem;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+    /* Utilities */
+    .stack-sm > * + *{margin-top:8px}
+    .stack > * + *{margin-top:14px}
+    .stack-lg > * + *{margin-top:22px}
+    .flex-between{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .flex-center{display:flex;align-items:center;gap:10px}
+    .text-right{text-align:right}
+    .muted{color:var(--muted);font-weight:760}
+
+    /* Responsive */
+    @media(max-width:1080px){
+      .metric-grid{grid-template-columns:repeat(2,1fr)}
+      .grid-2,.grid-7-5,.grid-5-7{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr 1fr}
+      .nav-links{display:none}
+    }
+    @media(max-width:720px){
+      .section{padding:42px 0}
+      .metric-grid{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr}
+      .nav{min-height:68px}
+      .brand img{width:132px;height:52px}
+      .brand-suffix{display:none}
+      .footer-grid{grid-template-columns:1fr}
+      .table th,.table td{padding:10px 14px}
+      .metric-value{font-size:1.9rem}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="announcement">Admin operations dashboard: <b>Meals on Wheels DC</b> • inventory, fleet, and pit stop analytics.</div>
+
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#dashboard" aria-label="Meals on Wheels DC home">
+        <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
+        <span class="brand-suffix">Admin</span>
+      </a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#dashboard" class="active">Dashboard</a>
+        <a href="#inventory">Inventory</a>
+        <a href="#fleet">Fleet</a>
+        <a href="#orders">Orders</a>
+        <a href="#pitstops">Pit stops</a>
+        <a href="#people">People</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn btn-light" href="index.html">↩ Consumer site</a>
+        <div class="admin-avatar" title="Admin">AM</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="section" id="dashboard">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="pill">📊 Operations overview</span>
+            <h2>Everything, <span class="gradient-text">at a glance.</span></h2>
+          </div>
+          <p class="section-copy" id="today-line">Real-time snapshot of orders, inventory, fleet, and campus pit stops across DC.</p>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metric-grid" id="metrics"></div>
+
+        <!-- Alerts + Inventory needing attention -->
+        <div class="grid-7-5" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3 class="card-title">Inventory needing attention</h3>
+                <p class="card-sub">Sorted by shelf life remaining</p>
+              </div>
+              <a href="#inventory" class="btn btn-ghost btn-sm">View all →</a>
+            </div>
+            <div class="card-body card-flush">
+              <table class="table">
+                <thead><tr><th>Product</th><th>Stock</th><th>Shelf life</th><th>Status</th></tr></thead>
+                <tbody id="alert-inventory"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3 class="card-title">Trucks live now</h3>
+                <p class="card-sub">4 of 6 trucks deployed across pit stops</p>
+              </div>
+              <a href="#fleet" class="btn btn-ghost btn-sm">Map →</a>
+            </div>
+            <div class="card-body" id="dashboard-trucks"></div>
+          </div>
+        </div>
+
+        <!-- Recent orders -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Recent orders</h3>
+              <p class="card-sub">Last 6 orders across DC campuses</p>
+            </div>
+            <a href="#orders" class="btn btn-ghost btn-sm">All orders →</a>
+          </div>
+          <div class="card-body card-flush">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Student</th>
+                  <th>Pit stop</th>
+                  <th>Items</th>
+                  <th>Nutrition</th>
+                  <th>Truck</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recent-orders"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pit stop snapshot -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Pit stop performance</h3>
+              <p class="card-sub">Top-ordering campuses · Last 7 days</p>
+            </div>
+            <a href="#pitstops" class="btn btn-ghost btn-sm">Full analytics →</a>
+          </div>
+          <div class="card-body">
+            <div class="grid-2">
+              <div id="top-pitstops" class="stack"></div>
+              <div id="restock-tips" class="stack-sm"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INVENTORY ================= -->
+    <section class="section" id="inventory">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="pill">📦 Inventory</span>
+            <h2>Stock, <span class="gradient-text">shelf life, and restocks.</span></h2>
+          </div>
+          <p class="section-copy">Products are pulled from the consumer catalogue. Shelf life under 3 days auto-flags as expiring; items with low stock trigger restock suggestions.</p>
+        </div>
+
+        <div class="metric-grid" id="inv-metrics"></div>
+
+        <div class="tabs-row" id="inv-tabs"></div>
+
+        <div class="toolbar">
+          <input class="search-input" id="inv-search" placeholder="Search products or SKUs..." />
+          <select class="select" id="inv-category">
+            <option value="">All categories</option>
+            <option value="snacks">Healthy snacks</option>
+            <option value="veg">Veg</option>
+            <option value="nonveg">Non-veg</option>
+            <option value="bread">Bread</option>
+            <option value="pantry">Pantry</option>
+            <option value="boxes">Subsidized boxes</option>
+          </select>
+          <select class="select" id="inv-sort">
+            <option value="expiry">Expiring first</option>
+            <option value="stock">Stock low to high</option>
+            <option value="name">Name A–Z</option>
+          </select>
+          <button class="btn btn-primary">+ Add delivery</button>
+        </div>
+
+        <div class="card">
+          <div class="card-flush">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Stock</th>
+                  <th>Shelf life</th>
+                  <th>Provider</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inv-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FLEET ================= -->
+    <section class="section" id="fleet">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="pill">🚚 Fleet</span>
+            <h2>Live truck positions <span class="gradient-text">across DC.</span></h2>
+          </div>
+          <p class="section-copy">Electric grocery trucks rotate between the 9 campus pit stops. Positions below are simulated for demo — swap in GPS feed for live routing.</p>
+        </div>
+
+        <div class="metric-grid" id="fleet-metrics"></div>
+
+        <div class="grid-7-5">
+          <div class="map-card">
+            <div class="card-head">
+              <div>
+                <h3 class="card-title">Live map</h3>
+                <p class="card-sub"><span id="trucks-live">4</span> trucks tracked · updates every 3s</p>
+              </div>
+            </div>
+            <div class="map-wrap"><div id="adminMap"></div></div>
+            <div class="map-legend">
+              <span><span class="legend-dot lg-onroute"></span>On route</span>
+              <span><span class="legend-dot lg-parked"></span>Parked at pit stop</span>
+              <span><span class="legend-dot lg-restocking"></span>Restocking</span>
+              <span><span class="legend-dot lg-depot"></span>Depot</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3 class="card-title">All trucks</h3>
+                <p class="card-sub">Click a truck to focus on map</p>
+              </div>
+            </div>
+            <div class="card-body" id="truck-list"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title" id="selected-truck-title">Orders on Truck 01</h3>
+              <p class="card-sub" id="selected-truck-sub">—</p>
+            </div>
+          </div>
+          <div class="card-flush">
+            <table class="table">
+              <thead><tr><th>Order</th><th>Student</th><th>Pit stop</th><th>Items</th><th>Status</th></tr></thead>
+              <tbody id="truck-orders"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ORDERS ================= -->
+    <section class="section" id="orders">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="pill">🛒 Orders</span>
+            <h2>Every order, <span class="gradient-text">every status.</span></h2>
+          </div>
+          <p class="section-copy">Click any order row to see contents, the nutrition-balance score, and suggested menu nudges.</p>
+        </div>
+
+        <div class="metric-grid" id="order-metrics"></div>
+
+        <div class="tabs-row" id="order-tabs"></div>
+
+        <div class="toolbar">
+          <input class="search-input" id="order-search" placeholder="Search customer or order ID..." />
+          <select class="select" id="order-pitstop"><option value="">All pit stops</option></select>
+          <select class="select" id="order-truck">
+            <option value="">All trucks</option>
+            <option value="unassigned">Unassigned</option>
+          </select>
+          <button class="btn btn-primary">Bulk assign</button>
+        </div>
+
+        <div class="card">
+          <div class="card-flush">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Student</th>
+                  <th>Pit stop</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Nutrition</th>
+                  <th>Truck</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PIT STOPS / ANALYTICS ================= -->
+    <section class="section" id="pitstops">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="pill">📍 Pit stop insights</span>
+            <h2>What's <span class="gradient-text">moving where.</span></h2>
+          </div>
+          <p class="section-copy">Consumption per DC campus over the last 7 days. Use this to rebalance inventory before the next restock run.</p>
+        </div>
+
+        <div class="metric-grid" id="ps-metrics"></div>
+
+        <div class="grid-7-5" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3 class="card-title">Consumption by pit stop</h3>
+                <p class="card-sub">Units ordered, by category · 7 days</p>
+              </div>
+            </div>
+            <div class="card-body"><div class="chart-wrap tall"><canvas id="chart-consumption"></canvas></div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3 class="card-title">Category mix</h3>
+                <p class="card-sub">Across all pit stops</p>
+              </div>
+            </div>
+            <div class="card-body"><div class="chart-wrap tall"><canvas id="chart-mix"></canvas></div></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Weekly order volume</h3>
+              <p class="card-sub">Orders and items — trailing 7 days</p>
+            </div>
+          </div>
+          <div class="card-body"><div class="chart-wrap"><canvas id="chart-trend"></canvas></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Restock suggestions</h3>
+              <p class="card-sub">Auto-generated from consumption &amp; shelf life</p>
+            </div>
+            <button class="btn btn-primary btn-sm">Apply all</button>
+          </div>
+          <div class="card-flush">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Pit stop</th>
+                  <th>Under-indexed</th>
+                  <th>Over-indexed</th>
+                  <th>Suggestion</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="rec-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PEOPLE ================= -->
+    <section class="section" id="people">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="pill">👥 People</span>
+            <h2>Students, providers, <span class="gradient-text">and verifications.</span></h2>
+          </div>
+          <p class="section-copy">Consumers register with benefits and income info for subsidized box eligibility. Providers donate inventory to the program.</p>
+        </div>
+
+        <div class="metric-grid" id="people-metrics"></div>
+
+        <div class="tabs-row" id="people-tabs"></div>
+
+        <div class="card" id="consumers-view">
+          <div class="card-flush">
+            <div class="toolbar" style="padding:16px 18px;margin:0;border-bottom:1px solid var(--line);background:rgba(7,31,46,.02);">
+              <input class="search-input" id="user-search" placeholder="Search by name or email..." />
+              <select class="select" id="user-pitstop"><option value="">All pit stops</option></select>
+              <select class="select" id="user-benefit">
+                <option value="">All benefits</option>
+                <option>SNAP</option>
+                <option>WIC</option>
+                <option>Student aid</option>
+                <option>Senior</option>
+              </select>
+              <select class="select" id="user-status">
+                <option value="">All statuses</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Pit stop</th>
+                  <th>Benefits</th>
+                  <th>Income bracket</th>
+                  <th>Orders</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="consumers-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" id="providers-view" style="display:none;">
+          <div class="card-flush">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Provider</th>
+                  <th>Type</th>
+                  <th>Items donated</th>
+                  <th>Last donation</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="providers-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" id="pending-view" style="display:none;">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Awaiting verification</h3>
+              <p class="card-sub">Review eligibility info from registration, then approve or request more details.</p>
+            </div>
+          </div>
+          <div class="card-flush" id="pending-list"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Order detail drawer -->
+  <div class="drawer" id="orderDrawer" aria-hidden="true">
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <div>
+          <h3 id="drawer-title">Order detail</h3>
+          <p class="card-sub" id="drawer-sub">&nbsp;</p>
+        </div>
+        <button class="close-btn" id="close-drawer" aria-label="Close">×</button>
+      </div>
+      <div id="drawer-body"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Done</div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
+          <p>Operations-side interface for the Meals on Wheels DC campus grocery program. Manages inventory, fleet, orders, and pit stop analytics.</p>
+        </div>
+        <div><h4>Operations</h4><a href="#dashboard">Dashboard</a><a href="#inventory">Inventory</a><a href="#fleet">Fleet</a></div>
+        <div><h4>Insights</h4><a href="#orders">Orders</a><a href="#pitstops">Pit stops</a><a href="#people">People</a></div>
+        <div><h4>Consumer site</h4><a href="index.html">Shop</a><a href="index.html#map">Find pit stop</a><a href="index.html#boxes">Subsidized boxes</a></div>
+      </div>
+      <div class="fineprint">
+        <span>© 2026 Meals on Wheels DC — admin prototype.</span>
+        <span>Mock data shown. Truck positions simulated for demo.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet + Chart.js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <script>
+  /* ===========================================================
+     DATA — pulled to match the consumer site's pit stops and
+     product model. Swap for live data when backend is ready.
+     =========================================================== */
+
+  // Pit stops — same 9 as consumer site
+  const pitStops = [
+    {id:"gw",        name:"GW Foggy Bottom",         short:"GW",         lat:38.8997, lng:-77.0486, zip:"20052"},
+    {id:"georgetown",name:"Georgetown Campus",       short:"Georgetown", lat:38.9091, lng:-77.0718, zip:"20007"},
+    {id:"howard",    name:"Howard–Shaw",             short:"Howard",     lat:38.9228, lng:-77.0211, zip:"20059"},
+    {id:"au",        name:"American U Tenley",       short:"AU",         lat:38.9375, lng:-77.0868, zip:"20016"},
+    {id:"brookland", name:"Brookland Catholic/Trinity",short:"Catholic U/Trinity",lat:38.9342, lng:-76.9975, zip:"20064"},
+    {id:"gallaudet", name:"Gallaudet NoMa",          short:"Gallaudet",  lat:38.9085, lng:-76.9965, zip:"20002"},
+    {id:"udc",       name:"UDC Van Ness",            short:"UDC",        lat:38.9437, lng:-77.0638, zip:"20008"},
+    {id:"law",       name:"Capitol Hill Law",        short:"GT Law",     lat:38.8986, lng:-77.0124, zip:"20001"},
+    {id:"mason",     name:"Mason Arlington",         short:"Mason",      lat:38.8846, lng:-77.1011, zip:"22201"},
+  ];
+  const DEPOT = {lat:38.9072, lng:-77.0369, name:"Central depot"};
+
+  // Trucks — 4 out, 2 in depot
+  const trucks = [
+    {id:"T-01", name:"Truck 01", status:"on-route",   pitstop:"gw",        lat:38.8997, lng:-77.0486, stops:8, load:72, driver:"Marcus Lee",
+      path:[[38.8997,-77.0486],[38.9006,-77.0508],[38.9000,-77.0458],[38.8990,-77.0501],[38.8997,-77.0486]]},
+    {id:"T-02", name:"Truck 02", status:"parked",     pitstop:"georgetown",lat:38.9091, lng:-77.0718, stops:0, load:54, parkedUntil:"3:15 PM", driver:"Aisha Rahman"},
+    {id:"T-03", name:"Truck 03", status:"restocking", pitstop:null,        lat:DEPOT.lat, lng:DEPOT.lng, stops:0, load:12, eta:40, driver:"Jordan Kim"},
+    {id:"T-04", name:"Truck 04", status:"on-route",   pitstop:"howard",    lat:38.9228, lng:-77.0211, stops:3, load:38, driver:"Priya Patel",
+      path:[[38.9228,-77.0211],[38.9240,-77.0230],[38.9215,-77.0240],[38.9210,-77.0200],[38.9228,-77.0211]]},
+    {id:"T-05", name:"Truck 05", status:"depot",      pitstop:null,        lat:DEPOT.lat, lng:DEPOT.lng, stops:0, load:0,  driver:"—"},
+    {id:"T-06", name:"Truck 06", status:"depot",      pitstop:null,        lat:DEPOT.lat, lng:DEPOT.lng, stops:0, load:0,  driver:"—"},
+  ];
+
+  // Inventory — product model matches consumer site (emoji, unit, category)
+  // daysLeft is shelf life; receivedDays is how recently it arrived
+  const inventory = [
+    {sku:"apple_pb",      name:"Apple + Peanut Butter Snack", cat:"snacks",emoji:"🍎", stock:38, unit:"snacks", daysLeft:5,   receivedDays:1, provider:"Green Valley Farm"},
+    {sku:"yogurt_parfait",name:"Greek Yogurt Parfait",        cat:"snacks",emoji:"🥣", stock:14, unit:"cups",   daysLeft:3,   receivedDays:1, provider:"Meadowlark Dairy"},
+    {sku:"hummus_carrots",name:"Hummus + Carrot Cup",         cat:"snacks",emoji:"🥕", stock:22, unit:"cups",   daysLeft:4,   receivedDays:2, provider:"Rootwise Co-op"},
+    {sku:"trail_mix",     name:"Trail Mix Mini",              cat:"snacks",emoji:"🥜", stock:42, unit:"pouches",daysLeft:120, receivedDays:6, provider:"Pantry Staples Inc."},
+    {sku:"salad_kit",     name:"Campus Salad Kit",            cat:"veg",   emoji:"🥗", stock:8,  unit:"kits",   daysLeft:2,   receivedDays:1, provider:"Green Valley Farm"},
+    {sku:"lentil_bowl",   name:"Lentil Protein Bowl",         cat:"veg",   emoji:"🫘", stock:24, unit:"bowls",  daysLeft:6,   receivedDays:2, provider:"Rootwise Co-op"},
+    {sku:"tofu_kit",      name:"Tofu Stir-Fry Kit",           cat:"veg",   emoji:"🥦", stock:18, unit:"kits",   daysLeft:7,   receivedDays:3, provider:"Rootwise Co-op"},
+    {sku:"fruit_cup",     name:"Fresh Fruit Cup",             cat:"veg",   emoji:"🍓", stock:11, unit:"cups",   daysLeft:2,   receivedDays:1, provider:"Green Valley Farm"},
+    {sku:"egg_box",       name:"Egg Protein Box",             cat:"nonveg",emoji:"🥚", stock:27, unit:"boxes",  daysLeft:14,  receivedDays:3, provider:"Sunrise Eggs"},
+    {sku:"chicken_rice",  name:"Chicken Rice Bowl",           cat:"nonveg",emoji:"🍗", stock:12, unit:"bowls",  daysLeft:3,   receivedDays:1, provider:"Hilltop Butcher"},
+    {sku:"tuna_pack",     name:"Tuna Protein Pack",           cat:"nonveg",emoji:"🐟", stock:31, unit:"packs",  daysLeft:180, receivedDays:8, provider:"Pantry Staples Inc."},
+    {sku:"turkey_wrap",   name:"Turkey Veg Wrap",             cat:"nonveg",emoji:"🌯", stock:9,  unit:"wraps",  daysLeft:4,   receivedDays:1, provider:"Cornerstone Bakery"},
+    {sku:"wheat_bread",   name:"Whole Wheat Bread",           cat:"bread", emoji:"🍞", stock:35, unit:"loaves", daysLeft:4,   receivedDays:1, provider:"Cornerstone Bakery"},
+    {sku:"wraps",         name:"Whole Grain Wraps",           cat:"bread", emoji:"🫓", stock:29, unit:"packs",  daysLeft:8,   receivedDays:2, provider:"Cornerstone Bakery"},
+    {sku:"bagels",        name:"Mini Bagel Pack",             cat:"bread", emoji:"🥯", stock:16, unit:"packs",  daysLeft:5,   receivedDays:2, provider:"Cornerstone Bakery"},
+    {sku:"rice",          name:"Brown Rice",                  cat:"pantry",emoji:"🍚", stock:44, unit:"bags",   daysLeft:180, receivedDays:10,provider:"Pantry Staples Inc."},
+    {sku:"beans",         name:"Black Beans",                 cat:"pantry",emoji:"🫘", stock:62, unit:"cans",   daysLeft:540, receivedDays:20,provider:"Pantry Staples Inc."},
+    {sku:"oats",          name:"Rolled Oats",                 cat:"pantry",emoji:"🥣", stock:39, unit:"tubs",   daysLeft:240, receivedDays:12,provider:"Pantry Staples Inc."},
+    {sku:"milk",          name:"Low-Fat Milk",                cat:"pantry",emoji:"🥛", stock:25, unit:"cartons",daysLeft:5,   receivedDays:2, provider:"Meadowlark Dairy"},
+    {sku:"dorm_box",      name:"Campus Dorm Box",             cat:"boxes", emoji:"🎒", stock:18, unit:"boxes",  daysLeft:5,   receivedDays:1, provider:"Meals on Wheels DC"},
+    {sku:"solo_box",      name:"Solo Low-Cost Box",           cat:"boxes", emoji:"📦", stock:20, unit:"boxes",  daysLeft:5,   receivedDays:1, provider:"Meals on Wheels DC"},
+    {sku:"veg_support",   name:"Vegetarian Support Box",      cat:"boxes", emoji:"🥬", stock:6,  unit:"boxes",  daysLeft:4,   receivedDays:1, provider:"Meals on Wheels DC"},
+  ];
+
+  const catLabel = {snacks:"Healthy snacks", veg:"Veg", nonveg:"Non-veg", bread:"Bread", pantry:"Pantry", boxes:"Subsidized boxes"};
+
+  // Orders — tied to DC campuses
+  const orders = [
+    {id:"#1047", customer:"Maya Chen",      pitstop:"georgetown", items:6,  total:38.50, nutrition:72, truck:"T-02", status:"assigned", hoursAgo:1},
+    {id:"#1046", customer:"Jorge Alvarez",  pitstop:"gw",         items:11, total:62.30, nutrition:88, truck:"T-01", status:"en-route", hoursAgo:2},
+    {id:"#1045", customer:"Tobi Okafor",    pitstop:"howard",     items:4,  total:21.80, nutrition:42, truck:"T-04", status:"en-route", hoursAgo:2},
+    {id:"#1044", customer:"Reena Patel",    pitstop:"gw",         items:8,  total:44.10, nutrition:65, truck:"T-01", status:"en-route", hoursAgo:3},
+    {id:"#1043", customer:"Lina Novak",     pitstop:"au",         items:7,  total:36.90, nutrition:80, truck:null,   status:"new",      hoursAgo:1},
+    {id:"#1042", customer:"David Park",     pitstop:"udc",        items:5,  total:28.40, nutrition:55, truck:null,   status:"new",      hoursAgo:1},
+    {id:"#1041", customer:"Sofia Ramirez",  pitstop:"georgetown", items:9,  total:51.20, nutrition:78, truck:"T-02", status:"assigned", hoursAgo:2},
+    {id:"#1040", customer:"Aaron Wells",    pitstop:"brookland",  items:6,  total:32.80, nutrition:60, truck:null,   status:"new",      hoursAgo:2},
+    {id:"#1039", customer:"Nadia Hassan",   pitstop:"howard",     items:3,  total:17.20, nutrition:38, truck:"T-04", status:"completed",hoursAgo:4},
+    {id:"#1038", customer:"Kai Tanaka",     pitstop:"gw",         items:10, total:58.90, nutrition:85, truck:"T-01", status:"completed",hoursAgo:5},
+    {id:"#1037", customer:"Elena Kostas",   pitstop:"gallaudet",  items:7,  total:42.00, nutrition:70, truck:"T-03", status:"completed",hoursAgo:6},
+    {id:"#1036", customer:"Marcus Hill",    pitstop:"law",        items:4,  total:24.10, nutrition:48, truck:"T-03", status:"completed",hoursAgo:7},
+    {id:"#1035", customer:"Priya Shankar",  pitstop:"mason",      items:8,  total:46.70, nutrition:82, truck:"T-02", status:"cancelled",hoursAgo:8},
+  ];
+
+  const consumers = [
+    {id:"U-1001", name:"Maya Chen",       email:"mchen@gmail.com",       pitstop:"georgetown", benefits:["SNAP"],         income:"< $25k", orders:14, status:"active"},
+    {id:"U-1002", name:"Jorge Alvarez",   email:"jalvarez@gwu.edu",      pitstop:"gw",         benefits:["Student aid"],  income:"< $20k", orders:22, status:"active"},
+    {id:"U-1003", name:"Tobi Okafor",     email:"tokafor@howard.edu",    pitstop:"howard",     benefits:["SNAP"],         income:"< $30k", orders:9,  status:"active"},
+    {id:"U-1004", name:"Reena Patel",     email:"rpatel@gwu.edu",        pitstop:"gw",         benefits:["Student aid"],  income:"< $25k", orders:18, status:"active"},
+    {id:"U-1005", name:"Lina Novak",      email:"lnovak@american.edu",   pitstop:"au",         benefits:["WIC"],          income:"< $30k", orders:7,  status:"active"},
+    {id:"U-1006", name:"David Park",      email:"dpark@udc.edu",         pitstop:"udc",        benefits:["SNAP"],         income:"< $20k", orders:11, status:"pending"},
+    {id:"U-1007", name:"Sofia Ramirez",   email:"sramirez@gmail.com",    pitstop:"georgetown", benefits:["SNAP","Senior"],income:"< $18k", orders:25, status:"active"},
+    {id:"U-1008", name:"Aaron Wells",     email:"awells@cua.edu",        pitstop:"brookland",  benefits:["Student aid"],  income:"< $30k", orders:4,  status:"pending"},
+    {id:"U-1009", name:"Nadia Hassan",    email:"nhassan@howard.edu",    pitstop:"howard",     benefits:["WIC"],          income:"< $25k", orders:12, status:"active"},
+    {id:"U-1010", name:"Kai Tanaka",      email:"ktanaka@gwu.edu",       pitstop:"gw",         benefits:["SNAP"],         income:"< $22k", orders:19, status:"active"},
+    {id:"U-1011", name:"Elena Kostas",    email:"ekostas@gallaudet.edu", pitstop:"gallaudet",  benefits:["Senior"],       income:"< $20k", orders:16, status:"active"},
+    {id:"U-1012", name:"Yusuf Al-Amin",   email:"yalamin@gmail.com",     pitstop:"brookland",  benefits:["SNAP","WIC"],   income:"< $28k", orders:0,  status:"pending"},
+  ];
+
+  const providers = [
+    {id:"P-2001", name:"Green Valley Farm",    type:"Business",   donated:1248, last:"2 days ago", status:"active"},
+    {id:"P-2002", name:"Meadowlark Dairy",     type:"Business",   donated:892,  last:"3 days ago", status:"active"},
+    {id:"P-2003", name:"Hilltop Butcher",      type:"Business",   donated:340,  last:"1 day ago",  status:"active"},
+    {id:"P-2004", name:"Cornerstone Bakery",   type:"Business",   donated:520,  last:"1 day ago",  status:"active"},
+    {id:"P-2005", name:"Sunrise Eggs",         type:"Business",   donated:680,  last:"4 days ago", status:"active"},
+    {id:"P-2006", name:"Rootwise Co-op",       type:"Business",   donated:412,  last:"3 days ago", status:"active"},
+    {id:"P-2007", name:"Helen Okonkwo",        type:"Individual", donated:84,   last:"5 days ago", status:"active"},
+    {id:"P-2008", name:"James &amp; Priya Narang",type:"Individual", donated:156,  last:"2 days ago", status:"active"},
+    {id:"P-2009", name:"Pantry Staples Inc.",  type:"Business",   donated:1540, last:"7 days ago", status:"active"},
+    {id:"P-2010", name:"DC Campus Bread Club", type:"Individual", donated:62,   last:"Pending",    status:"pending"},
+  ];
+
+  // Consumption by pit stop (7 days), by category
+  const consumption = {
+    gw:        {snacks:180, veg:220, nonveg:195, bread:260, pantry:95,  boxes:48},
+    georgetown:{snacks:310, veg:140, nonveg:240, bread:180, pantry:110, boxes:32},
+    howard:    {snacks:62,  veg:85,  nonveg:120, bread:148, pantry:170, boxes:58},
+    au:        {snacks:195, veg:175, nonveg:165, bread:190, pantry:80,  boxes:28},
+    brookland: {snacks:110, veg:125, nonveg:145, bread:175, pantry:125, boxes:36},
+    gallaudet: {snacks:88,  veg:92,  nonveg:100, bread:115, pantry:70,  boxes:22},
+    udc:       {snacks:140, veg:105, nonveg:120, bread:130, pantry:90,  boxes:42},
+    law:       {snacks:125, veg:135, nonveg:155, bread:145, pantry:85,  boxes:30},
+    mason:     {snacks:95,  veg:100, nonveg:110, bread:120, pantry:75,  boxes:24},
+  };
+
+  const weeklyTrend = [
+    {day:"Mon", orders:42, items:318},
+    {day:"Tue", orders:51, items:392},
+    {day:"Wed", orders:48, items:370},
+    {day:"Thu", orders:55, items:421},
+    {day:"Fri", orders:67, items:512},
+    {day:"Sat", orders:72, items:588},
+    {day:"Sun", orders:39, items:280},
+  ];
+
+  /* ===========================================================
+     Helpers
+     =========================================================== */
+  const pitStopName = id => (pitStops.find(p => p.id === id)?.name) || id;
+  const pitStopShort = id => (pitStops.find(p => p.id === id)?.short) || id;
+
+  function inventoryStatus(item) {
+    if (item.daysLeft <= 3) return {label:"Expiring", tone:"alert"};
+    if (item.daysLeft <= 7) return {label:"Watch",    tone:"warn"};
+    if (item.stock < 15)    return {label:"Low stock", tone:"warn"};
+    return {label:"Healthy", tone:"ok"};
+  }
+
+  const orderStatusPill = s => ({
+    "new":      {label:"New",       tone:"info"},
+    "assigned": {label:"Assigned",  tone:"info"},
+    "en-route": {label:"En route",  tone:"ok"},
+    "completed":{label:"Completed", tone:"neutral"},
+    "cancelled":{label:"Cancelled", tone:"alert"},
+  }[s] || {label:s, tone:"neutral"});
+
+  const truckStatusPill = s => ({
+    "on-route":  {label:"On route",   tone:"ok"},
+    "parked":    {label:"Parked",     tone:"info"},
+    "restocking":{label:"Restocking", tone:"warn"},
+    "depot":     {label:"At depot",   tone:"neutral"},
+  }[s] || {label:s, tone:"neutral"});
+
+  const nutritionTone = n => n >= 75 ? "ok" : (n >= 55 ? "warn" : "alert");
+
+  const pillHTML = (tone, label) =>
+    `<span class="pill ${tone} pill-sm"><span class="pill-dot"></span>${label}</span>`;
+
+  const fmtMoney = n => "$" + n.toFixed(2);
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => t.classList.remove("show"), 1800);
+  }
+
+  /* ===========================================================
+     DASHBOARD
+     =========================================================== */
+  function renderDashboard() {
+    // Today line
+    document.getElementById("today-line").textContent =
+      new Date().toLocaleDateString("en-US", {weekday:"long", month:"long", day:"numeric"})
+      + " · Real-time across 9 DC campus pit stops.";
+
+    // Metrics
+    const active = orders.filter(o => ["new","assigned","en-route"].includes(o.status)).length;
+    const newT   = orders.filter(o => o.status === "new").length;
+    const expiring = inventory.filter(i => i.daysLeft <= 3).length;
+    const trucksOut = trucks.filter(t => ["on-route","parked","restocking"].includes(t.status)).length;
+    document.getElementById("metrics").innerHTML = `
+      <div class="metric blue"><div class="metric-label">Active orders</div><div class="metric-value">${active}</div><div class="metric-delta up">↑ ${newT} new today</div></div>
+      <div class="metric ${expiring>5?'red':'orange'}"><div class="metric-label">Inventory items</div><div class="metric-value">${inventory.length}</div><div class="metric-delta ${expiring>5?'down':''}">${expiring} expiring soon</div></div>
+      <div class="metric"><div class="metric-label">Trucks deployed</div><div class="metric-value">${trucksOut}<span class="unit">/ ${trucks.length}</span></div><div class="metric-delta">${trucks.length - trucksOut} in depot</div></div>
+      <div class="metric orange"><div class="metric-label">Pit stops served</div><div class="metric-value">${pitStops.length}</div><div class="metric-delta">Across DC + Arlington</div></div>
+    `;
+
+    // Inventory needing attention (top 5)
+    const alerts = [...inventory].sort((a,b) => a.daysLeft - b.daysLeft).slice(0, 5);
+    document.getElementById("alert-inventory").innerHTML = alerts.map(i => {
+      const s = inventoryStatus(i);
+      return `<tr>
+        <td><div class="flex-center"><div class="emoji-tile">${i.emoji}</div><div><strong>${i.name}</strong><div class="muted" style="font-size:.76rem;">${catLabel[i.cat]}</div></div></div></td>
+        <td>${i.stock} ${i.unit}</td>
+        <td>${i.daysLeft}${i.daysLeft===1?' day':' days'}</td>
+        <td>${pillHTML(s.tone, s.label)}</td>
+      </tr>`;
+    }).join("");
+
+    // Dashboard trucks
+    document.getElementById("dashboard-trucks").innerHTML = trucks.map(t => {
+      const s = truckStatusPill(t.status);
+      const loc = t.pitstop ? pitStopShort(t.pitstop) : "Depot";
+      let meta = "";
+      if (t.status === "on-route")   meta = `${t.stops} stops · ${t.load}% loaded`;
+      else if (t.status === "parked")     meta = `Parked · ${t.load}% loaded`;
+      else if (t.status === "restocking") meta = `ETA ${t.eta} min`;
+      else                                meta = "Available";
+      return `<div class="flex-between" style="padding:10px 0;border-bottom:1px solid var(--line);">
+        <div>
+          <div style="font-weight:910;color:var(--navy);">${t.name} <span class="muted" style="font-weight:760;">· ${loc}</span></div>
+          <div class="muted" style="font-size:.82rem;">${meta}</div>
+        </div>
+        ${pillHTML(s.tone, s.label)}
+      </div>`;
+    }).join("");
+
+    // Recent orders
+    document.getElementById("recent-orders").innerHTML = orders.slice(0, 6).map(o => {
+      const s = orderStatusPill(o.status);
+      const nt = nutritionTone(o.nutrition);
+      return `<tr>
+        <td class="mono">${o.id}</td>
+        <td><strong>${o.customer}</strong></td>
+        <td>${pitStopShort(o.pitstop)}</td>
+        <td>${o.items}</td>
+        <td>${pillHTML(nt, o.nutrition + "/100")}</td>
+        <td class="mono">${o.truck || "—"}</td>
+        <td>${pillHTML(s.tone, s.label)}</td>
+      </tr>`;
+    }).join("");
+
+    // Top pit stops
+    const totals = pitStops.map(p => {
+      const c = consumption[p.id] || {};
+      const total = Object.values(c).reduce((a,b) => a+b, 0);
+      const topCat = Object.entries(c).sort((a,b) => b[1]-a[1])[0];
+      return {name:p.name, short:p.short, total, topCat: topCat ? catLabel[topCat[0]] : "—"};
+    }).sort((a,b) => b.total - a.total).slice(0, 4);
+    const maxT = totals[0].total;
+    document.getElementById("top-pitstops").innerHTML =
+      `<h3 style="margin:0 0 8px;color:var(--navy);font-size:1.02rem;letter-spacing:-.025em;">Top ordering campuses</h3>` +
+      totals.map(t => `
+      <div>
+        <div class="flex-between" style="font-size:.88rem;margin-bottom:6px;">
+          <span><strong>${t.name}</strong> <span class="muted">· ${t.topCat}</span></span>
+          <span class="muted">${t.total} units</span>
+        </div>
+        <div class="bar"><i style="width:${Math.round((t.total/maxT)*100)}%"></i></div>
+      </div>`).join("");
+
+    // Restock tips (hand-tuned illustrative)
+    const tips = [
+      {stop:"GW", msg:"Heavy on bread — add fresh snacks to next restock."},
+      {stop:"Howard", msg:"Pantry overweight vs produce — rebalance greens."},
+      {stop:"AU", msg:"Balanced mix. Keep current allocation."},
+      {stop:"Gallaudet", msg:"Low overall volume — consider extra outreach."},
+    ];
+    document.getElementById("restock-tips").innerHTML =
+      `<h3 style="margin:0 0 8px;color:var(--navy);font-size:1.02rem;letter-spacing:-.025em;">Restock tips</h3>` +
+      tips.map(t => `<div class="alert-card">💡 <div><strong>${t.stop}:</strong> ${t.msg}</div></div>`).join("");
+  }
+
+  /* ===========================================================
+     INVENTORY
+     =========================================================== */
+  const invState = {statusFilter:"all", category:"", search:"", sort:"expiry"};
+
+  function renderInventoryMetrics() {
+    const total = inventory.length;
+    const expiring = inventory.filter(i => i.daysLeft <= 3).length;
+    const low = inventory.filter(i => i.stock < 15 && i.daysLeft > 3).length;
+    const fresh = inventory.filter(i => i.receivedDays <= 3).reduce((s,i) => s+i.stock, 0);
+    document.getElementById("inv-metrics").innerHTML = `
+      <div class="metric blue"><div class="metric-label">Total SKUs</div><div class="metric-value">${total}</div><div class="metric-delta">6 categories</div></div>
+      <div class="metric red"><div class="metric-label">Expiring soon</div><div class="metric-value">${expiring}</div><div class="metric-delta down">Within 3 days</div></div>
+      <div class="metric orange"><div class="metric-label">Low stock</div><div class="metric-value">${low}</div><div class="metric-delta">Under 15 units</div></div>
+      <div class="metric"><div class="metric-label">Fresh inflow</div><div class="metric-value">${fresh}</div><div class="metric-delta up">Items this week</div></div>
+    `;
+  }
+
+  function renderInventoryTabs() {
+    const all = inventory.length;
+    const healthy = inventory.filter(i => i.daysLeft > 7 && i.stock >= 15).length;
+    const watch = inventory.filter(i => (i.daysLeft > 3 && i.daysLeft <= 7) || (i.stock < 15 && i.daysLeft > 3)).length;
+    const expiring = inventory.filter(i => i.daysLeft <= 3).length;
+    document.getElementById("inv-tabs").innerHTML = `
+      <button class="tab-btn ${invState.statusFilter==='all'?'active':''}" data-f="all">All <span class="count">${all}</span></button>
+      <button class="tab-btn ${invState.statusFilter==='expiring'?'active':''}" data-f="expiring">Expiring <span class="count">${expiring}</span></button>
+      <button class="tab-btn ${invState.statusFilter==='watch'?'active':''}" data-f="watch">Watch <span class="count">${watch}</span></button>
+      <button class="tab-btn ${invState.statusFilter==='healthy'?'active':''}" data-f="healthy">Healthy <span class="count">${healthy}</span></button>
+    `;
+    document.querySelectorAll("#inv-tabs .tab-btn").forEach(b => {
+      b.addEventListener("click", () => { invState.statusFilter = b.dataset.f; renderInventoryTabs(); renderInventoryTable(); });
+    });
+  }
+
+  function renderInventoryTable() {
+    let rows = inventory.filter(i => {
+      const s = inventoryStatus(i);
+      if (invState.statusFilter === "expiring" && s.label !== "Expiring") return false;
+      if (invState.statusFilter === "watch"    && !(s.label === "Watch" || s.label === "Low stock")) return false;
+      if (invState.statusFilter === "healthy"  && s.label !== "Healthy") return false;
+      if (invState.category && i.cat !== invState.category) return false;
+      if (invState.search) {
+        const q = invState.search.toLowerCase();
+        if (!i.name.toLowerCase().includes(q) && !i.sku.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+    rows.sort((a,b) => {
+      if (invState.sort === "expiry") return a.daysLeft - b.daysLeft;
+      if (invState.sort === "stock")  return a.stock - b.stock;
+      if (invState.sort === "name")   return a.name.localeCompare(b.name);
+      return 0;
+    });
+
+    const tbody = document.getElementById("inv-table");
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:48px;text-align:center;color:var(--muted);font-weight:800;">No items match these filters</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(i => {
+      const s = inventoryStatus(i);
+      const shelf = i.daysLeft > 60 ? `${Math.floor(i.daysLeft/30)} mo` : `${i.daysLeft} ${i.daysLeft===1?'day':'days'}`;
+      return `<tr>
+        <td><div class="flex-center"><div class="emoji-tile">${i.emoji}</div><div><strong>${i.name}</strong><div class="muted" style="font-size:.74rem;">${i.sku} · received ${i.receivedDays}d ago</div></div></div></td>
+        <td>${catLabel[i.cat]}</td>
+        <td>${i.stock} ${i.unit}</td>
+        <td>${shelf}</td>
+        <td class="muted">${i.provider}</td>
+        <td>${pillHTML(s.tone, s.label)}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function wireInventoryFilters() {
+    document.getElementById("inv-search").addEventListener("input", e => { invState.search = e.target.value; renderInventoryTable(); });
+    document.getElementById("inv-category").addEventListener("change", e => { invState.category = e.target.value; renderInventoryTable(); });
+    document.getElementById("inv-sort").addEventListener("change", e => { invState.sort = e.target.value; renderInventoryTable(); });
+  }
+
+  /* ===========================================================
+     FLEET (Leaflet)
+     =========================================================== */
+  let map;
+  const truckMarkers = {};
+  let selectedTruck = "T-01";
+  const routeIndex = {};
+
+  function renderFleetMetrics() {
+    const onR = trucks.filter(t => t.status === "on-route").length;
+    const pk  = trucks.filter(t => t.status === "parked").length;
+    const rs  = trucks.filter(t => t.status === "restocking").length;
+    const av  = trucks.filter(t => t.status === "depot").length;
+    document.getElementById("fleet-metrics").innerHTML = `
+      <div class="metric"><div class="metric-label">On route</div><div class="metric-value">${onR}</div><div class="metric-delta up">Delivering</div></div>
+      <div class="metric blue"><div class="metric-label">Parked at pit stop</div><div class="metric-value">${pk}</div><div class="metric-delta">Accepting pickups</div></div>
+      <div class="metric orange"><div class="metric-label">Restocking</div><div class="metric-value">${rs}</div><div class="metric-delta">At depot</div></div>
+      <div class="metric"><div class="metric-label">Available</div><div class="metric-value">${av}</div><div class="metric-delta">Ready for dispatch</div></div>
+    `;
+    document.getElementById("trucks-live").textContent = onR + pk + rs;
+  }
+
+  function initMap() {
+    map = L.map("adminMap", {zoomControl:true, attributionControl:false}).setView([38.9072, -77.0369], 12);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", {subdomains:"abcd", maxZoom:19}).addTo(map);
+
+    // Pit stop circles
+    pitStops.forEach(p => {
+      L.circleMarker([p.lat, p.lng], {
+        radius: 16, fillColor:"#0a84ff", color:"#fff", weight:2, opacity:1, fillOpacity:0.10
+      }).addTo(map).bindTooltip(p.short, {direction:"top"});
+    });
+
+    // Depot
+    L.marker([DEPOT.lat, DEPOT.lng], {icon: L.divIcon({
+      className: "",
+      html: '<div style="background:linear-gradient(135deg,var(--orange),var(--yellow));color:var(--navy);padding:5px 12px;border-radius:999px;font-size:.72rem;font-weight:1000;border:2px solid white;box-shadow:0 4px 10px rgba(255,159,10,.32);">DEPOT</div>',
+      iconSize:[70, 26], iconAnchor:[35, 13]
+    })}).addTo(map);
+
+    // Trucks
+    trucks.forEach(t => {
+      if (t.status === "depot") return;
+      const cls = t.status === "on-route" ? "" : (t.status === "parked" ? "parked" : "restocking");
+      const m = L.marker([t.lat, t.lng], {icon: L.divIcon({
+        className:"",
+        html: `<div class="truck-marker ${cls}" data-id="${t.id}">${t.id.split('-')[1]}</div>`,
+        iconSize:[36,36], iconAnchor:[18,18]
+      })}).addTo(map).bindTooltip(`${t.name} · ${truckStatusPill(t.status).label}`, {direction:"top"});
+      m.on("click", () => selectTruck(t.id));
+      truckMarkers[t.id] = m;
+      if (t.status === "on-route") routeIndex[t.id] = 0;
+    });
+  }
+
+  function renderTruckList() {
+    document.getElementById("truck-list").innerHTML = trucks.map(t => {
+      const s = truckStatusPill(t.status);
+      const loc = t.pitstop ? pitStopName(t.pitstop) : "Central depot";
+      let meta = "";
+      if (t.status === "on-route")        meta = `${t.stops} stops · ${t.load}% load`;
+      else if (t.status === "parked")     meta = `Parked until ${t.parkedUntil}`;
+      else if (t.status === "restocking") meta = `ETA ${t.eta} min`;
+      else meta = "Available for dispatch";
+      return `<div class="truck-row ${t.id===selectedTruck?'selected':''}" data-id="${t.id}">
+        <div class="truck-head">
+          <div class="truck-name">${t.name}</div>
+          ${pillHTML(s.tone, s.label)}
+        </div>
+        <div class="truck-sub">${loc} · ${t.driver}</div>
+        <div class="truck-meta"><span>${meta}</span></div>
+      </div>`;
+    }).join("");
+    document.querySelectorAll(".truck-row").forEach(r => {
+      r.addEventListener("click", () => selectTruck(r.dataset.id));
+    });
+  }
+
+  function selectTruck(id) {
+    selectedTruck = id;
+    renderTruckList();
+    renderTruckOrders();
+    const t = trucks.find(x => x.id === id);
+    if (t && truckMarkers[id]) map.setView([t.lat, t.lng], 14, {animate:true});
+    // update marker highlight
+    Object.entries(truckMarkers).forEach(([tid, mk]) => {
+      const el = mk.getElement()?.querySelector(".truck-marker");
+      if (el) el.classList.toggle("selected", tid === id);
+    });
+  }
+
+  function renderTruckOrders() {
+    const t = trucks.find(x => x.id === selectedTruck);
+    if (!t) return;
+    document.getElementById("selected-truck-title").textContent = `Orders on ${t.name}`;
+    document.getElementById("selected-truck-sub").textContent =
+      t.pitstop ? `At ${pitStopName(t.pitstop)} · Driver: ${t.driver}` : "At central depot";
+    const tOrders = orders.filter(o => o.truck === t.id && ["new","assigned","en-route"].includes(o.status));
+    const tbody = document.getElementById("truck-orders");
+    if (tOrders.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-weight:800;">No active orders on this truck</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = tOrders.map(o => {
+      const s = orderStatusPill(o.status);
+      return `<tr>
+        <td class="mono">${o.id}</td>
+        <td><strong>${o.customer}</strong></td>
+        <td>${pitStopShort(o.pitstop)}</td>
+        <td>${o.items}</td>
+        <td>${pillHTML(s.tone, s.label)}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function simulateMovement() {
+    trucks.forEach(t => {
+      if (t.status !== "on-route" || !t.path) return;
+      routeIndex[t.id] = (routeIndex[t.id] + 1) % t.path.length;
+      const [lat, lng] = t.path[routeIndex[t.id]];
+      t.lat = lat; t.lng = lng;
+      if (truckMarkers[t.id]) truckMarkers[t.id].setLatLng([lat, lng]);
+    });
+  }
+
+  /* ===========================================================
+     ORDERS
+     =========================================================== */
+  const orderState = {status:"all", search:"", pitstop:"", truck:""};
+
+  function renderOrderMetrics() {
+    const newC = orders.filter(o => o.status === "new").length;
+    const inProg = orders.filter(o => ["assigned","en-route"].includes(o.status)).length;
+    const done = orders.filter(o => o.status === "completed").length;
+    const lowN = orders.filter(o => o.nutrition < 55 && ["new","assigned","en-route"].includes(o.status)).length;
+    document.getElementById("order-metrics").innerHTML = `
+      <div class="metric blue"><div class="metric-label">New — need assignment</div><div class="metric-value">${newC}</div><div class="metric-delta">Awaiting truck</div></div>
+      <div class="metric"><div class="metric-label">In progress</div><div class="metric-value">${inProg}</div><div class="metric-delta up">Active deliveries</div></div>
+      <div class="metric"><div class="metric-label">Completed today</div><div class="metric-value">${done}</div><div class="metric-delta up">Picked up</div></div>
+      <div class="metric orange"><div class="metric-label">Low nutrition flag</div><div class="metric-value">${lowN}</div><div class="metric-delta">Suggest substitutes</div></div>
+    `;
+  }
+
+  function renderOrderTabs() {
+    const c = {
+      all: orders.length,
+      new: orders.filter(o => o.status === "new").length,
+      assigned: orders.filter(o => o.status === "assigned").length,
+      "en-route": orders.filter(o => o.status === "en-route").length,
+      completed: orders.filter(o => o.status === "completed").length,
+      cancelled: orders.filter(o => o.status === "cancelled").length,
+    };
+    const tabs = [["all","All"],["new","New"],["assigned","Assigned"],["en-route","En route"],["completed","Completed"],["cancelled","Cancelled"]];
+    document.getElementById("order-tabs").innerHTML = tabs.map(([k,l]) =>
+      `<button class="tab-btn ${orderState.status===k?'active':''}" data-k="${k}">${l} <span class="count">${c[k]}</span></button>`
+    ).join("");
+    document.querySelectorAll("#order-tabs .tab-btn").forEach(b => {
+      b.addEventListener("click", () => { orderState.status = b.dataset.k; renderOrderTabs(); renderOrdersTable(); });
+    });
+  }
+
+  function renderOrdersTable() {
+    let rows = orders.filter(o => {
+      if (orderState.status !== "all" && o.status !== orderState.status) return false;
+      if (orderState.pitstop && o.pitstop !== orderState.pitstop) return false;
+      if (orderState.truck) {
+        if (orderState.truck === "unassigned" && o.truck !== null) return false;
+        else if (orderState.truck !== "unassigned" && o.truck !== orderState.truck) return false;
+      }
+      if (orderState.search) {
+        const q = orderState.search.toLowerCase();
+        if (!o.id.toLowerCase().includes(q) && !o.customer.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+
+    const tbody = document.getElementById("orders-table");
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="padding:48px;text-align:center;color:var(--muted);font-weight:800;">No orders match these filters</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(o => {
+      const s = orderStatusPill(o.status);
+      const nt = nutritionTone(o.nutrition);
+      return `<tr class="clickable" data-id="${o.id}">
+        <td class="mono">${o.id}</td>
+        <td><strong>${o.customer}</strong></td>
+        <td>${pitStopShort(o.pitstop)}</td>
+        <td>${o.items}</td>
+        <td>${fmtMoney(o.total)}</td>
+        <td>${pillHTML(nt, o.nutrition + "/100")}</td>
+        <td class="mono">${o.truck || "—"}</td>
+        <td>${pillHTML(s.tone, s.label)}</td>
+      </tr>`;
+    }).join("");
+    tbody.querySelectorAll("tr.clickable").forEach(tr => tr.addEventListener("click", () => openOrder(tr.dataset.id)));
+  }
+
+  function wireOrderFilters() {
+    document.getElementById("order-pitstop").innerHTML +=
+      pitStops.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+    document.getElementById("order-truck").innerHTML +=
+      trucks.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+    document.getElementById("order-search").addEventListener("input", e => { orderState.search = e.target.value; renderOrdersTable(); });
+    document.getElementById("order-pitstop").addEventListener("change", e => { orderState.pitstop = e.target.value; renderOrdersTable(); });
+    document.getElementById("order-truck").addEventListener("change", e => { orderState.truck = e.target.value; renderOrdersTable(); });
+  }
+
+  function openOrder(id) {
+    const o = orders.find(x => x.id === id);
+    if (!o) return;
+    document.getElementById("drawer-title").textContent = `Order ${o.id}`;
+    document.getElementById("drawer-sub").textContent =
+      `${o.customer} · ${pitStopName(o.pitstop)} · ${o.hoursAgo}h ago`;
+
+    // Mock line items from inventory
+    const picks = [inventory[0], inventory[8], inventory[13], inventory[15]].slice(0, Math.min(4, o.items));
+    const s = orderStatusPill(o.status);
+    const nt = nutritionTone(o.nutrition);
+    const nLabel = nt === "ok" ? "Balanced" : (nt === "warn" ? "Partial" : "Unbalanced");
+    const nMsg = o.nutrition >= 75
+      ? "Well-balanced order — no intervention needed."
+      : o.nutrition >= 55
+        ? "Consider offering the fresh produce suggestion at checkout."
+        : "Order is heavy on one category. Recommend adding greens, dairy, or legumes via suggestion box on the consumer site.";
+
+    document.getElementById("drawer-body").innerHTML = `
+      <div class="stack-lg">
+        <div class="flex-between" style="flex-wrap:wrap;gap:14px;">
+          <div><div class="muted" style="font-size:.76rem;">Status</div>${pillHTML(s.tone, s.label)}</div>
+          <div><div class="muted" style="font-size:.76rem;">Truck</div><div class="mono" style="font-size:1rem;">${o.truck || "Unassigned"}</div></div>
+          <div><div class="muted" style="font-size:.76rem;">Total</div><div style="font-weight:1000;color:var(--navy);font-size:1.2rem;">${fmtMoney(o.total)}</div></div>
+        </div>
+
+        <div>
+          <h4 style="color:var(--navy);letter-spacing:-.03em;font-size:1rem;margin:0 0 8px;">Items (${o.items})</h4>
+          <div style="border:1px solid var(--line);border-radius:18px;overflow:hidden;">
+            ${picks.map(i => `
+              <div class="flex-between" style="padding:10px 14px;border-bottom:1px solid var(--line);">
+                <div class="flex-center"><div class="emoji-tile">${i.emoji}</div><strong>${i.name}</strong></div>
+                <span class="muted">× 1</span>
+              </div>
+            `).join("")}
+            <div class="flex-between" style="padding:10px 14px;background:rgba(7,31,46,.03);">
+              <span class="muted" style="font-style:italic;">+ ${Math.max(0, o.items - picks.length)} more items in order</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color:var(--navy);letter-spacing:-.03em;font-size:1rem;margin:0 0 8px;">Nutrition balance</h4>
+          <div class="alert-card ${nt === 'ok' ? '' : nt}">
+            <div style="flex:1;">
+              <div class="flex-between" style="margin-bottom:4px;">
+                <strong>Score: ${o.nutrition} / 100</strong>
+                ${pillHTML(nt, nLabel)}
+              </div>
+              <div style="font-weight:760;font-size:.88rem;">${nMsg}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" style="flex:1;">Reassign truck</button>
+          <button class="btn btn-light" style="flex:1;">Message student</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("orderDrawer").classList.add("open");
+  }
+
+  document.getElementById("close-drawer").addEventListener("click", () => {
+    document.getElementById("orderDrawer").classList.remove("open");
+  });
+  document.getElementById("orderDrawer").addEventListener("click", e => {
+    if (e.target.id === "orderDrawer") e.currentTarget.classList.remove("open");
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") document.getElementById("orderDrawer").classList.remove("open");
+  });
+
+  /* ===========================================================
+     PIT STOPS / ANALYTICS
+     =========================================================== */
+  const palette = {
+    snacks: "#0a84ff", veg: "#30d158", nonveg: "#ff453a",
+    bread:  "#ff9f0a", pantry: "#5e7681", boxes: "#00c7be"
+  };
+
+  function renderPitstopMetrics() {
+    const totalOrders = orders.length;
+    const totals = pitStops.map(p => {
+      const c = consumption[p.id] || {};
+      return {name:p.name, short:p.short, total: Object.values(c).reduce((a,b) => a+b, 0)};
+    }).sort((a,b) => b.total - a.total);
+    const topStop = totals[0];
+    const cats = ["snacks","veg","nonveg","bread","pantry","boxes"];
+    const catTotals = cats.map(c => ({
+      cat:c, total: pitStops.reduce((s,p) => s + (consumption[p.id]?.[c] || 0), 0)
+    })).sort((a,b) => b.total - a.total);
+    const topCat = catTotals[0];
+    const fastDepl = inventory.filter(i => i.daysLeft <= 7).length;
+
+    document.getElementById("ps-metrics").innerHTML = `
+      <div class="metric blue"><div class="metric-label">Orders (7d)</div><div class="metric-value">${totalOrders}</div><div class="metric-delta up">↑ 18% vs prior</div></div>
+      <div class="metric"><div class="metric-label">Top pit stop</div><div class="metric-value" style="font-size:1.4rem;line-height:1.1;padding-top:6px;">${topStop.name}</div><div class="metric-delta">${topStop.total} units</div></div>
+      <div class="metric"><div class="metric-label">Top category</div><div class="metric-value" style="font-size:1.4rem;line-height:1.1;padding-top:6px;">${catLabel[topCat.cat]}</div><div class="metric-delta">${topCat.total} units</div></div>
+      <div class="metric orange"><div class="metric-label">Fast-depleting SKUs</div><div class="metric-value">${fastDepl}</div><div class="metric-delta">Need replenishment</div></div>
+    `;
+  }
+
+  function renderCharts() {
+    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.font.weight = "700";
+    Chart.defaults.color = "#5e7681";
+    Chart.defaults.borderColor = "rgba(7,31,46,.10)";
+
+    const cats = ["snacks","veg","nonveg","bread","pantry","boxes"];
+    const labels = pitStops.map(p => p.short);
+
+    // Consumption bar (stacked)
+    new Chart(document.getElementById("chart-consumption"), {
+      type:"bar",
+      data:{labels, datasets: cats.map(c => ({
+        label: catLabel[c],
+        data: pitStops.map(p => consumption[p.id]?.[c] || 0),
+        backgroundColor: palette[c],
+        borderRadius: 4,
+        borderSkipped: false,
+        barPercentage: .78,
+        categoryPercentage: .78,
+      }))},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{position:"bottom", labels:{usePointStyle:true, padding:14, boxWidth:8, font:{size:11, weight:"700"}}},
+          tooltip:{padding:10, backgroundColor:"#071f2e", titleFont:{weight:"900"}, bodyFont:{weight:"600"}}
+        },
+        scales:{
+          x:{stacked:true, grid:{display:false}},
+          y:{stacked:true, grid:{color:"rgba(7,31,46,.08)"}, beginAtZero:true}
+        }
+      }
+    });
+
+    // Category mix donut
+    const catTotals = cats.map(c => ({cat:c, total: pitStops.reduce((s,p) => s + (consumption[p.id]?.[c] || 0), 0)}));
+    new Chart(document.getElementById("chart-mix"), {
+      type:"doughnut",
+      data:{
+        labels: cats.map(c => catLabel[c]),
+        datasets:[{
+          data: catTotals.map(c => c.total),
+          backgroundColor: cats.map(c => palette[c]),
+          borderColor:"#fff", borderWidth:3,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:"60%",
+        plugins:{
+          legend:{position:"bottom", labels:{usePointStyle:true, padding:12, boxWidth:8, font:{size:11, weight:"700"}}},
+          tooltip:{padding:10, backgroundColor:"#071f2e"}
+        }
+      }
+    });
+
+    // Weekly trend
+    new Chart(document.getElementById("chart-trend"), {
+      type:"line",
+      data:{
+        labels: weeklyTrend.map(d => d.day),
+        datasets:[
+          {
+            label:"Orders", data: weeklyTrend.map(d => d.orders),
+            borderColor:"#0a84ff", backgroundColor:"rgba(10,132,255,.10)",
+            borderWidth:3, fill:true, tension:.35, pointBackgroundColor:"#0a84ff",
+            pointRadius:5, pointHoverRadius:7, yAxisID:"y"
+          },
+          {
+            label:"Items", data: weeklyTrend.map(d => d.items),
+            borderColor:"#00c7be", backgroundColor:"transparent",
+            borderWidth:3, borderDash:[6,4], tension:.35, pointBackgroundColor:"#00c7be",
+            pointRadius:5, pointHoverRadius:7, yAxisID:"y1"
+          },
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{position:"bottom", labels:{usePointStyle:true, padding:14, boxWidth:10, font:{size:11, weight:"700"}}},
+          tooltip:{padding:10, backgroundColor:"#071f2e", mode:"index", intersect:false}
+        },
+        scales:{
+          x:{grid:{display:false}},
+          y:{type:"linear", position:"left",  beginAtZero:true, grid:{color:"rgba(7,31,46,.08)"}, title:{display:true, text:"Orders", font:{size:11, weight:"800"}}},
+          y1:{type:"linear", position:"right", beginAtZero:true, grid:{display:false}, title:{display:true, text:"Items", font:{size:11, weight:"800"}}}
+        }
+      }
+    });
+  }
+
+  function renderRecommendations() {
+    const msgMap = {
+      snacks:"Add fresh snacks & parfaits to next restock",
+      veg:"Prioritize salad kits & fruit cups",
+      nonveg:"Rebalance with eggs, wraps, tuna packs",
+      bread:"Rotate bread closer to expiry here",
+      pantry:"Reduce pantry share, lean toward fresh",
+      boxes:"Add more subsidized box allocation",
+    };
+    document.getElementById("rec-table").innerHTML = pitStops.map(p => {
+      const c = consumption[p.id] || {};
+      const entries = Object.entries(c).sort((a,b) => a[1]-b[1]);
+      const under = entries[0]?.[0] || "—";
+      const over  = entries[entries.length-1]?.[0] || "—";
+      return `<tr>
+        <td><strong>${p.name}</strong><div class="muted" style="font-size:.76rem;">${p.zip}</div></td>
+        <td><span class="pill info pill-sm"><span class="pill-dot"></span>${catLabel[under] || under}</span></td>
+        <td><span class="pill neutral pill-sm"><span class="pill-dot"></span>${catLabel[over] || over}</span></td>
+        <td>${msgMap[under] || "Adjust next run"}</td>
+        <td class="text-right"><button class="btn btn-light btn-sm" onclick="showToast('Applied — queued for next restock')">Apply →</button></td>
+      </tr>`;
+    }).join("");
+  }
+
+  /* ===========================================================
+     PEOPLE
+     =========================================================== */
+  let peopleTab = "consumers";
+  const userState = {search:"", pitstop:"", benefit:"", status:""};
+
+  function renderPeopleMetrics() {
+    const activeC = consumers.filter(c => c.status === "active").length;
+    const activeP = providers.filter(p => p.status === "active").length;
+    const pending = consumers.filter(c => c.status === "pending").length + providers.filter(p => p.status === "pending").length;
+    const donated = providers.reduce((s,p) => s+p.donated, 0);
+    document.getElementById("people-metrics").innerHTML = `
+      <div class="metric blue"><div class="metric-label">Active students</div><div class="metric-value">${activeC}</div><div class="metric-delta up">+6 this week</div></div>
+      <div class="metric"><div class="metric-label">Active providers</div><div class="metric-value">${activeP}</div><div class="metric-delta">${donated.toLocaleString()} items</div></div>
+      <div class="metric orange"><div class="metric-label">Pending verification</div><div class="metric-value">${pending}</div><div class="metric-delta">Need review</div></div>
+      <div class="metric"><div class="metric-label">Campuses reached</div><div class="metric-value">${pitStops.length}</div><div class="metric-delta">All active</div></div>
+    `;
+  }
+
+  function renderPeopleTabs() {
+    const pending = consumers.filter(c => c.status === "pending").length + providers.filter(p => p.status === "pending").length;
+    const tabs = [
+      ["consumers", "Students", consumers.length],
+      ["providers", "Providers", providers.length],
+      ["pending", "Pending verification", pending],
+    ];
+    document.getElementById("people-tabs").innerHTML = tabs.map(([k,l,c]) =>
+      `<button class="tab-btn ${peopleTab===k?'active':''}" data-k="${k}">${l} <span class="count">${c}</span></button>`
+    ).join("");
+    document.querySelectorAll("#people-tabs .tab-btn").forEach(b => {
+      b.addEventListener("click", () => { peopleTab = b.dataset.k; renderPeopleTabs(); renderPeopleView(); });
+    });
+  }
+
+  function renderPeopleView() {
+    document.getElementById("consumers-view").style.display = peopleTab === "consumers" ? "block" : "none";
+    document.getElementById("providers-view").style.display = peopleTab === "providers" ? "block" : "none";
+    document.getElementById("pending-view").style.display = peopleTab === "pending" ? "block" : "none";
+    if (peopleTab === "consumers") renderConsumersTable();
+    if (peopleTab === "providers") renderProvidersTable();
+    if (peopleTab === "pending")   renderPendingList();
+  }
+
+  function renderConsumersTable() {
+    let rows = consumers.filter(c => {
+      if (userState.pitstop && c.pitstop !== userState.pitstop) return false;
+      if (userState.benefit && !c.benefits.includes(userState.benefit)) return false;
+      if (userState.status && c.status !== userState.status) return false;
+      if (userState.search) {
+        const q = userState.search.toLowerCase();
+        if (!c.name.toLowerCase().includes(q) && !c.email.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+
+    const tbody = document.getElementById("consumers-table");
+    if (rows.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:48px;text-align:center;color:var(--muted);font-weight:800;">No users match these filters</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(c => {
+      const initials = c.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+      const statusPill = c.status === "active" ? pillHTML("ok","Active") : pillHTML("warn","Pending");
+      const benPills = c.benefits.map(b => `<span class="pill neutral pill-sm" style="margin-right:4px;"><span class="pill-dot"></span>${b}</span>`).join("");
+      return `<tr>
+        <td>
+          <div class="flex-center">
+            <div class="admin-avatar" style="width:36px;height:36px;font-size:.76rem;">${initials}</div>
+            <div><strong>${c.name}</strong><div class="muted" style="font-size:.74rem;">${c.email}</div></div>
+          </div>
+        </td>
+        <td>${pitStopShort(c.pitstop)}</td>
+        <td>${benPills}</td>
+        <td class="mono">${c.income}</td>
+        <td>${c.orders}</td>
+        <td>${statusPill}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function renderProvidersTable() {
+    document.getElementById("providers-table").innerHTML = providers.map(p => {
+      const initials = p.name.replace("&amp;", "&").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+      const statusPill = p.status === "active" ? pillHTML("ok","Active") : pillHTML("warn","Pending");
+      const typePill = p.type === "Business" ? pillHTML("info","Business") : pillHTML("neutral","Individual");
+      return `<tr>
+        <td>
+          <div class="flex-center">
+            <div class="admin-avatar" style="width:36px;height:36px;font-size:.76rem;background:linear-gradient(135deg,var(--green),var(--teal));">${initials}</div>
+            <strong>${p.name}</strong>
+          </div>
+        </td>
+        <td>${typePill}</td>
+        <td>${p.donated.toLocaleString()} items</td>
+        <td class="muted">${p.last}</td>
+        <td>${statusPill}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function renderPendingList() {
+    const pc = consumers.filter(c => c.status === "pending");
+    const pp = providers.filter(p => p.status === "pending");
+    const cont = document.getElementById("pending-list");
+    if (pc.length === 0 && pp.length === 0) {
+      cont.innerHTML = `<div style="padding:48px;text-align:center;color:var(--muted);font-weight:800;">No pending verifications — nicely done! 🎉</div>`;
+      return;
+    }
+    cont.innerHTML = [
+      ...pc.map(c => {
+        const initials = c.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+        return `<div class="flex-between" style="padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;">
+          <div class="flex-center" style="gap:12px;">
+            <div class="admin-avatar" style="width:44px;height:44px;">${initials}</div>
+            <div>
+              <div style="font-weight:1000;color:var(--navy);">${c.name} <span class="pill info pill-sm" style="margin-left:6px;"><span class="pill-dot"></span>Student</span></div>
+              <div class="muted" style="font-size:.84rem;">${pitStopName(c.pitstop)} · ${c.benefits.join(", ")} · Income ${c.income}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-light btn-sm">Request info</button>
+            <button class="btn btn-light btn-sm">Reject</button>
+            <button class="btn btn-primary btn-sm" onclick="showToast('Approved — ${c.name}')">Approve</button>
+          </div>
+        </div>`;
+      }),
+      ...pp.map(p => {
+        const initials = p.name.replace("&amp;","&").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+        return `<div class="flex-between" style="padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:12px;">
+          <div class="flex-center" style="gap:12px;">
+            <div class="admin-avatar" style="width:44px;height:44px;background:linear-gradient(135deg,var(--green),var(--teal));">${initials}</div>
+            <div>
+              <div style="font-weight:1000;color:var(--navy);">${p.name} <span class="pill ok pill-sm" style="margin-left:6px;"><span class="pill-dot"></span>Provider</span></div>
+              <div class="muted" style="font-size:.84rem;">${p.type} · Donation pending</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-light btn-sm">Request info</button>
+            <button class="btn btn-light btn-sm">Reject</button>
+            <button class="btn btn-primary btn-sm" onclick="showToast('Approved — ${p.name}')">Approve</button>
+          </div>
+        </div>`;
+      })
+    ].join("");
+  }
+
+  function wirePeopleFilters() {
+    document.getElementById("user-pitstop").innerHTML +=
+      pitStops.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+    document.getElementById("user-search").addEventListener("input", e => { userState.search = e.target.value; renderConsumersTable(); });
+    document.getElementById("user-pitstop").addEventListener("change", e => { userState.pitstop = e.target.value; renderConsumersTable(); });
+    document.getElementById("user-benefit").addEventListener("change", e => { userState.benefit = e.target.value; renderConsumersTable(); });
+    document.getElementById("user-status").addEventListener("change", e => { userState.status = e.target.value; renderConsumersTable(); });
+  }
+
+  /* ===========================================================
+     Section highlighting on scroll
+     =========================================================== */
+  function wireScrollSpy() {
+    const links = document.querySelectorAll(".nav-links a");
+    const sections = [...links].map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+    function onScroll() {
+      const y = window.scrollY + 120;
+      let current = sections[0];
+      sections.forEach(s => { if (s.offsetTop <= y) current = s; });
+      links.forEach(a => {
+        a.classList.toggle("active", a.getAttribute("href") === "#" + current.id);
+      });
+    }
+    window.addEventListener("scroll", onScroll, {passive:true});
+    onScroll();
+  }
+
+  /* ===========================================================
+     Boot
+     =========================================================== */
+  document.addEventListener("DOMContentLoaded", () => {
+    renderDashboard();
+
+    renderInventoryMetrics();
+    renderInventoryTabs();
+    renderInventoryTable();
+    wireInventoryFilters();
+
+    renderFleetMetrics();
+    initMap();
+    renderTruckList();
+    renderTruckOrders();
+    setInterval(simulateMovement, 3000);
+
+    renderOrderMetrics();
+    renderOrderTabs();
+    renderOrdersTable();
+    wireOrderFilters();
+
+    renderPitstopMetrics();
+    renderCharts();
+    renderRecommendations();
+
+    renderPeopleMetrics();
+    renderPeopleTabs();
+    renderPeopleView();
+    wirePeopleFilters();
+
+    wireScrollSpy();
+  });
+  </script>
+</body>
+</html>
