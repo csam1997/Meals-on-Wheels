@@ -14,7 +14,7 @@
       type: "Locker pickup and short-hop delivery",
       stockBoost: 1.08,
       services: ["Campus", "Apartments", "Locker pickup"],
-      note: "Blends student demand with apartment and office-adjacent pickups."
+      note: "Campus and apartment pickup."
     },
     {
       id: "georgetown",
@@ -28,7 +28,7 @@
       type: "Campus and neighborhood locker",
       stockBoost: 1.03,
       services: ["Campus", "Neighborhood", "Locker pickup"],
-      note: "Useful for both university traffic and nearby residential pickup."
+      note: "Neighborhood and campus pickup."
     },
     {
       id: "howard_shaw",
@@ -42,7 +42,7 @@
       type: "Corner store and locker blend",
       stockBoost: 1.05,
       services: ["Campus", "Community", "Fresh pickup"],
-      note: "Built to serve students and surrounding community demand together."
+      note: "Fresh pickup close to Shaw."
     },
     {
       id: "tenley",
@@ -56,7 +56,7 @@
       type: "Student and apartment pickup",
       stockBoost: 0.98,
       services: ["Campus", "Apartments", "Pickup"],
-      note: "Positions campus traffic as one slice of a larger uptown service area."
+      note: "Uptown pickup for students and apartments."
     },
     {
       id: "brookland",
@@ -70,7 +70,7 @@
       type: "Community locker and pickup",
       stockBoost: 1.0,
       services: ["Community", "Campus", "Locker pickup"],
-      note: "Supports school demand without making the map revolve around it."
+      note: "Brookland locker and community pickup."
     },
     {
       id: "noma",
@@ -84,7 +84,7 @@
       type: "Locker pickup and neighborhood restock",
       stockBoost: 1.02,
       services: ["Apartments", "Community", "Locker pickup"],
-      note: "A strong example of non-campus coverage in the network."
+      note: "Neighborhood lockers near NoMa."
     },
     {
       id: "van_ness",
@@ -98,7 +98,7 @@
       type: "Uptown pickup hub",
       stockBoost: 0.97,
       services: ["Neighborhood", "Campus", "Pickup"],
-      note: "Balances neighborhood use with university-adjacent traffic."
+      note: "Uptown hub with short pickup reach."
     },
     {
       id: "capitol",
@@ -112,7 +112,7 @@
       type: "Locker and pickup hub",
       stockBoost: 1.04,
       services: ["Apartments", "Campus", "Locker pickup"],
-      note: "Positions the legal campus as an optional demand stream, not the center."
+      note: "Capitol pickup with locker access."
     },
     {
       id: "arlington",
@@ -126,7 +126,7 @@
       type: "Cross-river pickup",
       stockBoost: 0.95,
       services: ["Apartments", "Campus", "Pickup"],
-      note: "Extends the prototype past the district core without changing the service model."
+      note: "Cross-river pickup option."
     }
   ];
 
@@ -184,12 +184,12 @@
   };
 
   const categoryMeta = {
-    snacks: { id: "snacks", name: "Healthy snacks", short: "Snacks", markBg: "rgba(223, 245, 234, 0.95)", markColor: "#1d5a4d" },
-    veg: { id: "veg", name: "Produce and veg", short: "Veg", markBg: "rgba(209, 255, 114, 0.28)", markColor: "#355712" },
-    nonveg: { id: "nonveg", name: "Protein and meals", short: "Protein", markBg: "rgba(243, 180, 77, 0.22)", markColor: "#7a4818" },
-    bread: { id: "bread", name: "Bread and wraps", short: "Bread", markBg: "rgba(248, 228, 209, 0.85)", markColor: "#87552d" },
-    pantry: { id: "pantry", name: "Pantry staples", short: "Pantry", markBg: "rgba(234, 239, 247, 0.95)", markColor: "#34516f" },
-    boxes: { id: "boxes", name: "Support boxes", short: "Boxes", markBg: "rgba(215, 238, 255, 0.92)", markColor: "#244d78" }
+    snacks: { id: "snacks", name: "Healthy snacks", short: "Snacks", image: "assets/deck/cat-snacks.png", markBg: "rgba(223, 245, 234, 0.95)", markColor: "#1d5a4d" },
+    veg: { id: "veg", name: "Produce and veg", short: "Veg", image: "assets/deck/cat-produce.png", markBg: "rgba(209, 255, 114, 0.28)", markColor: "#355712" },
+    nonveg: { id: "nonveg", name: "Protein and meals", short: "Protein", image: "assets/deck/cat-protein.png", markBg: "rgba(243, 180, 77, 0.22)", markColor: "#7a4818" },
+    bread: { id: "bread", name: "Bread and wraps", short: "Bread", image: "assets/deck/cat-staples.png", markBg: "rgba(248, 228, 209, 0.85)", markColor: "#87552d" },
+    pantry: { id: "pantry", name: "Pantry staples", short: "Pantry", image: "assets/deck/cat-staples.png", markBg: "rgba(234, 239, 247, 0.95)", markColor: "#34516f" },
+    boxes: { id: "boxes", name: "Support boxes", short: "Boxes", image: "assets/deck/cat-boxes.png", markBg: "rgba(215, 238, 255, 0.92)", markColor: "#244d78" }
   };
 
   const catalogCategories = [

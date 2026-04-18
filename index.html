@@ -14,17 +14,11 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@500;600;700;800&display=swap"
     rel="stylesheet"
   />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    crossorigin=""
-  />
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
   <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
-  <div class="announcement">
-    Prototype rebuild: DC-wide grocery access comes first, with campuses as one pickup option inside the larger network.
-  </div>
+  <div class="announcement">Fresh. Local. Electric.</div>
 
   <header class="site-header">
     <div class="shell nav-shell">
@@ -32,7 +26,7 @@
         <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
         <span class="brand-copy">
           <strong>DC grocery coverage network</strong>
-          <small>Lockers, neighborhood pit stops, and campus access.</small>
+          <small>DC pit stops and locker pickup.</small>
         </span>
       </a>
 
@@ -69,13 +63,9 @@
     <section class="hero">
       <div class="shell hero-grid">
         <div class="hero-copy reveal">
-          <p class="eyebrow">Affordable grocery access across DC</p>
-          <h1>One network for campuses, apartments, and neighborhood pickup.</h1>
-          <p class="lead">
-            Campus pit stops are still part of the service, but they are no longer the headline.
-            The larger story is a DC-wide mesh of lockers, micro hubs, and short-walk coverage for
-            everyday grocery access.
-          </p>
+          <p class="eyebrow">Meals on Wheels DC</p>
+          <h1>Fresh. Local. Electric.</h1>
+          <p class="lead">Affordable groceries delivered to DC pit stops with a 1-mile neighborhood reach.</p>
           <div class="hero-actions">
             <button class="primary-button" type="button" data-scroll-target="coverage">
               Explore all pit stops
@@ -90,36 +80,20 @@
         <div class="hero-visual reveal">
           <div class="hero-stage">
             <div class="hero-stage-copy">
-              <span class="stage-chip">Coverage-first prototype</span>
-              <h2>Each pit stop holds a 1-mile service ring, and the whole network is visible at once.</h2>
-              <p>
-                Use the live map to compare campus hubs, apartment-oriented pickup nodes, and community
-                sites without jumping between separate single-location views.
-              </p>
+              <span class="stage-chip">DC metro area</span>
+              <h2>Order, pick up, eat fresh.</h2>
+              <p>Search a ZIP, choose a hub, and open directions.</p>
             </div>
 
-            <div class="hero-rails">
-              <article class="service-card">
-                <span class="service-label">Service lanes</span>
-                <strong>Campus, apartment, and community coverage</strong>
-                <p>Campuses remain available, but they now sit inside a broader DC distribution story.</p>
-              </article>
-              <article class="service-card service-card-highlight">
-                <span class="service-label">Map experience</span>
-                <strong>All hubs and all 1-mile radii together</strong>
-                <p>The coverage map shows the whole network in one place and keeps Google Maps links for directions.</p>
-              </article>
-            </div>
-
-            <div class="hero-media">
+            <div class="hero-media hero-media-plate">
               <img
-                src="assets/dc-grocery-truck-premium.svg"
-                alt="Illustration of the Meals on Wheels DC grocery truck"
+                src="assets/deck/hero-truck.png"
+                alt="Painted Meals on Wheels electric grocery truck"
               />
               <div class="media-float">
-                <span class="media-float-label">Selected network mode</span>
-                <strong>Citywide grocery access with flexible pickup</strong>
-                <p>Use hubs for locker pickup, dorm delivery, or neighborhood restock.</p>
+                <span class="media-float-label">Serving</span>
+                <strong>50,000+ DC residents</strong>
+                <p>Fast pickup and short-hop delivery.</p>
               </div>
             </div>
           </div>
@@ -132,12 +106,9 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Coverage map</p>
-            <h2>See every pit stop and every 1-mile ring across the DC service area.</h2>
+            <h2>Every pit stop covers 1 mile.</h2>
           </div>
-          <p class="section-copy">
-            The map is now the operational center of the page. You can view the whole network, search from a
-            neighborhood or campus, and switch to Google Maps only when you want directions to one stop.
-          </p>
+          <p class="section-copy">Search by ZIP, neighborhood, or campus and compare hubs on one map.</p>
         </div>
 
         <div class="coverage-grid">
@@ -145,7 +116,7 @@
             <div class="panel-top">
               <div>
                 <p class="panel-kicker">Live coverage</p>
-                <h3>All pit stops on one map</h3>
+                <h3>All pit stops on one map.</h3>
               </div>
               <a
                 class="inline-link"
@@ -175,7 +146,7 @@
           <aside class="panel coverage-sidebar">
             <div class="sidebar-block">
               <p class="panel-kicker">Find your nearest hub</p>
-              <h3>Start from a neighborhood, ZIP, campus, or coordinates.</h3>
+              <h3>Search ZIP, campus, or coordinates.</h3>
               <form class="location-form" id="locationForm">
                 <label class="sr-only" for="locationInput">Search location</label>
                 <input
@@ -184,7 +155,7 @@
                   placeholder="Try Shaw, Brookland, 20052, Georgetown, or 38.90,-77.04"
                 />
                 <div class="location-actions">
-                  <button class="primary-button" type="submit">Find closest hub</button>
+                  <button class="primary-button" type="submit">Find hub</button>
                   <button class="ghost-button" type="button" id="gpsButton">Use GPS</button>
                 </div>
               </form>
@@ -200,11 +171,9 @@
             </div>
 
             <div class="sidebar-block status-block">
-              <p class="panel-kicker">Current search origin</p>
+              <p class="panel-kicker">Origin</p>
               <strong id="originLabel">Downtown DC</strong>
-              <p id="originSummary" class="status-copy">
-                We will calculate nearest hubs from the current origin and keep the map centered on the network.
-              </p>
+              <p id="originSummary" class="status-copy">Nearest live service ring.</p>
               <div class="status-badges" id="coverageBadges"></div>
             </div>
 
@@ -212,7 +181,7 @@
               <div class="list-header">
                 <div>
                   <p class="panel-kicker">Closest pit stops</p>
-                  <h3>Compare the nearest five hubs.</h3>
+                  <h3>Nearest hubs.</h3>
                 </div>
                 <button class="ghost-button small-button" type="button" id="fitMapButton">
                   Fit all coverage
@@ -230,16 +199,14 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Catalog</p>
-            <h2>Shop the active pit stop without losing the bigger DC coverage context.</h2>
+            <h2>Browse the live catalog.</h2>
           </div>
-          <p class="section-copy">
-            Inventory is scoped to the selected pit stop, so the catalog updates when you move around the map.
-            That keeps coverage, stock, and checkout tied together.
-          </p>
+          <p class="section-copy">Cleaner cards, faster scanning, same hub-based stock.</p>
         </div>
 
         <div class="shop-grid">
           <aside class="panel selected-stop-panel">
+            <img class="panel-spot-image" src="assets/deck/cat-shop-app.png" alt="Meals on Wheels shopping app illustration" />
             <p class="panel-kicker">Active pit stop</p>
             <h3 id="selectedStopName">GW Foggy Bottom Pit Stop</h3>
             <p id="selectedStopSummary" class="status-copy"></p>
@@ -305,26 +272,21 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">Support pricing</p>
-            <h2>Mixed grocery boxes keep subsidy strategy separate from the regular shelf.</h2>
+            <h2>Support boxes, up to 40% below retail.</h2>
           </div>
-          <p class="section-copy">
-            These are still bundled boxes rather than isolated discounted items. The mix is designed to preserve a
-            real grocery basket across grains, produce, and protein.
-          </p>
+          <p class="section-copy">Short list, clear bundles, real essentials.</p>
         </div>
 
         <div class="support-grid">
           <article class="panel support-copy-panel">
-            <p class="panel-kicker">How this section works</p>
-            <h3>Subsidized support lives as a product line, not as scattered price overrides.</h3>
-            <p>
-              The prototype keeps support pricing legible by packaging complete baskets. That lets the page show a
-              mainstream catalog while still making affordability a visible part of the service model.
-            </p>
+            <img class="support-inline-image" src="assets/deck/community-box.png" alt="Community grocery support illustration" />
+            <p class="panel-kicker">No family left behind</p>
+            <h3>One bundle, one week, real essentials.</h3>
+            <p>Protein, staples, and produce in one support box.</p>
             <ul class="support-points">
-              <li>Campus pickup is one access point, but boxes also fit apartment and community use.</li>
-              <li>Each box bundles a grain or pantry base, produce, and protein.</li>
-              <li>Launch pricing would still need live retail, labor, cold storage, and SNAP or EBT validation.</li>
+              <li>EBT and subsidy friendly.</li>
+              <li>Built for families, seniors, and low-income households.</li>
+              <li>Priced below retail through bulk purchasing.</li>
             </ul>
           </article>
           <div class="box-grid" id="boxGrid"></div>
@@ -336,18 +298,14 @@
       <div class="shell locker-grid">
         <article class="panel locker-media-panel">
           <img
-            src="assets/community-food-lockers.svg"
-            alt="Illustration of refrigerated, ambient, frozen, and code-based food lockers"
+            src="assets/deck/locker-photo.png"
+            alt="Community grocery lockers outdoors"
           />
         </article>
         <article class="panel locker-copy-panel">
           <p class="eyebrow">Locker operations</p>
-          <h2>Temperature-zoned pickup that works for dorms, apartments, and community nodes.</h2>
-          <p class="section-copy locker-copy">
-            The lockers are the bridge between citywide coverage and practical pickup. They support short-dwell
-            groceries, scheduled orders, and after-class or after-work retrieval without requiring every user to be
-            routed through a campus flow.
-          </p>
+          <h2>Pickup in seconds.</h2>
+          <p class="section-copy locker-copy">Chilled, ambient, and frozen compartments in one locker bank.</p>
           <div class="locker-feature-grid">
             <article class="locker-feature">
               <strong>Chilled storage</strong>
@@ -375,9 +333,7 @@
     <div class="shell footer-grid">
       <div>
         <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
-        <p>
-          Static prototype focused on DC-wide grocery coverage, flexible pickup hubs, lockers, and support pricing.
-        </p>
+        <p>DC grocery coverage, locker pickup, and support boxes.</p>
       </div>
       <div>
         <h3>Explore</h3>
@@ -393,9 +349,7 @@
       </div>
       <div>
         <h3>Prototype note</h3>
-        <p>
-          The rebuild uses a live multi-stop map for coverage and keeps Google Maps only for per-stop navigation.
-        </p>
+        <p>Live pit stop map plus Google Maps directions.</p>
       </div>
     </div>
   </footer>
@@ -476,10 +430,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    crossorigin=""
-  ></script>
+  <script src="vendor/leaflet/leaflet.js"></script>
   <script defer src="scripts/data.js"></script>
   <script defer src="scripts/utils.js"></script>
   <script defer src="scripts/map.js"></script>

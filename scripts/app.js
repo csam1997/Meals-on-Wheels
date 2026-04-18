@@ -104,9 +104,9 @@
 
   function renderHeroStats() {
     const stats = [
-      { value: String(data.pitStops.length), label: "pit stops across the network" },
-      { value: "1 mile", label: "service radius around every hub" },
-      { value: String(data.products.length), label: "catalog items tied to live hub stock" }
+      { value: String(data.pitStops.length), label: "pit stops" },
+      { value: "1 mile", label: "coverage radius" },
+      { value: "40%", label: "below retail on support boxes" }
     ];
 
     dom.heroStats.innerHTML = stats
@@ -234,10 +234,8 @@
     const stock = utils.stockFor(item, state.activePitStop);
     const status = stockStatus(stock);
     const savings = Math.max(0, Math.round((1 - item.price / item.retail) * 100));
-    const detail = item.contents ? item.contents : item.unit + ". " + item.portion + ".";
-    const badges = [
-      '<span class="pill-badge">' + utils.escapeHtml(item.tag) + "</span>"
-    ];
+    const detail = item.unit + " · " + item.portion;
+    const badges = ['<span class="pill-badge">' + utils.escapeHtml(item.tag) + "</span>"];
 
     if (item.student) {
       badges.push('<span class="pill-badge">Student pick</span>');
@@ -245,14 +243,14 @@
 
     return (
       '<article class="product-card">' +
-      '<div class="product-top">' +
-      '<div class="product-mark" style="--mark-bg:' +
-      meta.markBg +
-      ";--mark-color:" +
-      meta.markColor +
-      ';">' +
-      utils.escapeHtml(item.mark) +
+      '<div class="product-visual">' +
+      '<img class="product-image" src="' +
+      utils.escapeHtml(meta.image) +
+      '" alt="' +
+      utils.escapeHtml(item.name) +
+      '" loading="lazy" />' +
       "</div>" +
+      '<div class="product-top">' +
       '<div class="product-meta">' +
       '<span class="product-type">' +
       utils.escapeHtml(meta.short) +
@@ -274,12 +272,7 @@
       "</div>" +
       '<div class="product-badges">' +
       badges.join("") +
-      '<span class="pill-badge">' +
-      String(savings) +
-      "% below est. retail</span>" +
-      '<span class="pill-badge">' +
-      String(stock) +
-      " at hub</span>" +
+      '<span class="pill-badge">' + String(savings) + "% below retail</span>" +
       "</div>" +
       '<dl class="nutrition-grid">' +
       '<div class="nutrition-card"><dt>Protein</dt><dd>' +
@@ -332,8 +325,8 @@
 
     dom.originLabel.textContent = state.currentOrigin.label;
     dom.originSummary.textContent = insideCoverage
-      ? "This origin is already inside the 1-mile service ring for " + nearest.short + "."
-      : nearest.short + " is the closest hub from the current origin.";
+      ? "Inside " + nearest.short + "'s 1-mile ring."
+      : "Closest hub: " + nearest.short + ".";
 
     dom.coverageBadges.innerHTML =
       '<span class="badge">Closest hub: ' +
@@ -722,8 +715,8 @@
       mapElement.classList.add("map-fallback");
       mapElement.innerHTML =
         '<div class="map-fallback-message">' +
-        "<strong>Coverage map unavailable</strong>" +
-        "<p>The live map library did not load, but the grocery catalog and pit stop list are still available below.</p>" +
+        "<strong>Map unavailable</strong>" +
+        "<p>The catalog still works below.</p>" +
         "</div>";
       return;
     }
@@ -745,8 +738,8 @@
       mapElement.classList.add("map-fallback");
       mapElement.innerHTML =
         '<div class="map-fallback-message">' +
-        "<strong>Coverage map unavailable</strong>" +
-        "<p>The live map could not initialize, but the grocery items and support boxes are still loaded on this page.</p>" +
+        "<strong>Map unavailable</strong>" +
+        "<p>The catalog still works below.</p>" +
         "</div>";
     }
   }

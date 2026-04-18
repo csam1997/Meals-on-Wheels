@@ -76,13 +76,14 @@ img {
 }
 
 .announcement {
-  padding: 12px 20px;
+  padding: 10px 20px;
   background: linear-gradient(90deg, #0f2d29, #205547 52%, #2d7e68);
   color: rgba(255, 255, 255, 0.92);
   text-align: center;
-  font-size: 0.92rem;
+  font-size: 0.84rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .site-header {
@@ -299,9 +300,9 @@ img {
 }
 
 .hero h1 {
-  font-size: clamp(3rem, 6vw, 5.7rem);
-  line-height: 0.92;
-  max-width: 10ch;
+  font-size: clamp(2.8rem, 5.2vw, 4.9rem);
+  line-height: 0.94;
+  max-width: 7ch;
 }
 
 .lead,
@@ -315,8 +316,8 @@ img {
 
 .lead {
   margin: 18px 0 0;
-  max-width: 56ch;
-  font-size: clamp(1.04rem, 1.7vw, 1.18rem);
+  max-width: 34ch;
+  font-size: clamp(1.02rem, 1.5vw, 1.12rem);
 }
 
 .hero-actions {
@@ -365,13 +366,13 @@ img {
   border: 1px solid rgba(16, 34, 40, 0.1);
   box-shadow: var(--shadow-lg);
   display: grid;
-  gap: 20px;
+  gap: 16px;
 }
 
 .hero-stage-copy p {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   color: var(--ink-soft);
-  max-width: 50ch;
+  max-width: 28ch;
 }
 
 .stage-chip {
@@ -426,7 +427,7 @@ img {
   position: relative;
   border-radius: 28px;
   overflow: hidden;
-  min-height: 320px;
+  min-height: 360px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.48));
   border: 1px solid rgba(16, 34, 40, 0.08);
 }
@@ -434,8 +435,19 @@ img {
 .hero-media img {
   width: 100%;
   height: 100%;
-  min-height: 320px;
+  min-height: 360px;
   object-fit: cover;
+}
+
+.hero-media-plate {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(209, 255, 114, 0.28), transparent 12rem),
+    linear-gradient(160deg, rgba(229, 246, 239, 0.98), rgba(247, 240, 221, 0.98));
+}
+
+.hero-media-plate img {
+  object-fit: contain;
+  padding: 14px;
 }
 
 .media-float {
@@ -487,7 +499,7 @@ img {
 .section-heading h2 {
   font-size: clamp(2rem, 4vw, 3.4rem);
   line-height: 0.96;
-  max-width: 12ch;
+  max-width: 11ch;
 }
 
 .section-copy {
@@ -777,6 +789,27 @@ img {
   margin-bottom: 10px;
 }
 
+.panel-spot-image,
+.support-inline-image {
+  width: 100%;
+  margin-bottom: 16px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, rgba(231, 247, 240, 0.96), rgba(248, 240, 222, 0.98));
+  border: 1px solid rgba(16, 34, 40, 0.08);
+}
+
+.panel-spot-image {
+  max-height: 180px;
+  object-fit: contain;
+  padding: 10px;
+}
+
+.support-inline-image {
+  max-height: 250px;
+  object-fit: contain;
+  padding: 8px;
+}
+
 .info-list {
   display: grid;
   gap: 12px;
@@ -862,7 +895,7 @@ img {
 .product-card {
   position: relative;
   display: grid;
-  gap: 14px;
+  gap: 12px;
   min-height: 100%;
   padding: 18px;
   border-radius: 26px;
@@ -885,24 +918,7 @@ img {
 
 .product-top {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: start;
-}
-
-.product-mark {
-  width: 68px;
-  height: 68px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 22px;
-  background: var(--mark-bg, rgba(223, 245, 234, 0.9));
-  color: var(--mark-color, var(--forest));
-  border: 1px solid rgba(16, 34, 40, 0.08);
-  font-family: "Sora", "Segoe UI", sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  justify-content: flex-start;
 }
 
 .product-meta {
@@ -910,7 +926,20 @@ img {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: flex-end;
+}
+
+.product-visual {
+  aspect-ratio: 1 / 1;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(160deg, rgba(231, 247, 240, 0.96), rgba(248, 240, 222, 0.98));
+  border: 1px solid rgba(16, 34, 40, 0.08);
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .product-type {
@@ -955,6 +984,7 @@ img {
   color: var(--ink-soft);
   font-size: 0.94rem;
   font-weight: 700;
+  min-height: 2.6em;
 }
 
 .product-badges {
@@ -1047,7 +1077,7 @@ img {
 }
 
 .support-points {
-  margin: 18px 0 0;
+  margin: 14px 0 0;
   padding-left: 18px;
   color: var(--ink-soft);
   font-weight: 700;
@@ -1067,6 +1097,7 @@ img {
   border-radius: 24px;
   background: var(--white);
   border: 1px solid rgba(16, 34, 40, 0.08);
+  object-fit: cover;
 }
 
 .locker-feature-grid {
@@ -1514,7 +1545,6 @@ img {
   }
 
   .hero-stats,
-  .hero-rails,
   .catalog-filters,
   .box-grid,
   .locker-feature-grid {
