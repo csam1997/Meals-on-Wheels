@@ -1,0 +1,251 @@
+(function () {
+  const root = window.MealsOnWheels || (window.MealsOnWheels = {});
+
+  const pitStops = [
+    {
+      id: "foggy_bottom",
+      name: "Foggy Bottom West Hub",
+      short: "Foggy Bottom",
+      shortLabel: "Foggy Bottom",
+      lat: 38.8997,
+      lng: -77.0486,
+      area: "Foggy Bottom, West End, and GW-area pickup",
+      zip: "20052",
+      type: "Locker pickup and short-hop delivery",
+      stockBoost: 1.08,
+      services: ["Campus", "Apartments", "Locker pickup"],
+      note: "Blends student demand with apartment and office-adjacent pickups."
+    },
+    {
+      id: "georgetown",
+      name: "Georgetown North Pickup",
+      short: "Georgetown",
+      shortLabel: "Georgetown",
+      lat: 38.9091,
+      lng: -77.0718,
+      area: "Georgetown, Burleith, and Glover Park",
+      zip: "20007",
+      type: "Campus and neighborhood locker",
+      stockBoost: 1.03,
+      services: ["Campus", "Neighborhood", "Locker pickup"],
+      note: "Useful for both university traffic and nearby residential pickup."
+    },
+    {
+      id: "howard_shaw",
+      name: "Howard Shaw Fresh Stop",
+      short: "Howard / Shaw",
+      shortLabel: "Howard / Shaw",
+      lat: 38.9228,
+      lng: -77.0211,
+      area: "Howard, Shaw, U Street, and Bloomingdale",
+      zip: "20059",
+      type: "Corner store and locker blend",
+      stockBoost: 1.05,
+      services: ["Campus", "Community", "Fresh pickup"],
+      note: "Built to serve students and surrounding community demand together."
+    },
+    {
+      id: "tenley",
+      name: "Tenley Uptown Hub",
+      short: "Tenley",
+      shortLabel: "Tenley",
+      lat: 38.9375,
+      lng: -77.0868,
+      area: "Tenleytown, AU, and nearby apartment corridors",
+      zip: "20016",
+      type: "Student and apartment pickup",
+      stockBoost: 0.98,
+      services: ["Campus", "Apartments", "Pickup"],
+      note: "Positions campus traffic as one slice of a larger uptown service area."
+    },
+    {
+      id: "brookland",
+      name: "Brookland Community Hub",
+      short: "Brookland",
+      shortLabel: "Brookland",
+      lat: 38.9342,
+      lng: -76.9975,
+      area: "Brookland, Catholic, Trinity, and nearby housing",
+      zip: "20064",
+      type: "Community locker and pickup",
+      stockBoost: 1.0,
+      services: ["Community", "Campus", "Locker pickup"],
+      note: "Supports school demand without making the map revolve around it."
+    },
+    {
+      id: "noma",
+      name: "NoMa Fresh Lockers",
+      short: "NoMa",
+      shortLabel: "NoMa",
+      lat: 38.9085,
+      lng: -76.9965,
+      area: "NoMa, Union Market, Gallaudet, and mixed-use buildings",
+      zip: "20002",
+      type: "Locker pickup and neighborhood restock",
+      stockBoost: 1.02,
+      services: ["Apartments", "Community", "Locker pickup"],
+      note: "A strong example of non-campus coverage in the network."
+    },
+    {
+      id: "van_ness",
+      name: "Van Ness Grocery Hub",
+      short: "Van Ness",
+      shortLabel: "Van Ness",
+      lat: 38.9437,
+      lng: -77.0638,
+      area: "Van Ness, Cleveland Park, and UDC access",
+      zip: "20008",
+      type: "Uptown pickup hub",
+      stockBoost: 0.97,
+      services: ["Neighborhood", "Campus", "Pickup"],
+      note: "Balances neighborhood use with university-adjacent traffic."
+    },
+    {
+      id: "capitol",
+      name: "Capitol East Pickup Hub",
+      short: "Capitol Hill",
+      shortLabel: "Capitol",
+      lat: 38.8986,
+      lng: -77.0124,
+      area: "Capitol Hill, Union Station, and Georgetown Law area",
+      zip: "20001",
+      type: "Locker and pickup hub",
+      stockBoost: 1.04,
+      services: ["Apartments", "Campus", "Locker pickup"],
+      note: "Positions the legal campus as an optional demand stream, not the center."
+    },
+    {
+      id: "arlington",
+      name: "Arlington Cross-River Hub",
+      short: "Arlington",
+      shortLabel: "Arlington",
+      lat: 38.8846,
+      lng: -77.1011,
+      area: "Rosslyn, Courthouse, and the Arlington academic corridor",
+      zip: "22201",
+      type: "Cross-river pickup",
+      stockBoost: 0.95,
+      services: ["Apartments", "Campus", "Pickup"],
+      note: "Extends the prototype past the district core without changing the service model."
+    }
+  ];
+
+  const knownLocations = {
+    "downtown dc": { label: "Downtown DC", lat: 38.9072, lng: -77.0369 },
+    "downtown": { label: "Downtown DC", lat: 38.9072, lng: -77.0369 },
+    "dupont": { label: "Dupont Circle", lat: 38.9096, lng: -77.0434 },
+    "dupont circle": { label: "Dupont Circle", lat: 38.9096, lng: -77.0434 },
+    "logan": { label: "Logan Circle", lat: 38.9097, lng: -77.0319 },
+    "logan circle": { label: "Logan Circle", lat: 38.9097, lng: -77.0319 },
+    "adams morgan": { label: "Adams Morgan", lat: 38.9227, lng: -77.0425 },
+    "shaw": { label: "Shaw", lat: 38.9143, lng: -77.0219 },
+    "u street": { label: "U Street", lat: 38.9170, lng: -77.0280 },
+    "brookland": { label: "Brookland", lat: 38.9320, lng: -76.9947 },
+    "noma": { label: "NoMa", lat: 38.9078, lng: -77.0030 },
+    "union market": { label: "Union Market", lat: 38.9087, lng: -76.9960 },
+    "union station": { label: "Union Station", lat: 38.8971, lng: -77.0064 },
+    "capitol hill": { label: "Capitol Hill", lat: 38.8898, lng: -77.0091 },
+    "tenleytown": { label: "Tenleytown", lat: 38.9452, lng: -77.0795 },
+    "tenley": { label: "Tenleytown", lat: 38.9452, lng: -77.0795 },
+    "van ness": { label: "Van Ness", lat: 38.9443, lng: -77.0638 },
+    "cleveland park": { label: "Cleveland Park", lat: 38.9356, lng: -77.0570 },
+    "georgetown": { label: "Georgetown", lat: 38.9076, lng: -77.0723 },
+    "foggy bottom": { label: "Foggy Bottom", lat: 38.9006, lng: -77.0508 },
+    "west end": { label: "West End", lat: 38.9040, lng: -77.0550 },
+    "rosslyn": { label: "Rosslyn", lat: 38.8943, lng: -77.0723 },
+    "courthouse": { label: "Courthouse", lat: 38.8899, lng: -77.0836 },
+    "arlington": { label: "Arlington", lat: 38.8893, lng: -77.0910 },
+    "petworth": { label: "Petworth", lat: 38.9407, lng: -77.0241 },
+    "columbia heights": { label: "Columbia Heights", lat: 38.9281, lng: -77.0325 },
+    "20052": { label: "Foggy Bottom 20052", lat: 38.8997, lng: -77.0470 },
+    "20007": { label: "Georgetown 20007", lat: 38.9097, lng: -77.0718 },
+    "20059": { label: "Howard 20059", lat: 38.9227, lng: -77.0194 },
+    "20016": { label: "Tenleytown 20016", lat: 38.9371, lng: -77.0900 },
+    "20064": { label: "Brookland 20064", lat: 38.9369, lng: -76.9989 },
+    "20002": { label: "NoMa 20002", lat: 38.9078, lng: -77.0030 },
+    "20008": { label: "Van Ness 20008", lat: 38.9440, lng: -77.0656 },
+    "20001": { label: "Capitol East 20001", lat: 38.9072, lng: -77.0186 },
+    "22201": { label: "Arlington 22201", lat: 38.8846, lng: -77.1011 },
+    "gw": { label: "George Washington University", lat: 38.8997, lng: -77.0470 },
+    "gwu": { label: "George Washington University", lat: 38.8997, lng: -77.0470 },
+    "george washington university": { label: "George Washington University", lat: 38.8997, lng: -77.0470 },
+    "howard": { label: "Howard University", lat: 38.9227, lng: -77.0194 },
+    "howard university": { label: "Howard University", lat: 38.9227, lng: -77.0194 },
+    "american university": { label: "American University", lat: 38.9371, lng: -77.0900 },
+    "au": { label: "American University", lat: 38.9371, lng: -77.0900 },
+    "catholic university": { label: "Catholic University", lat: 38.9369, lng: -76.9989 },
+    "trinity": { label: "Trinity Washington University", lat: 38.9276, lng: -77.0047 },
+    "trinity washington university": { label: "Trinity Washington University", lat: 38.9276, lng: -77.0047 },
+    "gallaudet": { label: "Gallaudet University", lat: 38.9074, lng: -76.9933 },
+    "gallaudet university": { label: "Gallaudet University", lat: 38.9074, lng: -76.9933 },
+    "udc": { label: "University of the District of Columbia", lat: 38.9440, lng: -77.0656 },
+    "georgetown law": { label: "Georgetown Law", lat: 38.8994, lng: -77.0124 },
+    "mason arlington": { label: "George Mason Arlington", lat: 38.8846, lng: -77.1011 }
+  };
+
+  const categoryMeta = {
+    snacks: { id: "snacks", name: "Healthy snacks", short: "Snacks", markBg: "rgba(223, 245, 234, 0.95)", markColor: "#1d5a4d" },
+    veg: { id: "veg", name: "Produce and veg", short: "Veg", markBg: "rgba(209, 255, 114, 0.28)", markColor: "#355712" },
+    nonveg: { id: "nonveg", name: "Protein and meals", short: "Protein", markBg: "rgba(243, 180, 77, 0.22)", markColor: "#7a4818" },
+    bread: { id: "bread", name: "Bread and wraps", short: "Bread", markBg: "rgba(248, 228, 209, 0.85)", markColor: "#87552d" },
+    pantry: { id: "pantry", name: "Pantry staples", short: "Pantry", markBg: "rgba(234, 239, 247, 0.95)", markColor: "#34516f" },
+    boxes: { id: "boxes", name: "Support boxes", short: "Boxes", markBg: "rgba(215, 238, 255, 0.92)", markColor: "#244d78" }
+  };
+
+  const catalogCategories = [
+    { id: "all", name: "All groceries" },
+    { id: "snacks", name: "Healthy snacks" },
+    { id: "veg", name: "Produce and veg" },
+    { id: "nonveg", name: "Protein and meals" },
+    { id: "bread", name: "Bread and wraps" },
+    { id: "pantry", name: "Pantry staples" }
+  ];
+
+  const products = [
+    { id: "apple_pb", mark: "AP", name: "Apple and peanut butter snack", cat: "snacks", diet: "veg", price: 1.49, retail: 2.29, unit: "1 apple plus 1.5 oz peanut butter", portion: "1 snack", kcal: 260, protein: 8, fiber: 6, tag: "Healthy snack", student: true, baseStock: 38 },
+    { id: "yogurt_parfait", mark: "GY", name: "Greek yogurt parfait", cat: "snacks", diet: "veg", price: 1.79, retail: 2.99, unit: "7 oz cup", portion: "1 cup", kcal: 190, protein: 15, fiber: 3, tag: "High protein", student: true, baseStock: 34 },
+    { id: "hummus_carrots", mark: "HC", name: "Hummus and carrot cup", cat: "snacks", diet: "veg", price: 1.69, retail: 2.79, unit: "6 oz cup", portion: "1 snack", kcal: 210, protein: 7, fiber: 7, tag: "Veg snack", student: true, baseStock: 32 },
+    { id: "trail_mix", mark: "TM", name: "Trail mix mini", cat: "snacks", diet: "veg", price: 1.99, retail: 3.49, unit: "3 oz pouch", portion: "1 pouch", kcal: 360, protein: 10, fiber: 4, tag: "Shelf stable", student: true, baseStock: 42 },
+    { id: "popcorn", mark: "PC", name: "Low-salt popcorn", cat: "snacks", diet: "veg", price: 1.25, retail: 2.19, unit: "2.5 oz bag", portion: "1 bag", kcal: 150, protein: 4, fiber: 5, tag: "Whole grain", student: true, baseStock: 45 },
+    { id: "banana_oat", mark: "BO", name: "Banana oat bites", cat: "snacks", diet: "veg", price: 1.39, retail: 2.29, unit: "2 bites", portion: "1 snack", kcal: 220, protein: 6, fiber: 4, tag: "Breakfast", student: true, baseStock: 30 },
+    { id: "salad_kit", mark: "SK", name: "Campus salad kit", cat: "veg", diet: "veg", price: 2.99, retail: 4.99, unit: "11 oz kit", portion: "2 portions", kcal: 240, protein: 8, fiber: 8, tag: "Fresh", student: true, baseStock: 22 },
+    { id: "lentil_bowl", mark: "LB", name: "Lentil protein bowl", cat: "veg", diet: "veg", price: 3.49, retail: 5.49, unit: "14 oz bowl", portion: "1 meal", kcal: 420, protein: 20, fiber: 13, tag: "High protein", student: true, baseStock: 24 },
+    { id: "tofu_kit", mark: "TF", name: "Tofu stir-fry kit", cat: "veg", diet: "veg", price: 4.49, retail: 6.99, unit: "18 oz kit", portion: "2 meals", kcal: 520, protein: 26, fiber: 10, tag: "Dinner", student: false, baseStock: 18 },
+    { id: "frozen_veg", mark: "FV", name: "Frozen veg mix", cat: "veg", diet: "veg", price: 1.99, retail: 3.29, unit: "12 oz bag", portion: "3 sides", kcal: 180, protein: 6, fiber: 9, tag: "Freezer", student: false, baseStock: 36 },
+    { id: "fruit_cup", mark: "FC", name: "Fresh fruit cup", cat: "veg", diet: "veg", price: 1.99, retail: 3.49, unit: "8 oz cup", portion: "1 snack", kcal: 120, protein: 2, fiber: 4, tag: "Fresh", student: true, baseStock: 28 },
+    { id: "egg_box", mark: "EG", name: "Egg protein box", cat: "nonveg", diet: "nonveg", price: 2.99, retail: 4.79, unit: "2 eggs plus fruit", portion: "1 meal or snack", kcal: 310, protein: 18, fiber: 4, tag: "Protein", student: true, baseStock: 27 },
+    { id: "chicken_rice", mark: "CR", name: "Chicken rice bowl", cat: "nonveg", diet: "nonveg", price: 4.99, retail: 7.99, unit: "16 oz bowl", portion: "1 meal", kcal: 560, protein: 36, fiber: 5, tag: "Hot meal base", student: true, baseStock: 20 },
+    { id: "tuna_pack", mark: "TP", name: "Tuna protein pack", cat: "nonveg", diet: "nonveg", price: 3.49, retail: 5.79, unit: "tuna plus crackers", portion: "1 meal or snack", kcal: 340, protein: 24, fiber: 3, tag: "Shelf stable", student: true, baseStock: 31 },
+    { id: "turkey_wrap", mark: "TW", name: "Turkey veg wrap", cat: "nonveg", diet: "nonveg", price: 3.99, retail: 6.49, unit: "1 wrap", portion: "1 meal", kcal: 430, protein: 25, fiber: 5, tag: "Grab and go", student: true, baseStock: 23 },
+    { id: "chicken_pack", mark: "CF", name: "Chicken family pack", cat: "nonveg", diet: "nonveg", price: 8.99, retail: 12.99, unit: "1.5 lb pack", portion: "4 portions", kcal: 980, protein: 132, fiber: 0, tag: "Bulk value", student: false, baseStock: 12 },
+    { id: "wheat_bread", mark: "WB", name: "Whole wheat bread", cat: "bread", diet: "veg", price: 2.29, retail: 3.49, unit: "20 oz loaf", portion: "20 slices", kcal: 70, protein: 4, fiber: 2, tag: "Bread", student: true, baseStock: 35 },
+    { id: "wraps", mark: "WR", name: "Whole grain wraps", cat: "bread", diet: "veg", price: 1.99, retail: 3.29, unit: "6 count pack", portion: "6 wraps", kcal: 140, protein: 5, fiber: 4, tag: "Meal prep", student: true, baseStock: 29 },
+    { id: "bagels", mark: "BG", name: "Mini bagel pack", cat: "bread", diet: "veg", price: 2.49, retail: 4.29, unit: "6 mini bagels", portion: "6 portions", kcal: 130, protein: 5, fiber: 2, tag: "Breakfast", student: true, baseStock: 26 },
+    { id: "pita", mark: "PT", name: "Pita bread pack", cat: "bread", diet: "veg", price: 1.79, retail: 2.99, unit: "5 count pack", portion: "5 pitas", kcal: 160, protein: 6, fiber: 3, tag: "Low cost", student: true, baseStock: 24 },
+    { id: "rice", mark: "RC", name: "Brown rice", cat: "pantry", diet: "veg", price: 3.99, retail: 6.29, unit: "5 lb bag", portion: "25 servings", kcal: 170, protein: 4, fiber: 2, tag: "Staple", student: false, baseStock: 44 },
+    { id: "beans", mark: "BN", name: "Black beans", cat: "pantry", diet: "veg", price: 1.29, retail: 1.99, unit: "15 oz can", portion: "3.5 servings", kcal: 110, protein: 7, fiber: 6, tag: "Protein", student: true, baseStock: 62 },
+    { id: "oats", mark: "OT", name: "Rolled oats", cat: "pantry", diet: "veg", price: 2.79, retail: 4.49, unit: "42 oz tub", portion: "30 servings", kcal: 150, protein: 5, fiber: 4, tag: "Breakfast", student: true, baseStock: 39 },
+    { id: "pasta", mark: "PA", name: "Whole wheat pasta", cat: "pantry", diet: "veg", price: 1.39, retail: 2.29, unit: "16 oz box", portion: "8 servings", kcal: 180, protein: 7, fiber: 5, tag: "Dinner", student: true, baseStock: 41 },
+    { id: "milk", mark: "MK", name: "Low-fat milk", cat: "pantry", diet: "veg", price: 2.99, retail: 4.39, unit: "Half gallon", portion: "8 cups", kcal: 120, protein: 8, fiber: 0, tag: "Chilled", student: false, baseStock: 25 }
+  ];
+
+  const boxes = [
+    { id: "dorm_box", mark: "DB", name: "Campus dorm box", cat: "boxes", diet: "mixed", price: 8.49, retail: 18.2, unit: "Mixed grocery box", portion: "6 meal or snack portions", kcal: 2450, protein: 60, fiber: 26, tag: "Support box", student: true, baseStock: 18, contents: "Oats, fruit, yogurt, beans, wraps, and a snack pack" },
+    { id: "solo_box", mark: "SB", name: "Solo low-cost box", cat: "boxes", diet: "mixed", price: 6.49, retail: 12.8, unit: "Mixed grocery box", portion: "4 portions", kcal: 1650, protein: 42, fiber: 20, tag: "Support box", student: true, baseStock: 20, contents: "Grain, produce, protein, and one snack item" },
+    { id: "veg_support", mark: "VB", name: "Vegetarian support box", cat: "boxes", diet: "veg", price: 7.49, retail: 15.5, unit: "Mixed veg box", portion: "5 portions", kcal: 2050, protein: 55, fiber: 34, tag: "Veg support", student: true, baseStock: 15, contents: "Beans, rice, greens, fruit, and hummus" },
+    { id: "family_box", mark: "FB", name: "Family community box", cat: "boxes", diet: "mixed", price: 15.99, retail: 30.3, unit: "Family mixed box", portion: "10 portions", kcal: 4300, protein: 118, fiber: 48, tag: "Support box", student: false, baseStock: 12, contents: "Rice, beans, eggs or chicken, vegetables, fruit, and bread" }
+  ];
+
+  root.data = {
+    mapRadiusMiles: 1,
+    mapRadiusMeters: 1609.34,
+    defaultOrigin: { label: "Downtown DC", lat: 38.9072, lng: -77.0369, query: "Downtown DC" },
+    pitStops: pitStops,
+    knownLocations: knownLocations,
+    categoryMeta: categoryMeta,
+    catalogCategories: catalogCategories,
+    products: products,
+    boxes: boxes,
+    allItems: products.concat(boxes)
+  };
+})();

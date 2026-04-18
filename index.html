@@ -3,795 +3,486 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meals on Wheels DC | Shop Campus Groceries</title>
-  <meta name="description" content="Meals on Wheels DC grocery ordering website for university dorms and neighborhoods, with Google Maps pit stop finder, healthy snacks, veg, non-veg, bread, pantry, and subsidized boxes." />
-  <style>
-    :root{
-      --ink:#071922; --navy:#071f2e; --deep:#083f55; --blue:#0a84ff; --cyan:#00c7be;
-      --teal:#00a99d; --green:#30d158; --lime:#c8f558; --yellow:#ffd60a; --orange:#ff9f0a;
-      --red:#ff453a; --mint:#eafff6; --ice:#eefbff; --cream:#fff8e8; --white:#fff;
-      --muted:#5e7681; --line:rgba(7,31,46,.12); --glass:rgba(255,255,255,.76);
-      --shadow:0 26px 80px rgba(7,31,46,.16); --soft:0 16px 38px rgba(7,31,46,.10);
-      --radius:28px; --max:1280px;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;color:var(--ink);
-      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
-      background:
-        radial-gradient(circle at 0 0, rgba(0,199,190,.20), transparent 30rem),
-        radial-gradient(circle at 95% 5%, rgba(10,132,255,.17), transparent 34rem),
-        linear-gradient(180deg,#f8fdff 0%,#f5fff8 46%,#fff9eb 100%);
-      line-height:1.42; overflow-x:hidden;
-    }
-    a{color:inherit;text-decoration:none}
-    button,input,select{font:inherit}
-    button{cursor:pointer}
-    img{max-width:100%}
-    .container{width:min(var(--max),calc(100% - 34px));margin:0 auto}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    .announcement{
-      background:linear-gradient(90deg,#071f2e,#06445a 52%,#00645f);
-      color:white;padding:9px 14px;text-align:center;font-weight:850;font-size:.9rem;letter-spacing:-.015em
-    }
-    .announcement b{color:var(--lime)}
-    header{
-      position:sticky;top:0;z-index:80;
-      backdrop-filter:blur(24px) saturate(1.2);
-      background:rgba(255,255,255,.82);border-bottom:1px solid rgba(7,31,46,.08)
-    }
-    .nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .brand{display:flex;align-items:center;gap:10px;min-width:174px}
-    .brand img{width:170px;height:64px;object-fit:contain;object-position:left center;filter:drop-shadow(0 10px 16px rgba(0,99,98,.10))}
-    .nav-links{display:flex;gap:20px;align-items:center;color:var(--deep);font-weight:850;font-size:.94rem;letter-spacing:-.015em}
-    .nav-links a{opacity:.88;transition:.2s ease}
-    .nav-links a:hover{color:var(--blue);opacity:1;transform:translateY(-1px)}
-    .nav-actions{display:flex;align-items:center;gap:10px}
-    .btn,.icon-btn,.chip,.cat-btn,.map-chip{border:0;font-weight:900;letter-spacing:-.015em;white-space:nowrap;transition:.2s ease}
-    .btn:hover,.icon-btn:hover,.chip:hover,.cat-btn:hover,.map-chip:hover{transform:translateY(-2px)}
-    .btn-primary{color:white;border-radius:999px;padding:13px 18px;background:linear-gradient(135deg,var(--blue),var(--cyan) 52%,var(--green));box-shadow:0 16px 34px rgba(10,132,255,.22)}
-    .btn-dark{color:white;border-radius:999px;padding:13px 18px;background:var(--navy);box-shadow:0 16px 34px rgba(7,31,46,.20)}
-    .btn-light{color:var(--navy);border-radius:999px;padding:12px 17px;background:rgba(255,255,255,.9);border:1px solid var(--line);box-shadow:var(--soft)}
-    .btn-soft{color:#005d5a;border-radius:999px;padding:11px 15px;background:rgba(0,199,190,.12);border:1px solid rgba(0,199,190,.22)}
-    .icon-btn{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;color:var(--navy);background:white;border:1px solid rgba(7,31,46,.10);box-shadow:0 14px 30px rgba(7,31,46,.08);position:relative;font-size:1.08rem}
-    .cart-count{position:absolute;top:-8px;right:-8px;min-width:24px;height:24px;padding:0 6px;border-radius:99px;display:grid;place-items:center;background:var(--orange);color:var(--navy);font-size:.74rem;font-weight:1000;border:2px solid white}
-    .mobile-menu{display:none}
-    .pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:7px 12px;color:#00524f;background:rgba(0,199,190,.12);border:1px solid rgba(0,199,190,.22);font-weight:910;font-size:.87rem}
-    h1,h2,h3,p{margin-top:0}
-    .section{padding:60px 0}
-    .hero{padding:34px 0 28px;position:relative}
-    .hero-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:32px;align-items:center}
-    .hero h1{font-size:clamp(2.85rem,6.3vw,6.1rem);line-height:.9;letter-spacing:-.078em;color:var(--navy);margin:18px 0 16px}
-    .gradient-text{background:linear-gradient(135deg,var(--blue),var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .lead{color:var(--deep);font-size:clamp(1.05rem,2vw,1.24rem);font-weight:650;max-width:680px;margin-bottom:20px}
-    .hero-search{background:rgba(255,255,255,.86);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:26px;padding:14px;max-width:720px}
-    .location-form{display:grid;grid-template-columns:1fr auto auto;gap:10px}
-    .field-wrap{display:flex;align-items:center;gap:10px;min-height:54px;padding:0 14px;background:#f8fffc;border:1px solid rgba(0,199,190,.20);border-radius:18px}
-    .field-wrap input{width:100%;border:0;outline:0;background:transparent;color:var(--ink);font-weight:850}
-    .active-stop{display:none;margin-top:12px;padding:13px 14px;border-radius:18px;background:#f2fffb;border:1px solid rgba(0,199,190,.18);color:var(--deep);font-weight:850}
-    .quick-line{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .chip{padding:9px 12px;border-radius:999px;background:white;border:1px solid var(--line);color:var(--deep);box-shadow:0 10px 22px rgba(7,31,46,.06);font-size:.86rem}
-    .truck-card{position:relative;border-radius:38px;overflow:hidden;background:linear-gradient(140deg,#e7fbff,#f2fff1 48%,#fff4d8);border:1px solid rgba(0,199,190,.18);box-shadow:var(--shadow);min-height:460px}
-    .truck-card img{width:100%;height:100%;min-height:460px;object-fit:cover;display:block}
-    .floating-deal{position:absolute;left:22px;top:22px;display:grid;gap:8px;z-index:2}
-    .deal-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.86);border:1px solid var(--line);box-shadow:0 14px 32px rgba(7,31,46,.12);border-radius:999px;padding:10px 13px;color:var(--deep);font-weight:920}
-    .app-card{position:absolute;right:22px;bottom:22px;width:244px;border-radius:28px;background:rgba(255,255,255,.82);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.65);box-shadow:0 24px 60px rgba(7,31,46,.18);padding:16px}
-    .app-card strong{color:var(--navy);display:block;font-size:1.1rem;letter-spacing:-.035em}
-    .app-card span{color:var(--muted);font-weight:800;font-size:.86rem}
-    .app-meter{height:10px;background:#dff3ee;border-radius:99px;margin:12px 0;overflow:hidden}
-    .app-meter i{display:block;height:100%;width:74%;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--green));border-radius:99px}
-    .section-head{display:flex;justify-content:space-between;align-items:end;gap:22px;margin-bottom:24px}
-    .section-head h2{font-size:clamp(2rem,3.8vw,3.35rem);line-height:.98;letter-spacing:-.058em;color:var(--navy);margin:10px 0}
-    .section-copy{color:var(--muted);font-weight:700;max-width:610px;margin:0}
-    .shop-shell{display:grid;grid-template-columns:270px 1fr;gap:20px;align-items:start}
-    .shop-sidebar{position:sticky;top:92px;border-radius:28px;background:rgba(255,255,255,.86);border:1px solid var(--line);box-shadow:var(--soft);padding:16px}
-    .mini-logo{width:150px;display:block;margin:2px auto 12px}
-    .side-stop{background:linear-gradient(135deg,#f0fffb,#fff9e8);border:1px solid rgba(0,199,190,.18);border-radius:22px;padding:14px;margin-bottom:12px}
-    .side-stop small{display:block;color:var(--muted);font-weight:850;text-transform:uppercase;font-size:.72rem;letter-spacing:.06em}
-    .side-stop strong{display:block;color:var(--navy);font-size:1.05rem;letter-spacing:-.03em;margin-top:4px}
-    .category-list{display:grid;gap:8px;margin-top:12px}
-    .cat-btn{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:12px 13px;border-radius:16px;background:#f8fffc;border:1px solid var(--line);color:var(--deep);text-align:left}
-    .cat-btn.active{background:var(--navy);color:white;box-shadow:0 14px 30px rgba(7,31,46,.18)}
-    .cat-btn span:last-child{opacity:.7}
-    .catalog-panel{border-radius:32px;background:rgba(255,255,255,.72);border:1px solid var(--line);box-shadow:var(--soft);padding:18px}
-    .catalog-toolbar{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin-bottom:16px}
-    .search-input,.select{height:48px;border-radius:17px;border:1px solid var(--line);background:#fbfffd;color:var(--deep);font-weight:850;outline:0;padding:0 14px}
-    .search-input{width:100%}
-    .product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .product-card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:26px;box-shadow:0 12px 26px rgba(7,31,46,.07);padding:15px;display:flex;flex-direction:column;min-height:336px;position:relative;overflow:hidden}
-    .product-card:before{content:"";position:absolute;inset:-40% -40% auto auto;width:210px;height:210px;border-radius:50%;background:rgba(0,199,190,.12);pointer-events:none}
-    .product-card.box:before{background:rgba(255,159,10,.16)}
-    .product-top{position:relative;display:flex;justify-content:space-between;gap:12px;align-items:start}
-    .emoji{width:76px;height:76px;border-radius:24px;display:grid;place-items:center;font-size:2.8rem;background:linear-gradient(145deg,#fff,#effff8);border:1px solid rgba(0,199,190,.14);box-shadow:0 12px 22px rgba(7,31,46,.06)}
-    .save-badge{display:grid;place-items:center;min-width:64px;height:42px;padding:0 10px;border-radius:16px;background:#e9fff1;color:#087f5b;font-size:.76rem;font-weight:1000;text-align:center}
-    .product-card h3{position:relative;margin:12px 0 6px;color:var(--navy);font-size:1.08rem;letter-spacing:-.035em}
-    .product-meta{position:relative;color:var(--muted);font-weight:760;font-size:.9rem;min-height:40px;margin-bottom:9px}
-    .nutrition{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 12px}
-    .nutri{border-radius:14px;background:#f6fffb;border:1px solid rgba(0,199,190,.14);padding:7px 6px;text-align:center}
-    .nutri b{display:block;color:var(--navy);font-size:.84rem}
-    .nutri span{display:block;color:var(--muted);font-weight:850;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em}
-    .price-row{position:relative;margin-top:auto;display:flex;align-items:end;justify-content:space-between;gap:10px}
-    .price{color:var(--navy);font-weight:1000;font-size:1.48rem;letter-spacing:-.055em;line-height:1}
-    .retail{color:var(--muted);font-weight:800;font-size:.76rem;margin-top:4px}
-    .retail s{color:#8ea0a8}
-    .add-btn{border:0;width:50px;height:50px;border-radius:18px;background:var(--navy);color:white;font-weight:1000;font-size:1.3rem;box-shadow:0 15px 30px rgba(7,31,46,.18)}
-    .add-btn:hover{transform:translateY(-2px);background:linear-gradient(135deg,var(--blue),var(--teal))}
-    .add-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
-    .stockline{position:relative;display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
-    .tag{border-radius:999px;padding:5px 8px;background:#f2fffb;border:1px solid rgba(0,199,190,.15);color:#005d5a;font-weight:930;font-size:.72rem}
-    .tag.low{background:#fff5df;color:#8a4b00;border-color:#ffe0a3}
-    .tag.out{background:#ffecec;color:#a11;border-color:#ffd0d0}
-    .map-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:stretch}
-    .map-card,.finder-card,.locker-card,.checkout-card{border-radius:30px;background:rgba(255,255,255,.86);border:1px solid var(--line);box-shadow:var(--soft);padding:18px;overflow:hidden}
-    .google-map-wrap{height:520px;border-radius:24px;overflow:hidden;border:1px solid rgba(7,31,46,.12);background:#e8f2f4;position:relative}
-    .google-map-wrap iframe{width:100%;height:100%;border:0}
-    .map-note{position:absolute;left:14px;bottom:14px;right:14px;z-index:2;background:rgba(255,255,255,.86);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;padding:10px 12px;color:var(--deep);font-weight:850;font-size:.86rem}
-    .finder-form{display:grid;grid-template-columns:1fr auto;gap:9px;margin:12px 0}
-    .uni-grid{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
-    .map-chip{border-radius:999px;padding:9px 11px;background:#f8fffc;color:var(--deep);border:1px solid var(--line);font-size:.84rem}
-    .nearest-panel{display:grid;gap:10px}
-    .stop-card{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:20px;background:#fbfffd;padding:13px;cursor:pointer;transition:.2s ease}
-    .stop-card:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(7,31,46,.08)}
-    .stop-card.active{border-color:rgba(0,199,190,.45);background:#effffb}
-    .stop-card strong{display:block;color:var(--navy);letter-spacing:-.025em}
-    .stop-card span{display:block;color:var(--muted);font-weight:750;font-size:.84rem}
-    .distance{font-weight:1000;color:var(--deep);background:#eafff6;border-radius:999px;padding:8px 10px;font-size:.82rem}
-    .coverage{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-    .coverage b{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;background:#eafff6;color:#087f5b;font-size:.8rem}
-    .locker-layout{display:grid;grid-template-columns:.95fr 1.05fr;gap:18px;align-items:center}
-    .locker-card img{border-radius:22px;border:1px solid rgba(7,31,46,.08);background:white}
-    .locker-features{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
-    .locker-feature{background:#fbfffd;border:1px solid var(--line);border-radius:18px;padding:12px}
-    .locker-feature b{display:block;color:var(--navy);margin-bottom:5px}
-    .locker-feature span{color:var(--muted);font-weight:700;font-size:.9rem}
-    .drawer{position:fixed;inset:0;background:rgba(7,31,46,.38);z-index:120;display:none;justify-content:flex-end}
-    .drawer.open{display:flex}
-    .drawer-panel{width:min(460px,92vw);background:#fff;min-height:100%;box-shadow:-20px 0 60px rgba(7,31,46,.18);padding:20px;overflow:auto}
-    .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-    .drawer-head h3{font-size:1.6rem;margin:0;color:var(--navy);letter-spacing:-.04em}
-    .close-btn{border:0;width:42px;height:42px;border-radius:15px;background:rgba(7,31,46,.08);font-size:1.4rem;color:var(--navy);font-weight:1000}
-    .cart-list{display:grid;gap:10px}
-    .cart-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:#fbfffd;border:1px solid var(--line);border-radius:18px;padding:11px}
-    .cart-emoji{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:white;border:1px solid rgba(0,199,190,.12);font-size:1.5rem}
-    .cart-item strong{display:block;color:var(--navy);font-size:.93rem}
-    .cart-item span{display:block;color:var(--muted);font-weight:760;font-size:.78rem}
-    .qty{display:flex;align-items:center;gap:6px}
-    .qty button{width:28px;height:28px;border:0;border-radius:10px;background:rgba(0,199,190,.12);color:#005d5a;font-weight:1000}
-    .summary{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
-    .summary-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;color:var(--deep);font-weight:850;border-bottom:1px dashed rgba(7,31,46,.12)}
-    .summary-row.total{border:0;color:var(--navy);font-size:1.34rem;font-weight:1000}
-    .checkout-fields{display:grid;gap:9px;margin:14px 0}
-    .checkout-fields input,.checkout-fields select{height:46px;border-radius:16px;border:1px solid var(--line);background:#fbfffd;padding:0 12px;color:var(--deep);font-weight:800;outline:0}
-    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(100px);background:var(--navy);color:white;border-radius:999px;padding:13px 18px;z-index:150;box-shadow:var(--shadow);font-weight:900;transition:.25s ease}
-    .toast.show{transform:translateX(-50%) translateY(0)}
-    footer{background:var(--navy);color:white;margin-top:50px;padding:42px 0 22px}
-    .footer-grid{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:24px;margin-bottom:24px}
-    footer img{width:180px;filter:drop-shadow(0 12px 18px rgba(0,0,0,.16))}
-    footer p,footer a{color:rgba(255,255,255,.72);font-weight:680}
-    footer a{display:block;margin:7px 0}
-    footer h4{margin:0 0 12px}
-    .fineprint{border-top:1px solid rgba(255,255,255,.12);padding-top:16px;color:rgba(255,255,255,.64);font-weight:700;font-size:.88rem;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-    @media(max-width:1080px){
-      .hero-grid,.shop-shell,.map-layout,.locker-layout{grid-template-columns:1fr}
-      .shop-sidebar{position:relative;top:auto}
-      .category-list{grid-template-columns:repeat(4,1fr)}
-      .product-grid{grid-template-columns:repeat(2,1fr)}
-      .nav-links{position:fixed;top:78px;left:16px;right:16px;padding:16px;border-radius:24px;background:rgba(255,255,255,.98);box-shadow:var(--shadow);border:1px solid var(--line);display:none;flex-direction:column;align-items:stretch}
-      .nav-links.open{display:flex}
-      .mobile-menu{display:grid}
-    }
-    @media(max-width:720px){
-      .announcement{font-size:.78rem}
-      .nav{min-height:68px}
-      .brand img{width:132px;height:52px}
-      .nav-actions .btn-light{display:none}
-      .location-form,.catalog-toolbar,.finder-form{grid-template-columns:1fr}
-      .hero h1{font-size:3.25rem}
-      .truck-card{min-height:360px}
-      .truck-card img{min-height:360px}
-      .app-card{display:none}
-      .section{padding:42px 0}
-      .section-head{display:block}
-      .category-list{grid-template-columns:repeat(2,1fr)}
-      .product-grid,.locker-features,.footer-grid{grid-template-columns:1fr}
-      .google-map-wrap{height:420px}
-      .mini-logo{display:none}
-    }
-  </style>
+  <title>Meals on Wheels DC | DC Grocery Coverage Network</title>
+  <meta
+    name="description"
+    content="Meals on Wheels DC prototype for citywide grocery pickup coverage, pit stops, lockers, subsidized boxes, and campus, apartment, and community service across DC."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
-  <div class="announcement">Shop-first prototype: <b>DC campus groceries</b>, 1-mile pit stop pickup, healthy snacks, and subsidized boxes.</div>
+  <div class="announcement">
+    Prototype rebuild: DC-wide grocery access comes first, with campuses as one pickup option inside the larger network.
+  </div>
 
-  <header>
-    <div class="container nav">
-      <a class="brand" href="#top" aria-label="Meals on Wheels home">
-        <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels logo" />
+  <header class="site-header">
+    <div class="shell nav-shell">
+      <a class="brand" href="#top" aria-label="Meals on Wheels DC home">
+        <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
+        <span class="brand-copy">
+          <strong>DC grocery coverage network</strong>
+          <small>Lockers, neighborhood pit stops, and campus access.</small>
+        </span>
       </a>
-      <nav class="nav-links" id="navLinks">
+
+      <button
+        class="menu-button"
+        id="menuButton"
+        type="button"
+        aria-expanded="false"
+        aria-controls="siteNav"
+      >
+        Menu
+      </button>
+
+      <nav class="site-nav" id="siteNav" aria-label="Primary">
+        <a href="#coverage">Coverage</a>
         <a href="#shop">Shop</a>
-        <a href="#map">Find pit stop</a>
-        <a href="#boxes">Subsidized boxes</a>
-        <a href="#lockers">Food lockers</a>
+        <a href="#support">Support boxes</a>
+        <a href="#lockers">Lockers</a>
       </nav>
+
       <div class="nav-actions">
-        <button class="btn btn-light" onclick="scrollToId('map')">Find nearest</button>
-        <button class="icon-btn" id="cartBtn" aria-label="Open cart">🛒<span class="cart-count" id="cartCount">0</span></button>
-        <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+        <button class="secondary-button" type="button" data-scroll-target="coverage">
+          View coverage
+        </button>
+        <button class="cart-button" id="cartButton" type="button" aria-haspopup="dialog">
+          <span>Cart</span>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
       </div>
     </div>
   </header>
 
   <main id="top">
     <section class="hero">
-      <div class="container hero-grid">
-        <div>
-          <span class="pill">📍 DC universities + dorms • ⚡ electric restock • 🔐 locker pickup</span>
-          <h1>Order groceries near <span class="gradient-text">your campus.</span></h1>
-          <p class="lead">Buy healthy snacks, veg, non-veg protein, bread, pantry staples, and subsidized grocery boxes. Choose your nearest 1-mile pit stop and checkout.</p>
+      <div class="shell hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Affordable grocery access across DC</p>
+          <h1>One network for campuses, apartments, and neighborhood pickup.</h1>
+          <p class="lead">
+            Campus pit stops are still part of the service, but they are no longer the headline.
+            The larger story is a DC-wide mesh of lockers, micro hubs, and short-walk coverage for
+            everyday grocery access.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-button" type="button" data-scroll-target="coverage">
+              Explore all pit stops
+            </button>
+            <button class="secondary-button" type="button" data-scroll-target="shop">
+              Shop the catalog
+            </button>
+          </div>
+          <div class="hero-stats" id="heroStats" aria-label="Network highlights"></div>
+        </div>
 
-          <div class="hero-search">
-            <form class="location-form" id="heroLocationForm">
-              <div class="field-wrap">
-                <span>🏠</span>
-                <label class="sr-only" for="heroLocation">Home or dorm location</label>
-                <input id="heroLocation" placeholder="Try 20052, GWU, Howard, Georgetown, AU, UDC..." />
+        <div class="hero-visual reveal">
+          <div class="hero-stage">
+            <div class="hero-stage-copy">
+              <span class="stage-chip">Coverage-first prototype</span>
+              <h2>Each pit stop holds a 1-mile service ring, and the whole network is visible at once.</h2>
+              <p>
+                Use the live map to compare campus hubs, apartment-oriented pickup nodes, and community
+                sites without jumping between separate single-location views.
+              </p>
+            </div>
+
+            <div class="hero-rails">
+              <article class="service-card">
+                <span class="service-label">Service lanes</span>
+                <strong>Campus, apartment, and community coverage</strong>
+                <p>Campuses remain available, but they now sit inside a broader DC distribution story.</p>
+              </article>
+              <article class="service-card service-card-highlight">
+                <span class="service-label">Map experience</span>
+                <strong>All hubs and all 1-mile radii together</strong>
+                <p>The coverage map shows the whole network in one place and keeps Google Maps links for directions.</p>
+              </article>
+            </div>
+
+            <div class="hero-media">
+              <img
+                src="assets/dc-grocery-truck-premium.svg"
+                alt="Illustration of the Meals on Wheels DC grocery truck"
+              />
+              <div class="media-float">
+                <span class="media-float-label">Selected network mode</span>
+                <strong>Citywide grocery access with flexible pickup</strong>
+                <p>Use hubs for locker pickup, dorm delivery, or neighborhood restock.</p>
               </div>
-              <button class="btn btn-primary" type="submit">Find pit stop</button>
-              <button class="btn btn-soft" type="button" id="useGpsBtn">Use GPS</button>
-            </form>
-            <div class="active-stop" id="activeStopBanner"></div>
-            <div class="quick-line">
-              <button class="chip" data-query="20052">20052 GW dorms</button>
-              <button class="chip" data-query="Howard University">Howard</button>
-              <button class="chip" data-query="Georgetown University">Georgetown</button>
-              <button class="chip" data-query="American University">AU</button>
-              <button class="chip" data-query="Catholic University">Catholic U</button>
-              <button class="chip" data-query="UDC">UDC</button>
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="truck-card">
-          <div class="floating-deal">
-            <div class="deal-chip">🚚 Lively electric grocery truck</div>
-            <div class="deal-chip">🥗 Transparent cargo with fresh boxes</div>
+    <section class="section" id="coverage">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Coverage map</p>
+            <h2>See every pit stop and every 1-mile ring across the DC service area.</h2>
           </div>
-          <img src="assets/dc-grocery-truck-premium.svg" alt="Electric Meals on Wheels grocery truck with DC monuments and transparent food cargo" />
-          <div class="app-card">
-            <strong id="appNearest">GW Foggy Bottom Pit Stop</strong>
-            <span>Locker pickup • 0.2 mi from campus core</span>
-            <div class="app-meter"><i></i></div>
-            <button class="btn btn-dark" style="width:100%" onclick="scrollToId('shop')">Shop now</button>
-          </div>
+          <p class="section-copy">
+            The map is now the operational center of the page. You can view the whole network, search from a
+            neighborhood or campus, and switch to Google Maps only when you want directions to one stop.
+          </p>
+        </div>
+
+        <div class="coverage-grid">
+          <article class="panel map-panel">
+            <div class="panel-top">
+              <div>
+                <p class="panel-kicker">Live coverage</p>
+                <h3>All pit stops on one map</h3>
+              </div>
+              <a
+                class="inline-link"
+                id="selectedStopMapLink"
+                href="#"
+                target="_blank"
+                rel="noopener"
+              >
+                Open selected stop in Google Maps
+              </a>
+            </div>
+
+            <div class="map-shell">
+              <div
+                class="coverage-map"
+                id="coverageMap"
+                aria-label="Map showing DC pit stops and their 1-mile service rings"
+              ></div>
+              <div class="map-legend">
+                <span><i class="legend-swatch legend-swatch-ring"></i> 1-mile service ring</span>
+                <span><i class="legend-swatch legend-swatch-active"></i> Active pit stop</span>
+                <span><i class="legend-swatch legend-swatch-origin"></i> Your search origin</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="panel coverage-sidebar">
+            <div class="sidebar-block">
+              <p class="panel-kicker">Find your nearest hub</p>
+              <h3>Start from a neighborhood, ZIP, campus, or coordinates.</h3>
+              <form class="location-form" id="locationForm">
+                <label class="sr-only" for="locationInput">Search location</label>
+                <input
+                  id="locationInput"
+                  class="text-input"
+                  placeholder="Try Shaw, Brookland, 20052, Georgetown, or 38.90,-77.04"
+                />
+                <div class="location-actions">
+                  <button class="primary-button" type="submit">Find closest hub</button>
+                  <button class="ghost-button" type="button" id="gpsButton">Use GPS</button>
+                </div>
+              </form>
+
+              <div class="chip-row" id="quickPicks" aria-label="Quick location picks">
+                <button class="chip" type="button" data-query="Downtown DC">Downtown DC</button>
+                <button class="chip" type="button" data-query="Shaw">Shaw</button>
+                <button class="chip" type="button" data-query="Brookland">Brookland</button>
+                <button class="chip" type="button" data-query="Van Ness">Van Ness</button>
+                <button class="chip" type="button" data-query="Georgetown">Georgetown</button>
+                <button class="chip" type="button" data-query="Howard University">Howard</button>
+              </div>
+            </div>
+
+            <div class="sidebar-block status-block">
+              <p class="panel-kicker">Current search origin</p>
+              <strong id="originLabel">Downtown DC</strong>
+              <p id="originSummary" class="status-copy">
+                We will calculate nearest hubs from the current origin and keep the map centered on the network.
+              </p>
+              <div class="status-badges" id="coverageBadges"></div>
+            </div>
+
+            <div class="sidebar-block">
+              <div class="list-header">
+                <div>
+                  <p class="panel-kicker">Closest pit stops</p>
+                  <h3>Compare the nearest five hubs.</h3>
+                </div>
+                <button class="ghost-button small-button" type="button" id="fitMapButton">
+                  Fit all coverage
+                </button>
+              </div>
+              <div class="nearest-list" id="nearestStops"></div>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
 
     <section class="section" id="shop">
-      <div class="container">
-        <div class="section-head">
+      <div class="shell">
+        <div class="section-heading">
           <div>
-            <span class="pill">🛒 Catalogue</span>
-            <h2>Shop by category.</h2>
+            <p class="eyebrow">Catalog</p>
+            <h2>Shop the active pit stop without losing the bigger DC coverage context.</h2>
           </div>
-          <p class="section-copy">Prices are target prototype prices designed to sit below typical big-box and supermarket baskets through bulk campus restocking.</p>
+          <p class="section-copy">
+            Inventory is scoped to the selected pit stop, so the catalog updates when you move around the map.
+            That keeps coverage, stock, and checkout tied together.
+          </p>
         </div>
 
-        <div class="shop-shell">
-          <aside class="shop-sidebar">
-            <img class="mini-logo" src="assets/logo-meals-on-wheels.png" alt="" />
-            <div class="side-stop">
-              <small>Current pit stop</small>
-              <strong id="sideActiveStop">GW Foggy Bottom Pit Stop</strong>
-              <span style="display:block;color:var(--muted);font-weight:750;font-size:.88rem;margin-top:6px" id="sideActiveDetails">20052 • dorm locker + pickup</span>
+        <div class="shop-grid">
+          <aside class="panel selected-stop-panel">
+            <p class="panel-kicker">Active pit stop</p>
+            <h3 id="selectedStopName">GW Foggy Bottom Pit Stop</h3>
+            <p id="selectedStopSummary" class="status-copy"></p>
+            <div class="badge-row" id="selectedStopTags"></div>
+            <dl class="info-list">
+              <div>
+                <dt>Distance from origin</dt>
+                <dd id="selectedStopDistance">0.00 mi</dd>
+              </div>
+              <div>
+                <dt>Pickup model</dt>
+                <dd id="selectedStopType">Dorm locker and pickup</dd>
+              </div>
+              <div>
+                <dt>Service area</dt>
+                <dd id="selectedStopArea">Foggy Bottom, West End, and nearby pickups</dd>
+              </div>
+            </dl>
+            <div class="panel-actions">
+              <a class="primary-button button-link" id="directionsButton" href="#" target="_blank" rel="noopener">
+                Directions in Google Maps
+              </a>
+              <button class="secondary-button" type="button" data-scroll-target="support">
+                View support boxes
+              </button>
             </div>
-            <button class="btn btn-primary" style="width:100%" onclick="scrollToId('map')">Change pit stop</button>
-            <div class="category-list" id="categoryList"></div>
           </aside>
 
-          <div class="catalog-panel">
-            <div class="catalog-toolbar">
-              <input class="search-input" id="productSearch" placeholder="Search snacks, veg, chicken, bread..." />
-              <select class="select" id="dietFilter" aria-label="Diet filter">
-                <option value="all">All diets</option>
-                <option value="veg">Vegetarian</option>
-                <option value="nonveg">Non-veg</option>
-                <option value="student">Student picks</option>
-              </select>
-              <select class="select" id="sortFilter" aria-label="Sort products">
-                <option value="featured">Featured</option>
-                <option value="priceLow">Price low</option>
-                <option value="protein">Protein high</option>
-                <option value="savings">Savings high</option>
-              </select>
+          <article class="panel catalog-panel">
+            <div class="catalog-top">
+              <div class="category-tabs" id="categoryTabs" aria-label="Catalog categories"></div>
+              <div class="catalog-filters">
+                <label class="sr-only" for="catalogSearch">Search products</label>
+                <input
+                  class="text-input"
+                  id="catalogSearch"
+                  placeholder="Search snacks, produce, proteins, bread, pantry..."
+                />
+                <label class="sr-only" for="dietFilter">Diet filter</label>
+                <select class="select-input" id="dietFilter" aria-label="Diet filter">
+                  <option value="all">All diets</option>
+                  <option value="veg">Vegetarian</option>
+                  <option value="nonveg">Protein and meals</option>
+                  <option value="student">Student picks</option>
+                </select>
+                <label class="sr-only" for="sortFilter">Sort products</label>
+                <select class="select-input" id="sortFilter" aria-label="Sort products">
+                  <option value="featured">Featured</option>
+                  <option value="priceLow">Price low</option>
+                  <option value="protein">Protein high</option>
+                  <option value="savings">Savings high</option>
+                </select>
+              </div>
             </div>
-            <div class="product-grid" id="productGrid"></div>
-          </div>
+            <div class="catalog-grid" id="catalogGrid"></div>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="section" id="map">
-      <div class="container">
-        <div class="section-head">
+    <section class="section" id="support">
+      <div class="shell">
+        <div class="section-heading">
           <div>
-            <span class="pill">🗺 Google Maps pit stop finder</span>
-            <h2>Pick the closest 1-mile hub.</h2>
+            <p class="eyebrow">Support pricing</p>
+            <h2>Mixed grocery boxes keep subsidy strategy separate from the regular shelf.</h2>
           </div>
-          <p class="section-copy">Enter a dorm, ZIP, university, or GPS location. The embedded map uses the Google Maps interface; the site calculates the closest grocery pit stop.</p>
+          <p class="section-copy">
+            These are still bundled boxes rather than isolated discounted items. The mix is designed to preserve a
+            real grocery basket across grains, produce, and protein.
+          </p>
         </div>
 
-        <div class="map-layout">
-          <div class="map-card">
-            <div class="google-map-wrap">
-              <iframe id="googleMapFrame" title="Google Maps view of selected DC pit stop" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-              <div class="map-note" id="mapNote">Showing GW Foggy Bottom / 20052. Use the finder to jump around DC universities.</div>
-            </div>
-          </div>
-
-          <div class="finder-card">
-            <h3 style="color:var(--navy);font-size:1.45rem;letter-spacing:-.04em;margin-bottom:8px;">Where are you ordering from?</h3>
-            <form class="finder-form" id="mapLocationForm">
-              <input class="search-input" id="mapLocation" placeholder="Example: 20052, Thurston Hall, Georgetown, Howard..." />
-              <button class="btn btn-dark" type="submit">Search</button>
-            </form>
-
-            <div class="uni-grid">
-              <button class="map-chip" data-query="20052">GW / 20052</button>
-              <button class="map-chip" data-query="Georgetown University">Georgetown</button>
-              <button class="map-chip" data-query="Howard University">Howard</button>
-              <button class="map-chip" data-query="American University">American U</button>
-              <button class="map-chip" data-query="Catholic University">Catholic U</button>
-              <button class="map-chip" data-query="Gallaudet University">Gallaudet</button>
-              <button class="map-chip" data-query="UDC">UDC</button>
-              <button class="map-chip" data-query="Trinity Washington University">Trinity</button>
-              <button class="map-chip" data-query="Georgetown Law">Georgetown Law</button>
-            </div>
-
-            <div class="coverage" id="coverageBadges"></div>
-            <div class="nearest-panel" id="nearestList"></div>
-
-            <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;">
-              <a class="btn btn-primary" id="directionsBtn" target="_blank" rel="noopener">Open Google directions</a>
-              <button class="btn btn-light" onclick="scrollToId('shop')">Shop selected hub</button>
-            </div>
-          </div>
+        <div class="support-grid">
+          <article class="panel support-copy-panel">
+            <p class="panel-kicker">How this section works</p>
+            <h3>Subsidized support lives as a product line, not as scattered price overrides.</h3>
+            <p>
+              The prototype keeps support pricing legible by packaging complete baskets. That lets the page show a
+              mainstream catalog while still making affordability a visible part of the service model.
+            </p>
+            <ul class="support-points">
+              <li>Campus pickup is one access point, but boxes also fit apartment and community use.</li>
+              <li>Each box bundles a grain or pantry base, produce, and protein.</li>
+              <li>Launch pricing would still need live retail, labor, cold storage, and SNAP or EBT validation.</li>
+            </ul>
+          </article>
+          <div class="box-grid" id="boxGrid"></div>
         </div>
-      </div>
-    </section>
-
-    <section class="section" id="boxes">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <span class="pill">💚 Subsidized</span>
-            <h2>Low-cost mixed grocery boxes.</h2>
-          </div>
-          <p class="section-copy">For support pricing, we sell complete mixed boxes rather than single subsidized items. Each box includes grains, produce, and protein.</p>
-        </div>
-        <div class="product-grid" id="boxGrid"></div>
       </div>
     </section>
 
     <section class="section" id="lockers">
-      <div class="container locker-layout">
-        <div class="locker-card">
-          <img src="assets/community-food-lockers.svg" alt="Community food storage lockers with chilled, ambient, frozen, and PIN code compartments" />
-        </div>
-        <div class="locker-card">
-          <span class="pill">🔐 Food storage pit stops</span>
-          <h2 style="font-size:clamp(2rem,3.8vw,3.2rem);line-height:.98;letter-spacing:-.058em;color:var(--navy);margin:12px 0;">Apartment-style grocery lockers.</h2>
-          <p class="section-copy">Pit stops work like package lockers for groceries: chilled doors for produce and dairy, ambient doors for bread and pantry, frozen doors for meal packs, and PIN code pickup.</p>
-          <div class="locker-features">
-            <div class="locker-feature"><b>Chilled</b><span>Produce, yogurt, eggs, salads, drinks.</span></div>
-            <div class="locker-feature"><b>Ambient</b><span>Bread, wraps, snacks, oats, rice, beans.</span></div>
-            <div class="locker-feature"><b>Frozen</b><span>Backup frozen vegetables and meal packs.</span></div>
-            <div class="locker-feature"><b>PIN pickup</b><span>Students and residents unlock with a code.</span></div>
+      <div class="shell locker-grid">
+        <article class="panel locker-media-panel">
+          <img
+            src="assets/community-food-lockers.svg"
+            alt="Illustration of refrigerated, ambient, frozen, and code-based food lockers"
+          />
+        </article>
+        <article class="panel locker-copy-panel">
+          <p class="eyebrow">Locker operations</p>
+          <h2>Temperature-zoned pickup that works for dorms, apartments, and community nodes.</h2>
+          <p class="section-copy locker-copy">
+            The lockers are the bridge between citywide coverage and practical pickup. They support short-dwell
+            groceries, scheduled orders, and after-class or after-work retrieval without requiring every user to be
+            routed through a campus flow.
+          </p>
+          <div class="locker-feature-grid">
+            <article class="locker-feature">
+              <strong>Chilled storage</strong>
+              <p>Produce, dairy, salads, and drinks stay separate from ambient items.</p>
+            </article>
+            <article class="locker-feature">
+              <strong>Ambient shelves</strong>
+              <p>Bread, pantry goods, oats, beans, and snack packs turn over fast.</p>
+            </article>
+            <article class="locker-feature">
+              <strong>Frozen reserve</strong>
+              <p>Backup vegetables and meal components extend coverage during spikes.</p>
+            </article>
+            <article class="locker-feature">
+              <strong>PIN pickup flow</strong>
+              <p>Users receive a pickup code instead of waiting on a full delivery window.</p>
+            </article>
           </div>
-        </div>
+        </article>
       </div>
     </section>
   </main>
 
-  <div class="drawer" id="cartDrawer" aria-hidden="true">
-    <div class="drawer-panel">
-      <div class="drawer-head">
-        <h3>Your order</h3>
-        <button class="close-btn" id="closeCart" aria-label="Close cart">×</button>
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div>
+        <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels DC logo" />
+        <p>
+          Static prototype focused on DC-wide grocery coverage, flexible pickup hubs, lockers, and support pricing.
+        </p>
       </div>
-      <div class="side-stop">
-        <small>Pickup pit stop</small>
-        <strong id="drawerStop">GW Foggy Bottom Pit Stop</strong>
-        <span style="display:block;color:var(--muted);font-weight:750;font-size:.88rem;margin-top:6px">1-mile campus locker coverage</span>
+      <div>
+        <h3>Explore</h3>
+        <a href="#coverage">Coverage map</a>
+        <a href="#shop">Catalog</a>
+        <a href="#support">Support boxes</a>
       </div>
-      <div class="cart-list" id="cartList"></div>
-      <div class="checkout-fields">
-        <input id="checkoutName" placeholder="Name for pickup" />
-        <input id="checkoutPhone" placeholder="Phone / text for locker code" />
-        <select id="deliveryMode">
-          <option value="pickup">Locker pickup — free</option>
-          <option value="dorm">Dorm delivery — $1.49</option>
-          <option value="priority">Priority delivery — $4.99</option>
-        </select>
-        <select id="subPreference">
-          <option>Best healthy substitute if out of stock</option>
-          <option>Text me first</option>
-          <option>Remove item if unavailable</option>
-        </select>
+      <div>
+        <h3>Service model</h3>
+        <a href="#lockers">Locker flow</a>
+        <a href="#coverage">Pit stops</a>
+        <a href="#shop">Selected hub inventory</a>
       </div>
-      <div class="summary">
-        <div class="summary-row"><span>Items</span><span id="subtotal">$0.00</span></div>
-        <div class="summary-row"><span>Delivery / pickup</span><span id="deliveryFee">$0.00</span></div>
-        <div class="summary-row"><span>Estimated savings</span><span id="savings">$0.00</span></div>
-        <div class="summary-row total"><span>Total</span><span id="total">$0.00</span></div>
-      </div>
-      <button class="btn btn-primary" id="checkoutBtn" style="width:100%;margin-top:16px;">Place demo order</button>
-      <p style="color:var(--muted);font-weight:700;font-size:.86rem;">Demo checkout only. Real launch would connect inventory, payment, SNAP/EBT, and Google Maps routing.</p>
-    </div>
-  </div>
-
-  <div class="toast" id="toast">Added</div>
-
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
-        <div>
-          <img src="assets/logo-meals-on-wheels.png" alt="Meals on Wheels logo" />
-          <p>Website prototype focused on ordering: grocery catalogue, nearest DC pit stop, locker pickup, and subsidized mixed boxes.</p>
-        </div>
-        <div><h4>Shop</h4><a href="#shop">Catalogue</a><a href="#boxes">Subsidized boxes</a><a href="#lockers">Food lockers</a></div>
-        <div><h4>Campuses</h4><a href="#map">GW / 20052</a><a href="#map">Howard</a><a href="#map">Georgetown</a><a href="#map">AU / UDC</a></div>
-        <div><h4>Checkout</h4><a href="#shop">Add items</a><a href="#map">Choose pit stop</a><a href="#" onclick="openCart();return false;">View cart</a></div>
-      </div>
-      <div class="fineprint">
-        <span>© 2026 Meals on Wheels DC — purchase-focused hackathon prototype.</span>
-        <span>Target pricing and nutrition values are estimates for prototype planning.</span>
+      <div>
+        <h3>Prototype note</h3>
+        <p>
+          The rebuild uses a live multi-stop map for coverage and keeps Google Maps only for per-stop navigation.
+        </p>
       </div>
     </div>
   </footer>
 
-  <script>
-    const pitStops = [
-      {id:"gw", name:"GW Foggy Bottom Pit Stop", short:"GW / 20052", lat:38.8997, lng:-77.0486, area:"George Washington University dorms, Foggy Bottom, West End", zip:"20052", type:"Dorm locker + pickup", stockBoost:1.08},
-      {id:"georgetown", name:"Georgetown Campus Lockers", short:"Georgetown", lat:38.9091, lng:-77.0718, area:"Georgetown University, Burleith, Glover Park", zip:"20007", type:"Campus locker", stockBoost:1.03},
-      {id:"howard", name:"Howard–Shaw Fresh Stop", short:"Howard / Shaw", lat:38.9228, lng:-77.0211, area:"Howard University, Shaw, U Street, Bloomingdale", zip:"20059", type:"Corner store + locker", stockBoost:1.05},
-      {id:"au", name:"American U Tenley Pit Stop", short:"AU / Tenley", lat:38.9375, lng:-77.0868, area:"American University, Tenleytown, Spring Valley", zip:"20016", type:"Student pickup", stockBoost:.98},
-      {id:"brookland", name:"Brookland Catholic + Trinity Hub", short:"Catholic U / Trinity", lat:38.9342, lng:-76.9975, area:"Catholic University, Trinity Washington, Brookland", zip:"20064", type:"Community locker", stockBoost:1.0},
-      {id:"gallaudet", name:"Gallaudet NoMa Fresh Lockers", short:"Gallaudet / NoMa", lat:38.9085, lng:-76.9965, area:"Gallaudet, Union Market, NoMa apartments", zip:"20002", type:"Locker + corner store", stockBoost:1.02},
-      {id:"udc", name:"UDC Van Ness Grocery Hub", short:"UDC / Van Ness", lat:38.9437, lng:-77.0638, area:"UDC, Van Ness, Cleveland Park", zip:"20008", type:"Campus pickup", stockBoost:.97},
-      {id:"law", name:"Capitol Hill Law School Hub", short:"Georgetown Law / Capitol", lat:38.8986, lng:-77.0124, area:"Georgetown Law, Capitol Hill, Union Station", zip:"20001", type:"Locker + pickup", stockBoost:1.04},
-      {id:"mason", name:"Arlington Student Pickup", short:"Mason Arlington", lat:38.8846, lng:-77.1011, area:"George Mason Arlington, Rosslyn, Courthouse", zip:"22201", type:"DC-area pickup", stockBoost:.95}
-    ];
+  <div class="cart-drawer" id="cartDrawer" hidden>
+    <div class="drawer-backdrop" data-close-cart></div>
+    <aside
+      class="drawer-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cartTitle"
+      aria-describedby="cartDescription"
+      tabindex="-1"
+    >
+      <div class="drawer-header">
+        <div>
+          <p class="panel-kicker">Order summary</p>
+          <h2 id="cartTitle">Your cart</h2>
+          <p id="cartDescription" class="status-copy">Inventory and totals reflect the currently active pit stop.</p>
+        </div>
+        <button class="close-button" id="closeCartButton" type="button" aria-label="Close cart">
+          Close
+        </button>
+      </div>
 
-    const knownLocations = {
-      "20052": {label:"GW / Foggy Bottom 20052", lat:38.8997, lng:-77.0470}, "gw": {label:"George Washington University", lat:38.8997, lng:-77.0470}, "gwu": {label:"George Washington University", lat:38.8997, lng:-77.0470}, "george washington university": {label:"George Washington University", lat:38.8997, lng:-77.0470}, "foggy bottom": {label:"Foggy Bottom", lat:38.9006, lng:-77.0508}, "thurston hall": {label:"Thurston Hall", lat:38.9000, lng:-77.0458}, "district house": {label:"District House", lat:38.8994, lng:-77.0477}, "potomac house": {label:"Potomac House", lat:38.9006, lng:-77.0482}, "mitchell hall": {label:"Mitchell Hall", lat:38.8990, lng:-77.0501}, "lafayette hall": {label:"Lafayette Hall", lat:38.9012, lng:-77.0498}, "dorm": {label:"GW dorm area", lat:38.8997, lng:-77.0470}, "dorms": {label:"GW dorm area", lat:38.8997, lng:-77.0470},
-      "georgetown": {label:"Georgetown University", lat:38.9076, lng:-77.0723}, "georgetown university": {label:"Georgetown University", lat:38.9076, lng:-77.0723}, "20007": {label:"Georgetown / 20007", lat:38.9097, lng:-77.0718},
-      "howard": {label:"Howard University", lat:38.9227, lng:-77.0194}, "howard university": {label:"Howard University", lat:38.9227, lng:-77.0194}, "20059": {label:"Howard University / 20059", lat:38.9227, lng:-77.0194},
-      "american university": {label:"American University", lat:38.9371, lng:-77.0900}, "au": {label:"American University", lat:38.9371, lng:-77.0900}, "20016": {label:"Tenleytown / AU / 20016", lat:38.9371, lng:-77.0900},
-      "catholic university": {label:"Catholic University", lat:38.9369, lng:-76.9989}, "cua": {label:"Catholic University", lat:38.9369, lng:-76.9989}, "20064": {label:"Catholic University / 20064", lat:38.9369, lng:-76.9989},
-      "trinity": {label:"Trinity Washington University", lat:38.9276, lng:-77.0047}, "trinity washington university": {label:"Trinity Washington University", lat:38.9276, lng:-77.0047},
-      "gallaudet": {label:"Gallaudet University", lat:38.9074, lng:-76.9933}, "gallaudet university": {label:"Gallaudet University", lat:38.9074, lng:-76.9933}, "noma": {label:"NoMa", lat:38.9078, lng:-77.0030}, "union market": {label:"Union Market", lat:38.9087, lng:-76.9960},
-      "udc": {label:"University of the District of Columbia", lat:38.9440, lng:-77.0656}, "university of the district of columbia": {label:"University of the District of Columbia", lat:38.9440, lng:-77.0656}, "van ness": {label:"Van Ness", lat:38.9443, lng:-77.0638}, "20008": {label:"Van Ness / 20008", lat:38.9440, lng:-77.0656},
-      "georgetown law": {label:"Georgetown Law", lat:38.8994, lng:-77.0124}, "capitol hill": {label:"Capitol Hill", lat:38.8898, lng:-77.0091}, "20001": {label:"20001 / Shaw / Capitol", lat:38.9072, lng:-77.0186},
-      "george mason arlington": {label:"George Mason Arlington", lat:38.8846, lng:-77.1011}, "mason arlington": {label:"George Mason Arlington", lat:38.8846, lng:-77.1011}, "22201": {label:"Arlington / 22201", lat:38.8846, lng:-77.1011}
-    };
+      <div class="drawer-stop-card">
+        <span class="service-label">Current pickup hub</span>
+        <strong id="drawerStopName">GW Foggy Bottom Pit Stop</strong>
+        <p id="drawerStopSummary">Locker pickup and short-distance delivery around the active hub.</p>
+      </div>
 
-    const products = [
-      {id:"apple_pb", name:"Apple + Peanut Butter Snack", cat:"snacks", diet:"veg", emoji:"🍎", price:1.49, retail:2.29, unit:"1 apple + 1.5 oz PB", portion:"1 snack", kcal:260, protein:8, fiber:6, tag:"Healthy snack", student:true, baseStock:38},
-      {id:"yogurt_parfait", name:"Greek Yogurt Parfait", cat:"snacks", diet:"veg", emoji:"🥣", price:1.79, retail:2.99, unit:"7 oz cup", portion:"1 cup", kcal:190, protein:15, fiber:3, tag:"High protein", student:true, baseStock:34},
-      {id:"hummus_carrots", name:"Hummus + Carrot Cup", cat:"snacks", diet:"veg", emoji:"🥕", price:1.69, retail:2.79, unit:"6 oz cup", portion:"1 snack", kcal:210, protein:7, fiber:7, tag:"Veg snack", student:true, baseStock:32},
-      {id:"trail_mix", name:"Trail Mix Mini", cat:"snacks", diet:"veg", emoji:"🥜", price:1.99, retail:3.49, unit:"3 oz pouch", portion:"1 pouch", kcal:360, protein:10, fiber:4, tag:"Dorm shelf", student:true, baseStock:42},
-      {id:"popcorn", name:"Low-Salt Popcorn", cat:"snacks", diet:"veg", emoji:"🍿", price:1.25, retail:2.19, unit:"2.5 oz bag", portion:"1 bag", kcal:150, protein:4, fiber:5, tag:"Whole grain", student:true, baseStock:45},
-      {id:"banana_oat", name:"Banana Oat Bites", cat:"snacks", diet:"veg", emoji:"🍌", price:1.39, retail:2.29, unit:"2 bites", portion:"1 snack", kcal:220, protein:6, fiber:4, tag:"Breakfast", student:true, baseStock:30},
+      <div class="cart-list" id="cartList"></div>
 
-      {id:"salad_kit", name:"Campus Salad Kit", cat:"veg", diet:"veg", emoji:"🥗", price:2.99, retail:4.99, unit:"11 oz kit", portion:"2 portions", kcal:240, protein:8, fiber:8, tag:"Veg", student:true, baseStock:22},
-      {id:"lentil_bowl", name:"Lentil Protein Bowl", cat:"veg", diet:"veg", emoji:"🫘", price:3.49, retail:5.49, unit:"14 oz bowl", portion:"1 meal", kcal:420, protein:20, fiber:13, tag:"High protein", student:true, baseStock:24},
-      {id:"tofu_kit", name:"Tofu Stir-Fry Kit", cat:"veg", diet:"veg", emoji:"🥦", price:4.49, retail:6.99, unit:"18 oz kit", portion:"2 meals", kcal:520, protein:26, fiber:10, tag:"Dinner", student:false, baseStock:18},
-      {id:"frozen_veg", name:"Frozen Veg Mix", cat:"veg", diet:"veg", emoji:"🌽", price:1.99, retail:3.29, unit:"12 oz bag", portion:"3 sides", kcal:180, protein:6, fiber:9, tag:"Freezer", student:false, baseStock:36},
-      {id:"fruit_cup", name:"Fresh Fruit Cup", cat:"veg", diet:"veg", emoji:"🍓", price:1.99, retail:3.49, unit:"8 oz cup", portion:"1 snack", kcal:120, protein:2, fiber:4, tag:"Fresh", student:true, baseStock:28},
+      <div class="checkout-fields">
+        <label class="field-label" for="checkoutName">Pickup name</label>
+        <input class="text-input" id="checkoutName" placeholder="Name for pickup" />
+        <label class="field-label" for="checkoutPhone">Phone</label>
+        <input class="text-input" id="checkoutPhone" placeholder="Phone or text number" />
+        <label class="field-label" for="deliveryMode">Fulfillment</label>
+        <select class="select-input" id="deliveryMode">
+          <option value="pickup">Locker pickup - free</option>
+          <option value="dorm">Short-hop delivery - $1.49</option>
+          <option value="priority">Priority delivery - $4.99</option>
+        </select>
+        <label class="field-label" for="subPreference">Substitutions</label>
+        <select class="select-input" id="subPreference">
+          <option value="best">Best healthy substitute if out of stock</option>
+          <option value="text">Text me first</option>
+          <option value="remove">Remove item if unavailable</option>
+        </select>
+      </div>
 
-      {id:"egg_box", name:"Egg Protein Box", cat:"nonveg", diet:"nonveg", emoji:"🥚", price:2.99, retail:4.79, unit:"2 eggs + fruit", portion:"1 meal/snack", kcal:310, protein:18, fiber:4, tag:"Protein", student:true, baseStock:27},
-      {id:"chicken_rice", name:"Chicken Rice Bowl", cat:"nonveg", diet:"nonveg", emoji:"🍗", price:4.99, retail:7.99, unit:"16 oz bowl", portion:"1 meal", kcal:560, protein:36, fiber:5, tag:"Hot meal base", student:true, baseStock:20},
-      {id:"tuna_pack", name:"Tuna Protein Pack", cat:"nonveg", diet:"nonveg", emoji:"🐟", price:3.49, retail:5.79, unit:"tuna + crackers", portion:"1 meal/snack", kcal:340, protein:24, fiber:3, tag:"Shelf-stable", student:true, baseStock:31},
-      {id:"turkey_wrap", name:"Turkey Veg Wrap", cat:"nonveg", diet:"nonveg", emoji:"🌯", price:3.99, retail:6.49, unit:"1 wrap", portion:"1 meal", kcal:430, protein:25, fiber:5, tag:"Grab & go", student:true, baseStock:23},
-      {id:"chicken_pack", name:"Chicken Family Pack", cat:"nonveg", diet:"nonveg", emoji:"🍗", price:8.99, retail:12.99, unit:"1.5 lb pack", portion:"4 portions", kcal:980, protein:132, fiber:0, tag:"Bulk value", student:false, baseStock:12},
+      <div class="summary-block">
+        <div class="summary-row">
+          <span>Items</span>
+          <strong id="subtotalValue">$0.00</strong>
+        </div>
+        <div class="summary-row">
+          <span>Delivery or pickup</span>
+          <strong id="deliveryValue">$0.00</strong>
+        </div>
+        <div class="summary-row">
+          <span>Estimated savings</span>
+          <strong id="savingsValue">$0.00</strong>
+        </div>
+        <div class="summary-row summary-total">
+          <span>Total</span>
+          <strong id="totalValue">$0.00</strong>
+        </div>
+      </div>
 
-      {id:"wheat_bread", name:"Whole Wheat Bread", cat:"bread", diet:"veg", emoji:"🍞", price:2.29, retail:3.49, unit:"20 oz loaf", portion:"20 slices", kcal:70, protein:4, fiber:2, tag:"Bread", student:true, baseStock:35},
-      {id:"wraps", name:"Whole Grain Wraps", cat:"bread", diet:"veg", emoji:"🫓", price:1.99, retail:3.29, unit:"6 ct pack", portion:"6 wraps", kcal:140, protein:5, fiber:4, tag:"Meal prep", student:true, baseStock:29},
-      {id:"bagels", name:"Mini Bagel Pack", cat:"bread", diet:"veg", emoji:"🥯", price:2.49, retail:4.29, unit:"6 mini bagels", portion:"6 portions", kcal:130, protein:5, fiber:2, tag:"Breakfast", student:true, baseStock:26},
-      {id:"pita", name:"Pita Bread Pack", cat:"bread", diet:"veg", emoji:"🥙", price:1.79, retail:2.99, unit:"5 ct pack", portion:"5 pitas", kcal:160, protein:6, fiber:3, tag:"Low cost", student:true, baseStock:24},
+      <button class="primary-button full-width" id="checkoutButton" type="button">
+        Place demo order
+      </button>
+      <p class="checkout-feedback" id="checkoutFeedback" hidden></p>
+    </aside>
+  </div>
 
-      {id:"rice", name:"Brown Rice", cat:"pantry", diet:"veg", emoji:"🍚", price:3.99, retail:6.29, unit:"5 lb bag", portion:"25 servings", kcal:170, protein:4, fiber:2, tag:"Staple", student:false, baseStock:44},
-      {id:"beans", name:"Black Beans", cat:"pantry", diet:"veg", emoji:"🫘", price:1.29, retail:1.99, unit:"15 oz can", portion:"3.5 servings", kcal:110, protein:7, fiber:6, tag:"Protein", student:true, baseStock:62},
-      {id:"oats", name:"Rolled Oats", cat:"pantry", diet:"veg", emoji:"🥣", price:2.79, retail:4.49, unit:"42 oz tub", portion:"30 servings", kcal:150, protein:5, fiber:4, tag:"Breakfast", student:true, baseStock:39},
-      {id:"pasta", name:"Whole Wheat Pasta", cat:"pantry", diet:"veg", emoji:"🍝", price:1.39, retail:2.29, unit:"16 oz box", portion:"8 servings", kcal:180, protein:7, fiber:5, tag:"Dinner", student:true, baseStock:41},
-      {id:"milk", name:"Low-Fat Milk", cat:"pantry", diet:"veg", emoji:"🥛", price:2.99, retail:4.39, unit:"half gallon", portion:"8 cups", kcal:120, protein:8, fiber:0, tag:"Chilled", student:false, baseStock:25}
-    ];
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    const boxes = [
-      {id:"dorm_box", name:"Campus Dorm Box", cat:"boxes", diet:"mixed", emoji:"🎒", price:8.49, retail:18.20, unit:"mixed grocery box", portion:"6 meal/snack portions", kcal:2450, protein:60, fiber:26, tag:"Subsidized", student:true, baseStock:18, contents:"oats, fruit, yogurt, beans, wraps, snack pack"},
-      {id:"solo_box", name:"Solo Low-Cost Box", cat:"boxes", diet:"mixed", emoji:"📦", price:6.49, retail:12.80, unit:"mixed grocery box", portion:"4 portions", kcal:1650, protein:42, fiber:20, tag:"Subsidized", student:true, baseStock:20, contents:"grain + produce + protein + snack"},
-      {id:"veg_support", name:"Vegetarian Support Box", cat:"boxes", diet:"veg", emoji:"🥬", price:7.49, retail:15.50, unit:"mixed veg box", portion:"5 portions", kcal:2050, protein:55, fiber:34, tag:"Veg subsidy", student:true, baseStock:15, contents:"beans, rice, greens, fruit, hummus"},
-      {id:"family_box", name:"Family Community Box", cat:"boxes", diet:"mixed", emoji:"🧺", price:15.99, retail:30.30, unit:"family mixed box", portion:"10 portions", kcal:4300, protein:118, fiber:48, tag:"Subsidized", student:false, baseStock:12, contents:"rice, beans, eggs/chicken, vegetables, fruit, bread"}
-    ];
-
-    const allItems = [...products, ...boxes];
-    const categories = [
-      {id:"all", name:"All", icon:"✨"},
-      {id:"snacks", name:"Healthy snacks", icon:"🍎"},
-      {id:"veg", name:"Veg", icon:"🥬"},
-      {id:"nonveg", name:"Non-veg", icon:"🍗"},
-      {id:"bread", name:"Bread", icon:"🍞"},
-      {id:"pantry", name:"Pantry", icon:"🍚"},
-      {id:"boxes", name:"Subsidized boxes", icon:"💚"}
-    ];
-
-    let activeCategory = "all";
-    let activePitStop = pitStops[0];
-    let currentOrigin = {label:"GW / Foggy Bottom 20052", lat:38.8997, lng:-77.0470, query:"20052"};
-    let cart = {};
-
-    const fmt = n => "$" + n.toFixed(2);
-    const miles = km => km * 0.621371;
-    function haversine(a,b){
-      const R=6371, toRad=x=>x*Math.PI/180;
-      const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
-      const s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
-      return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
-    }
-    function stockFor(item, stop=activePitStop){
-      const seed = item.id.split("").reduce((s,ch)=>s+ch.charCodeAt(0),0) + stop.id.length*9;
-      const modifier = 0.72 + ((seed % 31)/100) + (stop.stockBoost-1);
-      return Math.max(0, Math.round(item.baseStock * modifier));
-    }
-    function googleMapSrc(lat,lng,z=15){ return `https://www.google.com/maps?q=${lat},${lng}&z=${z}&output=embed`; }
-    function googleDirectionsUrl(origin, stop){
-      const o = origin && origin.lat ? `${origin.lat},${origin.lng}` : encodeURIComponent(origin?.query || origin?.label || "");
-      return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${stop.lat},${stop.lng}&travelmode=walking`;
-    }
-    function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:"smooth"}); }
-
-    function showToast(text){
-      const t=document.getElementById("toast");
-      t.textContent=text; t.classList.add("show");
-      clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
-    }
-
-    function normalizeQuery(q){
-      return (q||"").trim().toLowerCase().replace(/[.,#]/g," ").replace(/\s+/g," ");
-    }
-    function geocodeLocal(query){
-      const q = normalizeQuery(query);
-      if(!q) return null;
-      const coord = q.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
-      if(coord) return {label:"Custom coordinates", lat:parseFloat(coord[1]), lng:parseFloat(coord[2]), query};
-      if(knownLocations[q]) return {...knownLocations[q], query};
-      // fuzzy contains
-      const keys = Object.keys(knownLocations).sort((a,b)=>b.length-a.length);
-      for(const key of keys){
-        if(q.includes(key)) return {...knownLocations[key], query};
-      }
-      // ZIP detection
-      const zip = q.match(/\b(20052|20007|20059|20016|20064|20002|20008|20001|22201)\b/);
-      if(zip && knownLocations[zip[1]]) return {...knownLocations[zip[1]], query};
-      return null;
-    }
-
-    function nearestStops(origin){
-      return pitStops.map(s=>({...s, dist:miles(haversine(origin,s))})).sort((a,b)=>a.dist-b.dist);
-    }
-
-    function selectPitStop(stopId, origin=currentOrigin, jumpMap=true){
-      const stop = pitStops.find(s=>s.id===stopId) || pitStops[0];
-      activePitStop = stop;
-      const dist = origin?.lat ? miles(haversine(origin,stop)) : null;
-      document.getElementById("sideActiveStop").textContent = stop.name;
-      document.getElementById("sideActiveDetails").textContent = `${stop.zip} • ${stop.type}`;
-      document.getElementById("drawerStop").textContent = stop.name;
-      document.getElementById("appNearest").textContent = stop.short + " Pit Stop";
-      const banner = document.getElementById("activeStopBanner");
-      banner.style.display = "block";
-      banner.innerHTML = `✅ Selected: <b>${stop.name}</b>${dist!=null?` • ${dist.toFixed(2)} mi from ${origin.label}`:""} • ${dist<=1 ? "inside 1-mile coverage" : "closest pickup hub"}`;
-      document.getElementById("googleMapFrame").src = googleMapSrc(stop.lat, stop.lng, 15);
-      document.getElementById("mapNote").textContent = `Google Maps view: ${stop.name}. ${stop.area}.`;
-      document.getElementById("directionsBtn").href = googleDirectionsUrl(origin, stop);
-      renderProducts();
-      renderBoxes();
-      renderNearest(origin);
-      if(jumpMap) showToast(`${stop.short} selected`);
-    }
-
-    function handleLocation(query, jump=true){
-      const origin = geocodeLocal(query);
-      if(!origin){
-        showToast("Try a DC university, ZIP, dorm name, or use GPS");
-        return;
-      }
-      currentOrigin = origin;
-      const nearest = nearestStops(origin)[0];
-      selectPitStop(nearest.id, origin, false);
-      document.getElementById("heroLocation").value = query;
-      document.getElementById("mapLocation").value = query;
-      if(jump) scrollToId("map");
-      showToast(`Closest pit stop: ${nearest.short}`);
-    }
-
-    function renderCategories(){
-      const counts = categories.reduce((acc,c)=>{acc[c.id]=0; return acc;},{});
-      for(const item of allItems){ counts[item.cat]++; counts.all++; }
-      document.getElementById("categoryList").innerHTML = categories.map(c=>`
-        <button class="cat-btn ${activeCategory===c.id?"active":""}" data-cat="${c.id}">
-          <span>${c.icon} ${c.name}</span><span>${counts[c.id]}</span>
-        </button>`).join("");
-    }
-
-    function itemCard(item){
-      const stock = stockFor(item);
-      const save = Math.max(0, Math.round((1 - item.price/item.retail)*100));
-      const low = stock <= 5 && stock > 0;
-      const out = stock <= 0;
-      const detail = item.contents ? item.contents : `${item.unit} • ${item.portion}`;
-      return `
-        <article class="product-card ${item.cat==="boxes"?"box":""}" data-id="${item.id}">
-          <div class="product-top">
-            <div class="emoji">${item.emoji}</div>
-            <div class="save-badge">${save}%<br>lower</div>
-          </div>
-          <h3>${item.name}</h3>
-          <div class="product-meta">${detail}</div>
-          <div class="nutrition">
-            <div class="nutri"><b>${item.kcal}</b><span>kcal</span></div>
-            <div class="nutri"><b>${item.protein}g</b><span>protein</span></div>
-            <div class="nutri"><b>${item.fiber}g</b><span>fiber</span></div>
-          </div>
-          <div class="stockline">
-            <span class="tag ${out?"out":low?"low":""}">${out?"Out":low?"Low stock":"In stock"}</span>
-            <span class="tag">${stock} at hub</span>
-            <span class="tag">${item.tag}</span>
-          </div>
-          <div class="price-row">
-            <div>
-              <div class="price">${fmt(item.price)}</div>
-              <div class="retail">Est. retail <s>${fmt(item.retail)}</s></div>
-            </div>
-            <button class="add-btn" ${out?"disabled":""} onclick="addToCart('${item.id}')" aria-label="Add ${item.name}">+</button>
-          </div>
-        </article>`;
-    }
-
-    function filterItems(items){
-      const search = normalizeQuery(document.getElementById("productSearch")?.value || "");
-      const diet = document.getElementById("dietFilter")?.value || "all";
-      const sort = document.getElementById("sortFilter")?.value || "featured";
-      let list = items.filter(item => activeCategory==="all" || item.cat===activeCategory);
-      if(diet==="veg") list = list.filter(i => i.diet==="veg");
-      if(diet==="nonveg") list = list.filter(i => i.diet==="nonveg" || i.diet==="mixed");
-      if(diet==="student") list = list.filter(i => i.student);
-      if(search) list = list.filter(i => normalizeQuery(`${i.name} ${i.cat} ${i.tag} ${i.unit} ${i.contents || ""}`).includes(search));
-      if(sort==="priceLow") list.sort((a,b)=>a.price-b.price);
-      if(sort==="protein") list.sort((a,b)=>b.protein-a.protein);
-      if(sort==="savings") list.sort((a,b)=>(1-a.price/a.retail)-(1-b.price/b.retail)).reverse();
-      return list;
-    }
-
-    function renderProducts(){
-      renderCategories();
-      const grid = document.getElementById("productGrid");
-      const list = filterItems(allItems);
-      grid.innerHTML = list.length ? list.map(itemCard).join("") : `<div style="grid-column:1/-1;background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;color:var(--muted);font-weight:800;">No items found. Try another category or search.</div>`;
-    }
-    function renderBoxes(){
-      document.getElementById("boxGrid").innerHTML = boxes.map(itemCard).join("");
-    }
-
-    function renderNearest(origin=currentOrigin){
-      const ranked = nearestStops(origin).slice(0,5);
-      const nearest = ranked[0];
-      document.getElementById("coverageBadges").innerHTML = `
-        <b>📍 From: ${origin.label}</b>
-        <b>${nearest.dist <= 1 ? "✅ Inside 1-mile coverage" : "🚶 Closest is " + nearest.dist.toFixed(2) + " mi"}</b>
-      `;
-      document.getElementById("nearestList").innerHTML = ranked.map((s,i)=>`
-        <div class="stop-card ${s.id===activePitStop.id?"active":""}" onclick="selectPitStop('${s.id}', currentOrigin)">
-          <div><strong>${i+1}. ${s.name}</strong><span>${s.area}<br>${s.zip} • ${s.type}</span></div>
-          <div class="distance">${s.dist.toFixed(2)} mi</div>
-        </div>`).join("");
-    }
-
-    function addToCart(id){
-      const item = allItems.find(i=>i.id===id);
-      if(!item) return;
-      const current = cart[id]?.qty || 0;
-      const stock = stockFor(item);
-      if(current >= stock){ showToast("No more stock at this pit stop"); return; }
-      if(!cart[id]) cart[id] = {...item, qty:0};
-      cart[id].qty += 1;
-      renderCart();
-      showToast(`${item.name} added`);
-    }
-    function changeQty(id, delta){
-      if(!cart[id]) return;
-      cart[id].qty += delta;
-      if(cart[id].qty <= 0) delete cart[id];
-      renderCart();
-    }
-    function totals(){
-      const items = Object.values(cart);
-      const subtotal = items.reduce((s,i)=>s+i.price*i.qty,0);
-      const retail = items.reduce((s,i)=>s+i.retail*i.qty,0);
-      const mode = document.getElementById("deliveryMode")?.value || "pickup";
-      const fee = items.length ? (mode==="dorm" ? 1.49 : mode==="priority" ? 4.99 : 0) : 0;
-      const total = subtotal + fee;
-      const count = items.reduce((s,i)=>s+i.qty,0);
-      return {subtotal, retail, savings:Math.max(0, retail-subtotal), fee, total, count};
-    }
-    function renderCart(){
-      const list = document.getElementById("cartList");
-      const items = Object.values(cart);
-      if(!items.length){
-        list.innerHTML = `<div style="background:#fbfffd;border:1px solid var(--line);border-radius:18px;padding:16px;color:var(--muted);font-weight:800;">Cart is empty. Add snacks, meals, bread, pantry, or a subsidized box.</div>`;
-      } else {
-        list.innerHTML = items.map(i=>`
-          <div class="cart-item">
-            <div class="cart-emoji">${i.emoji}</div>
-            <div><strong>${i.name}</strong><span>${fmt(i.price)} • ${i.portion}</span></div>
-            <div class="qty"><button onclick="changeQty('${i.id}',-1)">−</button><strong>${i.qty}</strong><button onclick="changeQty('${i.id}',1)">+</button></div>
-          </div>`).join("");
-      }
-      const t = totals();
-      document.getElementById("cartCount").textContent = t.count;
-      document.getElementById("subtotal").textContent = fmt(t.subtotal);
-      document.getElementById("deliveryFee").textContent = fmt(t.fee);
-      document.getElementById("savings").textContent = fmt(t.savings);
-      document.getElementById("total").textContent = fmt(t.total);
-    }
-    function openCart(){ document.getElementById("cartDrawer").classList.add("open"); document.getElementById("cartDrawer").setAttribute("aria-hidden","false"); }
-    function closeCart(){ document.getElementById("cartDrawer").classList.remove("open"); document.getElementById("cartDrawer").setAttribute("aria-hidden","true"); }
-
-    document.getElementById("cartBtn").addEventListener("click", openCart);
-    document.getElementById("closeCart").addEventListener("click", closeCart);
-    document.getElementById("cartDrawer").addEventListener("click", e=>{ if(e.target.id==="cartDrawer") closeCart(); });
-    document.getElementById("menuBtn").addEventListener("click", ()=>document.getElementById("navLinks").classList.toggle("open"));
-    document.querySelectorAll(".nav-links a").forEach(a=>a.addEventListener("click",()=>document.getElementById("navLinks").classList.remove("open")));
-    document.querySelectorAll(".chip,.map-chip").forEach(btn=>btn.addEventListener("click",()=>handleLocation(btn.dataset.query)));
-
-    document.getElementById("heroLocationForm").addEventListener("submit", e=>{ e.preventDefault(); handleLocation(document.getElementById("heroLocation").value); });
-    document.getElementById("mapLocationForm").addEventListener("submit", e=>{ e.preventDefault(); handleLocation(document.getElementById("mapLocation").value, false); });
-    document.getElementById("useGpsBtn").addEventListener("click", ()=>{
-      if(!navigator.geolocation){ showToast("GPS not supported"); return; }
-      navigator.geolocation.getCurrentPosition(pos=>{
-        const origin = {label:"Your current location", lat:pos.coords.latitude, lng:pos.coords.longitude, query:`${pos.coords.latitude},${pos.coords.longitude}`};
-        currentOrigin = origin;
-        const nearest = nearestStops(origin)[0];
-        selectPitStop(nearest.id, origin);
-        scrollToId("map");
-      }, ()=>showToast("Location permission denied"));
-    });
-    document.getElementById("categoryList").addEventListener("click", e=>{
-      const btn=e.target.closest(".cat-btn"); if(!btn) return;
-      activeCategory=btn.dataset.cat; renderProducts();
-    });
-    ["productSearch","dietFilter","sortFilter"].forEach(id=>document.getElementById(id).addEventListener("input", renderProducts));
-    document.getElementById("deliveryMode").addEventListener("change", renderCart);
-    document.getElementById("checkoutBtn").addEventListener("click", ()=>{
-      const t=totals();
-      if(!t.count){ showToast("Add items first"); return; }
-      const name=document.getElementById("checkoutName").value.trim() || "Guest";
-      alert(`Demo order placed for ${name}\\n\\nPit stop: ${activePitStop.name}\\nTotal: ${fmt(t.total)}\\nPickup code: MOW-${Math.floor(1000+Math.random()*9000)}\\n\\nThis is a prototype checkout.`);
-      closeCart();
-    });
-
-    // Init
-    document.getElementById("googleMapFrame").src = googleMapSrc(activePitStop.lat, activePitStop.lng, 15);
-    document.getElementById("directionsBtn").href = googleDirectionsUrl(currentOrigin, activePitStop);
-    renderProducts();
-    renderBoxes();
-    renderNearest(currentOrigin);
-    selectPitStop("gw", currentOrigin, false);
-    addToCart("dorm_box");
-    addToCart("apple_pb");
-    addToCart("wheat_bread");
-  </script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+  <script defer src="scripts/data.js"></script>
+  <script defer src="scripts/utils.js"></script>
+  <script defer src="scripts/map.js"></script>
+  <script defer src="scripts/app.js"></script>
 </body>
 </html>
