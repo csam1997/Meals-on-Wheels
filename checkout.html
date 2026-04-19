@@ -85,8 +85,8 @@
 
   <main class="shell page">
     <section class="hero">
-      <h1>Review your basket and pick your hub.</h1>
-      <p>Everything in your cart stays editable here. Choose the pickup hub that works for you, adjust quantities, and place your order when the basket looks right.</p>
+      <h1>Review your basket and pick your pit stop.</h1>
+      <p>Everything in your cart stays editable here. Choose the pickup pit stop that works for you, adjust quantities, and place your order when the basket looks right.</p>
     </section>
 
     <section class="layout">
@@ -109,7 +109,7 @@
             <h2>Pickup details</h2>
             <div class="form-grid">
               <div class="field">
-                <label for="hubSelect">Pickup hub</label>
+                <label for="hubSelect">Pickup pit stop</label>
                 <select id="hubSelect"></select>
               </div>
               <div class="field">
@@ -129,7 +129,7 @@
             <h2>Totals</h2>
             <div class="summary-row"><span>Items</span><strong id="itemCount">0</strong></div>
             <div class="summary-row"><span>Subtotal</span><strong id="subtotal">$0.00</strong></div>
-            <div class="summary-row"><span>Hub pickup</span><strong id="deliveryFee">Free</strong></div>
+            <div class="summary-row"><span>Pit stop pickup</span><strong id="deliveryFee">Free</strong></div>
             <div class="summary-row"><span>Savings vs retail</span><strong id="savings">$0.00</strong></div>
             <div class="summary-row"><span>Total</span><strong id="total">$0.00</strong></div>
             <button id="placeOrder" class="primary-btn" style="width:100%;margin-top:14px">Place pickup order</button>
@@ -330,7 +330,7 @@ document.getElementById("placeOrder").addEventListener("click", () => {
   const hub = selectedHub();
   const code = `MOW-${Math.floor(1000 + Math.random() * 9000)}`;
   notice.style.display = "block";
-  notice.textContent = `Demo order placed for ${name}. Pickup code ${code}. Hub: ${hub.name}. Total ${money(totals.total)}.`;
+  notice.textContent = `Demo order placed for ${name}. Pickup code ${code}. Pit stop: ${hub.name}. Total ${money(totals.total)}.`;
   localStorage.removeItem(STORAGE_KEY);
   renderCheckout();
 });

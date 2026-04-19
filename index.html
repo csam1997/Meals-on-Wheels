@@ -32,7 +32,8 @@
   nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(24px) saturate(1.2);-webkit-backdrop-filter:blur(24px) saturate(1.2);background:rgba(255,255,255,.82);border-bottom:1px solid rgba(7,31,46,.08);box-shadow:0 2px 20px rgba(7,31,46,.05)}
   .nav-inner{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px}
   .nav-logo{display:flex;align-items:center;gap:10px;color:var(--navy);font-weight:900;font-size:1.1rem;letter-spacing:-.025em}
-  .nav-logo img{height:56px;width:auto;object-fit:contain}
+  .nav-logo-mark{width:94px;height:68px;overflow:hidden;position:relative;flex-shrink:0}
+  .nav-logo-mark img{position:absolute;right:-4px;top:-8px;width:108px;max-width:none}
   .nav-links{display:flex;align-items:center;gap:24px;list-style:none}
   .nav-links a{font-size:.9rem;font-weight:700;color:var(--deep);opacity:.88;transition:color .2s,opacity .2s,transform .2s;letter-spacing:-.01em}
   .nav-links a:hover{color:var(--blue);opacity:1;transform:translateY(-1px)}
@@ -239,7 +240,6 @@
 </style>
 </head>
 <body>
-
 <!-- PROFILE BAR (hidden until non-admin login) -->
 <div class="profile-bar" id="profileBar">
   <div class="shell profile-inner">
@@ -263,7 +263,9 @@
 <nav>
   <div class="shell nav-inner">
     <a class="nav-logo" href="#">
-      <img src="assets/logo-mow.png" alt="Meals on Wheels DC" />
+      <span class="nav-logo-mark" aria-hidden="true">
+        <img src="assets/logo-mow.png" alt="Meals on Wheels DC" />
+      </span>
     </a>
     <ul class="nav-links">
       <li><a href="#coverage">Coverage</a></li>
@@ -454,42 +456,8 @@
 <!-- FOOTER -->
 <footer>
   <div class="shell">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand">Meals on Wheels DC</div>
-        <p class="footer-desc">Affordable groceries, produce, and weekly packs delivered through a neighborhood-first pickup network across DC.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Navigate</h4>
-        <ul>
-          <li><a href="#coverage">Coverage map</a></li>
-          <li><a href="#catalog">Shop groceries</a></li>
-          <li><a href="#boxes">Support boxes</a></li>
-          <li><a href="checkout.html">Checkout</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Programs</h4>
-        <ul>
-          <li><a href="#boxes">EBT / SNAP</a></li>
-          <li><a href="#boxes">Senior pricing</a></li>
-          <li><a href="#boxes">Family subsidy</a></li>
-          <li><a href="#boxes">Vegan boxes</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Account</h4>
-        <ul>
-          <li><a href="#" onclick="openLogin();return false;">Sign in</a></li>
-          <li><a href="#" onclick="openLogin();return false;">🔒 Admin portal</a></li>
-          <li><a href="#">Contact us</a></li>
-          <li><a href="#">Volunteer</a></li>
-        </ul>
-      </div>
-    </div>
     <div class="footer-bottom">
-      <p>© 2025 Meals on Wheels DC. All rights reserved.</p>
-      <p>Built for the community, by the community.</p>
+      <p>&copy; 2026 Meals on Wheels DC. All rights reserved.</p>
     </div>
   </div>
 </footer>
