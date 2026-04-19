@@ -4,715 +4,303 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Meals on Wheels DC</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --ink: #0d2218;
-    --ink-soft: #4a6155;
-    --forest: #0f3528;
-    --pine: #1a5e44;
-    --teal: #2a8f6f;
-    --mint: #d6f5e8;
-    --lime: #c8ff5a;
-    --sun: #f5c842;
-    --cream: #f7f5ee;
-    --mist: #edf4ef;
-    --white: #ffffff;
-    --line: rgba(13,34,24,0.10);
-    --line-strong: rgba(13,34,24,0.18);
-    --shadow-lg: 0 24px 72px rgba(13,34,24,0.13);
-    --shadow-md: 0 12px 36px rgba(13,34,24,0.09);
-    --shadow-sm: 0 4px 16px rgba(13,34,24,0.07);
-    --r-xl: 28px;
-    --r-lg: 20px;
-    --r-md: 14px;
-    --r-sm: 10px;
-    --shell: 1240px;
+    --ink:#071922;--navy:#071f2e;--deep:#083f55;--blue:#0a84ff;--cyan:#00c7be;
+    --teal:#00a99d;--green:#30d158;--lime:#c8f558;--orange:#ff9f0a;--red:#ff453a;
+    --mint:#eafff6;--ice:#eefbff;--cream:#fff8e8;--white:#fff;--muted:#5e7681;
+    --line:rgba(7,31,46,.12);--shadow:0 26px 80px rgba(7,31,46,.16);
+    --soft:0 16px 38px rgba(7,31,46,.10);--radius:28px;--max:1280px;
   }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    color: var(--ink);
-    background: var(--cream);
-    line-height: 1.6;
-    min-width: 320px;
-    overflow-x: hidden;
-  }
-  a { color: inherit; text-decoration: none; }
-  button, input, select { font: inherit; cursor: pointer; border: none; background: none; }
-  img { display: block; max-width: 100%; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#fff;line-height:1.55;min-width:320px;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button,input,select{font:inherit;cursor:pointer;border:none;background:none}
+  img{display:block;max-width:100%}
+  .shell{width:min(var(--max),calc(100% - 40px));margin:0 auto}
 
-  .shell {
-    width: min(var(--shell), calc(100% - 48px));
-    margin: 0 auto;
-  }
+  /* ANNOUNCEMENT */
+  .announcement{background:linear-gradient(90deg,#071f2e,#06445a 52%,#00645f);color:rgba(255,255,255,.92);text-align:center;padding:10px 20px;font-size:.82rem;font-weight:700;letter-spacing:.04em}
+  .announcement a{color:var(--lime);text-decoration:underline}
 
-  /* ─── ANNOUNCEMENT ─── */
-  .announcement {
-    background: linear-gradient(90deg, var(--forest), var(--pine) 55%, #2a7a58);
-    color: rgba(255,255,255,0.92);
-    text-align: center;
-    padding: 10px 20px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-  }
-  .announcement a { color: var(--lime); text-underline-offset: 3px; }
-  .announcement a:hover { text-decoration: underline; }
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(24px) saturate(1.2);-webkit-backdrop-filter:blur(24px) saturate(1.2);background:rgba(255,255,255,.82);border-bottom:1px solid rgba(7,31,46,.08);box-shadow:0 2px 20px rgba(7,31,46,.05)}
+  .nav-inner{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .nav-logo{display:flex;align-items:center;gap:10px;color:var(--navy);font-weight:900;font-size:1.1rem;letter-spacing:-.025em}
+  .nav-logo img{height:56px;width:auto;object-fit:contain}
+  .nav-links{display:flex;align-items:center;gap:24px;list-style:none}
+  .nav-links a{font-size:.9rem;font-weight:700;color:var(--deep);opacity:.88;transition:color .2s,opacity .2s,transform .2s;letter-spacing:-.01em}
+  .nav-links a:hover{color:var(--blue);opacity:1;transform:translateY(-1px)}
+  .nav-actions{display:flex;align-items:center;gap:10px}
+  .btn-nav{color:white!important;border-radius:999px;padding:10px 18px;background:linear-gradient(135deg,var(--blue),var(--cyan) 52%,var(--green));box-shadow:0 14px 30px rgba(10,132,255,.22);font-weight:900;letter-spacing:-.015em;transition:transform .2s,box-shadow .2s}
+  .btn-nav:hover{transform:translateY(-2px);box-shadow:0 20px 40px rgba(10,132,255,.3)}
+  .cart-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;background:white;border:1px solid var(--line);box-shadow:var(--soft);color:var(--navy);font-weight:800;font-size:.88rem;transition:transform .2s;text-decoration:none}
+  .cart-btn:hover{transform:translateY(-1px)}
+  .admin-btn{width:42px;height:42px;border-radius:14px;background:rgba(7,31,46,.06);color:var(--navy);font-size:1.1rem;display:grid;place-items:center;transition:background .2s}
+  .admin-btn:hover{background:rgba(7,31,46,.12)}
 
-  /* ─── NAV ─── */
-  nav {
-    background: rgba(247,245,238,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--line);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .nav-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 0;
-  }
-  .nav-logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--forest);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .nav-logo-dot {
-    width: 10px; height: 10px;
-    background: var(--lime);
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(200,255,90,0.25);
-  }
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    list-style: none;
-  }
-  .nav-links a {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--ink-soft);
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--forest); }
-  .btn-nav {
-    background: var(--forest);
-    color: var(--lime) !important;
-    padding: 10px 22px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 0.88rem;
-    transition: background 0.2s, transform 0.15s;
-  }
-  .btn-nav:hover { background: var(--pine); transform: translateY(-1px); }
+  /* HERO */
+  .hero{padding:52px 0 34px;background:#fff}
+  .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(500px,650px);gap:42px;align-items:center}
+  .hero-copy{max-width:560px}
+  .hero-visual{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none;overflow:visible}
+  .hero-visual img{width:100%;height:auto;border-radius:0;display:block;filter:blur(.35px);mask-image:radial-gradient(ellipse 92% 88% at center, rgba(0,0,0,1) 48%, rgba(0,0,0,.96) 60%, rgba(0,0,0,.84) 72%, rgba(0,0,0,.58) 84%, rgba(0,0,0,.24) 93%, transparent 100%);-webkit-mask-image:radial-gradient(ellipse 92% 88% at center, rgba(0,0,0,1) 48%, rgba(0,0,0,.96) 60%, rgba(0,0,0,.84) 72%, rgba(0,0,0,.58) 84%, rgba(0,0,0,.24) 93%, transparent 100%)}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(11,112,105,.16);color:#0f7d74;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 16px;border-radius:50px;margin-bottom:22px;box-shadow:0 10px 24px rgba(7,31,46,.06)}
+  .hero-badge-dot{width:7px;height:7px;background:var(--cyan);border-radius:50%;animation:blink 2s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+  .hero h1,.section-title,.boxes-aside h3{font-family:"Fraunces","Georgia",serif}
+  .hero h1{font-size:clamp(3rem,5vw,5.15rem);font-weight:700;color:var(--navy);line-height:.94;letter-spacing:-.04em;margin-bottom:18px}
+  .hero h1 span{color:#0b7069}
+  .hero-sub{font-size:1.03rem;color:var(--muted);line-height:1.78;margin-bottom:28px;max-width:540px}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;font-weight:700;font-size:.95rem;padding:14px 30px;border-radius:50px;transition:transform .15s,box-shadow .15s;box-shadow:0 14px 30px rgba(10,132,255,.25)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 40px rgba(10,132,255,.32)}
+  .btn-secondary-hero{background:#fff;border:1px solid var(--line);color:var(--navy);font-weight:700;font-size:.95rem;padding:14px 30px;border-radius:50px;transition:background .2s,transform .2s;box-shadow:var(--soft)}
+  .btn-secondary-hero:hover{background:#f7fbfb;transform:translateY(-1px)}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .hero-stat{background:#fff;border:1px solid rgba(7,31,46,.09);border-radius:22px;padding:16px 18px;box-shadow:0 14px 28px rgba(7,31,46,.05)}
+  .hero-stat strong{display:block;font-size:1.7rem;font-weight:800;color:var(--navy);line-height:1}
+  .hero-stat span{font-size:.8rem;color:var(--muted);letter-spacing:-.01em;font-weight:700}
+  .hero-callout{margin-top:16px;padding:16px 18px;border-radius:20px;background:#fff;border:1px solid rgba(0,199,190,.16);font-size:.92rem;color:var(--muted);box-shadow:0 12px 24px rgba(7,31,46,.05)}
+  .hero-callout strong{display:block;color:var(--navy);font-size:.92rem;margin-bottom:4px}
 
-  /* ─── HERO ─── */
-  .hero {
-    position: relative;
-    min-height: 92vh;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    background: var(--forest);
-  }
-  .hero-bg-img {
-    position: absolute;
-    inset: 0;
-    background-image: url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=1800&auto=format&fit=crop&q=80');
-    background-size: cover;
-    background-position: center 30%;
-    opacity: 0.22;
-  }
-  .hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(15,53,40,0.97) 0%, rgba(15,53,40,0.88) 50%, rgba(26,94,68,0.75) 100%);
-  }
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 100px 0 80px;
-    max-width: 660px;
-  }
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(200,255,90,0.12);
-    border: 1px solid rgba(200,255,90,0.3);
-    color: var(--lime);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 7px 16px;
-    border-radius: 50px;
-    margin-bottom: 28px;
-  }
-  .hero-badge-dot { width: 7px; height: 7px; background: var(--lime); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .hero h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2.6rem, 5vw, 4.2rem);
-    font-weight: 800;
-    color: var(--white);
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    margin-bottom: 24px;
-  }
-  .hero h1 span { color: var(--lime); }
-  .hero-sub {
-    font-size: 1.15rem;
-    color: rgba(255,255,255,0.72);
-    line-height: 1.7;
-    margin-bottom: 44px;
-    max-width: 520px;
-  }
-  .hero-actions {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 56px;
-  }
-  .btn-primary {
-    background: var(--lime);
-    color: var(--forest);
-    font-weight: 700;
-    font-size: 0.95rem;
-    padding: 14px 30px;
-    border-radius: 50px;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,255,90,0.35); }
-  .btn-secondary-hero {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: var(--white);
-    font-weight: 500;
-    font-size: 0.95rem;
-    padding: 14px 30px;
-    border-radius: 50px;
-    transition: background 0.2s;
-  }
-  .btn-secondary-hero:hover { background: rgba(255,255,255,0.18); }
-  .hero-stats {
-    display: flex;
-    gap: 36px;
-    flex-wrap: wrap;
-  }
-  .hero-stat strong {
-    display: block;
-    font-family: 'Syne', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--lime);
-    line-height: 1;
-  }
-  .hero-stat span {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.55);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    font-weight: 500;
-  }
-  .hero-img-side {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    top: 0;
-    width: 42%;
-    z-index: 2;
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-  }
-  .hero-img-side img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    opacity: 0.6;
-    mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.9) 60%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.9) 60%);
-  }
+  /* SECTIONS */
+  .features,.catalog,.boxes{padding:80px 0}
+  .coverage{padding:80px 0;background:var(--ice)}
+  .section-label{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:14px}
+  .section-title{font-size:clamp(1.8rem,3vw,2.7rem);font-weight:700;color:var(--navy);line-height:1.1;letter-spacing:-.025em;margin-bottom:16px}
+  .section-sub{font-size:.98rem;color:var(--muted);max-width:560px;line-height:1.68}
+  .section-header-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;gap:20px;flex-wrap:wrap}
 
-  /* ─── FEATURES ─── */
-  .features {
-    padding: 88px 0;
-    background: var(--white);
-  }
-  .section-label {
-    display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--teal);
-    margin-bottom: 14px;
-  }
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(1.8rem, 3vw, 2.6rem);
-    font-weight: 800;
-    color: var(--forest);
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin-bottom: 16px;
-  }
-  .section-sub {
-    font-size: 1.05rem;
-    color: var(--ink-soft);
-    max-width: 520px;
-    line-height: 1.7;
-  }
-  .features-header { margin-bottom: 52px; }
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-  .feature-card {
-    background: var(--mist);
-    border-radius: var(--r-xl);
-    padding: 32px 28px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.25s;
-  }
-  .feature-card:hover { transform: translateY(-4px); }
-  .feature-card.dark {
-    background: var(--forest);
-    color: var(--white);
-  }
-  .feature-icon {
-    width: 48px; height: 48px;
-    border-radius: var(--r-md);
-    background: rgba(42,143,111,0.14);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-  }
-  .feature-card.dark .feature-icon {
-    background: rgba(200,255,90,0.14);
-  }
-  .feature-card h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: var(--forest);
-  }
-  .feature-card.dark h3 { color: var(--lime); }
-  .feature-card p {
-    font-size: 0.93rem;
-    color: var(--ink-soft);
-    line-height: 1.65;
-  }
-  .feature-card.dark p { color: rgba(255,255,255,0.65); }
+  /* FEATURES */
+  .features{background:white}
+  .features-header{margin-bottom:48px}
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .feature-card{background:var(--mint);border-radius:var(--radius);padding:32px 28px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;border:1px solid rgba(0,199,190,.12)}
+  .feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+  .feature-card.dark{background:linear-gradient(135deg,var(--navy),var(--deep));color:var(--white);border:none;box-shadow:var(--soft)}
+  .feature-icon{width:48px;height:48px;border-radius:16px;background:rgba(0,199,190,.14);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.5rem}
+  .feature-card.dark .feature-icon{background:rgba(0,199,190,.18)}
+  .feature-card h3{font-size:1.18rem;font-weight:700;margin-bottom:10px;color:var(--navy)}
+  .feature-card.dark h3{color:var(--cyan)}
+  .feature-card p{font-size:.92rem;color:var(--muted);line-height:1.65}
+  .feature-card.dark p{color:rgba(255,255,255,.65)}
 
-  /* ─── COVERAGE MAP ─── */
-  .coverage {
-    padding: 88px 0;
-    background: var(--cream);
-  }
-  .coverage-layout {
-    display: grid;
-    grid-template-columns: 1fr 1.6fr;
-    gap: 48px;
-    align-items: start;
-  }
-  .coverage-info { padding-top: 12px; }
-  .coverage-cards { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
-  .cov-card {
-    background: var(--white);
-    border-radius: var(--r-lg);
-    padding: 20px 22px;
-    box-shadow: var(--shadow-sm);
-  }
-  .cov-card-label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--teal);
-    margin-bottom: 6px;
-  }
-  .cov-card h4 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--forest);
-    margin-bottom: 4px;
-  }
-  .cov-card p { font-size: 0.88rem; color: var(--ink-soft); }
-  .map-container {
-    border-radius: var(--r-xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    height: 460px;
-    background: #e5e0d8;
-    position: relative;
-  }
-  .map-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
-  .map-overlay-label {
-    position: absolute;
-    bottom: 16px;
-    left: 16px;
-    background: var(--forest);
-    color: var(--white);
-    font-size: 0.78rem;
-    font-weight: 600;
-    padding: 8px 14px;
-    border-radius: 50px;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .map-dot { width: 7px; height: 7px; background: var(--lime); border-radius: 50%; }
+  /* MAP */
+  .map-full{height:520px;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);background:
+    linear-gradient(180deg,rgba(234,255,246,.9),rgba(238,251,255,.95)),
+    radial-gradient(circle at 20% 20%,rgba(200,245,88,.28),transparent 16rem),
+    linear-gradient(90deg,rgba(7,31,46,.05) 1px,transparent 1px),
+    linear-gradient(rgba(7,31,46,.05) 1px,transparent 1px);
+    background-size:auto,auto,48px 48px,48px 48px}
+  .coverage-note{margin-top:14px;padding:12px 14px;border-radius:16px;background:#fff;border:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+  .map-legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:16px;padding:12px 16px;background:white;border-radius:16px;border:1px solid var(--line)}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;color:var(--muted)}
+  .legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+  .legend-ring{width:16px;height:16px;border-radius:50%;border:2px solid rgba(10,132,255,.55);background:rgba(10,132,255,.1);flex-shrink:0}
 
-  /* ─── CATALOG ─── */
-  .catalog {
-    padding: 88px 0;
-    background: var(--white);
-  }
-  .catalog-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 36px;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .catalog-filters {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 32px;
-  }
-  .filter-tab {
-    padding: 8px 18px;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1.5px solid var(--line-strong);
-    color: var(--ink-soft);
-    background: transparent;
-    transition: all 0.18s;
-    cursor: pointer;
-  }
-  .filter-tab.active, .filter-tab:hover {
-    background: var(--forest);
-    color: var(--lime);
-    border-color: var(--forest);
-  }
-  .catalog-search-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 36px;
-    flex-wrap: wrap;
-  }
-  .search-input {
-    flex: 1;
-    min-width: 220px;
-    padding: 11px 18px;
-    border-radius: 50px;
-    border: 1.5px solid var(--line-strong);
-    background: var(--mist);
-    font-size: 0.9rem;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.18s;
-  }
-  .search-input:focus { border-color: var(--teal); }
-  .search-input::placeholder { color: var(--ink-soft); }
-  .select-filter {
-    padding: 11px 18px;
-    border-radius: 50px;
-    border: 1.5px solid var(--line-strong);
-    background: var(--mist);
-    font-size: 0.9rem;
-    color: var(--ink);
-    outline: none;
-    cursor: pointer;
-    min-width: 140px;
-  }
+  /* CATALOG */
+  .catalog{background:white}
+  .catalog-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;gap:24px;flex-wrap:wrap}
+  .catalog-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+  .filter-tab{padding:9px 18px;border-radius:50px;font-size:.85rem;font-weight:700;border:1.5px solid var(--line);color:var(--muted);background:transparent;transition:all .18s;cursor:pointer}
+  .filter-tab.active,.filter-tab:hover{background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;border-color:transparent;box-shadow:0 10px 24px rgba(10,132,255,.22)}
+  .catalog-search-row{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+  .search-input{flex:1;min-width:200px;padding:12px 20px;border-radius:50px;border:1.5px solid var(--line);background:var(--mint);font-size:.9rem;color:var(--ink);outline:none;transition:border-color .18s,box-shadow .18s}
+  .search-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,199,190,.12)}
+  .search-input::placeholder{color:var(--muted)}
+  .select-filter{padding:12px 18px;border-radius:50px;border:1.5px solid var(--line);background:var(--mint);font-size:.9rem;color:var(--ink);outline:none;cursor:pointer;min-width:130px}
+  .food-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .food-card{background:white;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);transition:box-shadow .22s,transform .22s;display:flex;flex-direction:column;box-shadow:var(--soft)}
+  .food-card:hover{box-shadow:var(--shadow);transform:translateY(-4px)}
+  .food-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--mint)}
+  .food-emoji-display{width:100%;aspect-ratio:4/3;display:grid;place-items:center;font-size:3.5rem;background:linear-gradient(145deg,var(--mint),var(--ice))}
+  .food-body{padding:16px;flex:1;display:flex;flex-direction:column}
+  .food-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .tag{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:50px}
+  .tag-cat{background:var(--mint);color:var(--teal)}
+  .tag-stock{background:rgba(48,209,88,.12);color:#1a6640}
+  .tag-pct{background:linear-gradient(135deg,var(--blue),var(--cyan));color:white}
+  .tag-label{background:rgba(0,199,190,.1);color:var(--teal)}
+  .tag-vegan{background:linear-gradient(135deg,#30d158,#00c7be);color:white}
+  .tag-fresh{background:rgba(48,209,88,.15);color:#1a6640}
+  .food-name{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:4px;line-height:1.3}
+  .food-desc{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+  .food-ingredients{margin:0 0 12px;padding:10px 12px;border-radius:14px;background:#f7fbfb;border:1px solid rgba(0,199,190,.16)}
+  .food-ingredients strong{display:block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:#0f7d74;margin-bottom:6px}
+  .food-ingredients ul{list-style:none;display:grid;gap:4px}
+  .food-ingredients li{font-size:.74rem;color:var(--ink);font-weight:600}
+  .food-macros{display:flex;gap:12px;margin-bottom:12px;padding-top:10px;border-top:1px solid var(--line)}
+  .macro{text-align:center}
+  .macro-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .macro-val{font-size:.88rem;font-weight:700;color:var(--navy)}
+  .food-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px}
+  .food-price strong{font-size:1.15rem;font-weight:800;color:var(--navy)}
+  .food-price .retail{font-size:.75rem;color:var(--muted);text-decoration:line-through}
+  .btn-add{background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:300;transition:transform .15s,box-shadow .15s;flex-shrink:0;box-shadow:0 8px 20px rgba(10,132,255,.25)}
+  .btn-add:hover{transform:scale(1.1);box-shadow:0 12px 28px rgba(10,132,255,.35)}
+  .show-more-wrap{text-align:center;margin-top:36px}
+  .show-more-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 36px;border-radius:50px;border:2px solid var(--blue);color:var(--blue);font-weight:800;font-size:.95rem;background:transparent;transition:all .2s;letter-spacing:-.01em}
+  .show-more-btn:hover{background:var(--blue);color:white;transform:translateY(-1px);box-shadow:0 12px 28px rgba(10,132,255,.22)}
+  .items-count{font-size:.82rem;color:var(--muted);font-weight:700;margin-bottom:16px}
+  .nutrition-coach{display:none;margin-bottom:24px;padding:18px 20px;border-radius:22px;background:linear-gradient(180deg,#fff 0%,#f7fbfb 100%);border:1px solid rgba(0,199,190,.16);box-shadow:var(--soft)}
+  .nutrition-coach.show{display:block}
+  .nutrition-coach h3{font-size:1rem;color:var(--navy);margin-bottom:6px}
+  .nutrition-coach p{font-size:.9rem;color:var(--muted);margin-bottom:10px}
+  .nutrition-coach ul{margin:0 0 12px;padding-left:18px;color:var(--navy)}
+  .nutrition-coach li{font-size:.86rem;line-height:1.5}
+  .coach-pills{display:flex;gap:8px;flex-wrap:wrap}
+  .coach-pills span{padding:7px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:.78rem;font-weight:700;color:var(--navy)}
 
-  /* ─── FOOD GRID ─── */
-  .food-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-  }
-  .food-card {
-    background: var(--white);
-    border-radius: var(--r-xl);
-    overflow: hidden;
-    border: 1px solid var(--line);
-    transition: box-shadow 0.22s, transform 0.22s;
-    display: flex;
-    flex-direction: column;
-  }
-  .food-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
-  .food-img {
-    width: 100%;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-    background: var(--mist);
-  }
-  .food-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
-  .food-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-  .tag {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 50px;
-  }
-  .tag-cat { background: var(--mint); color: var(--pine); }
-  .tag-stock { background: #d4f0e0; color: #1a6640; }
-  .tag-pct { background: var(--forest); color: var(--lime); }
-  .tag-label { background: rgba(42,143,111,0.1); color: var(--teal); }
-  .food-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--forest);
-    margin-bottom: 4px;
-    line-height: 1.3;
-  }
-  .food-desc { font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 10px; }
-  .food-macros {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding-top: 10px;
-    border-top: 1px solid var(--line);
-  }
-  .macro { text-align: center; }
-  .macro-label { font-size: 0.62rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
-  .macro-val { font-size: 0.88rem; font-weight: 700; color: var(--forest); }
-  .food-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
-    padding-top: 12px;
-  }
-  .food-price strong { font-size: 1.15rem; font-weight: 800; color: var(--forest); }
-  .food-price .retail { font-size: 0.75rem; color: var(--ink-soft); text-decoration: line-through; }
-  .btn-add {
-    background: var(--forest);
-    color: var(--lime);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    font-weight: 300;
-    transition: transform 0.15s, background 0.15s;
-    flex-shrink: 0;
-  }
-  .btn-add:hover { background: var(--pine); transform: scale(1.08); }
+  /* BOXES */
+  .boxes{background:var(--ice)}
+  .boxes-intro{display:grid;grid-template-columns:.95fr 2fr;gap:32px;margin-bottom:30px;align-items:start}
+  .boxes-aside{background:linear-gradient(135deg,var(--navy),var(--deep));border-radius:var(--radius);padding:24px 24px;color:var(--white);box-shadow:var(--shadow)}
+  .boxes-aside-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+  .boxes-aside h3{font-size:1.38rem;font-weight:800;color:var(--white);line-height:1.12;margin-bottom:10px}
+  .boxes-aside p{font-size:.86rem;color:rgba(255,255,255,.7);line-height:1.55;margin-bottom:14px}
+  .boxes-aside ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .boxes-aside li{font-size:.82rem;color:rgba(255,255,255,.8);display:flex;align-items:flex-start;gap:8px;line-height:1.45}
+  .boxes-aside li::before{content:'';display:block;width:8px;height:8px;border-radius:50%;background:var(--cyan);flex-shrink:0}
+  .bulk-notice{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.25);color:#7a4500;font-size:.76rem;font-weight:700;margin-top:12px;line-height:1.45}
+  .boxes-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+  .box-card{background:white;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);display:flex;flex-direction:column;transition:box-shadow .22s,transform .22s;box-shadow:var(--soft)}
+  .box-card:hover{box-shadow:var(--shadow);transform:translateY(-3px)}
+  .box-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--mint)}
+  .box-body{padding:18px;flex:1;display:flex;flex-direction:column}
+  .box-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .box-name{font-size:1.05rem;font-weight:800;color:var(--navy);margin-bottom:4px}
+  .box-desc{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+  .box-contents{margin:10px 0;padding:12px;border-radius:14px;background:var(--mint);border:1px solid rgba(0,199,190,.15)}
+  .box-contents strong{display:block;font-size:.7rem;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+  .box-contents ul{list-style:none;display:grid;gap:3px}
+  .box-contents li{font-size:.76rem;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:5px}
+  .box-contents li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--cyan);flex-shrink:0}
+  .box-macros{display:flex;gap:12px;border-top:1px solid var(--line);padding-top:10px;margin-bottom:14px}
+  .box-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+  .box-price strong{font-size:1.2rem;font-weight:800;color:var(--navy)}
+  .box-price .retail{font-size:.75rem;color:var(--muted);text-decoration:line-through}
+  .btn-add-box{background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;padding:9px 22px;border-radius:50px;font-size:.85rem;font-weight:700;transition:box-shadow .15s,transform .15s;box-shadow:0 8px 20px rgba(10,132,255,.22)}
+  .btn-add-box:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(10,132,255,.32)}
 
-  /* ─── BOXES ─── */
-  .boxes {
-    padding: 88px 0;
-    background: var(--cream);
-  }
-  .boxes-intro {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 64px;
-    margin-bottom: 52px;
-    align-items: center;
-  }
-  .boxes-aside {
-    background: var(--forest);
-    border-radius: var(--r-xl);
-    padding: 36px 32px;
-    color: var(--white);
-  }
-  .boxes-aside-label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--lime);
-    margin-bottom: 14px;
-  }
-  .boxes-aside h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--white);
-    line-height: 1.2;
-    margin-bottom: 14px;
-  }
-  .boxes-aside p { font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.7; margin-bottom: 20px; }
-  .boxes-aside ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-  .boxes-aside li {
-    font-size: 0.88rem;
-    color: rgba(255,255,255,0.78);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .boxes-aside li::before { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--lime); flex-shrink: 0; }
-  .boxes-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-  }
-  .box-card {
-    background: var(--white);
-    border-radius: var(--r-xl);
-    overflow: hidden;
-    border: 1px solid var(--line);
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow 0.22s, transform 0.22s;
-  }
-  .box-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
-  .box-img {
-    width: 100%;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-    background: var(--mist);
-  }
-  .box-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
-  .box-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-  .box-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--forest);
-    margin-bottom: 4px;
-  }
-  .box-desc { font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 12px; }
-  .box-macros {
-    display: flex;
-    gap: 12px;
-    border-top: 1px solid var(--line);
-    padding-top: 10px;
-    margin-bottom: 14px;
-  }
-  .box-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
-  }
-  .box-price strong { font-size: 1.2rem; font-weight: 800; color: var(--forest); }
-  .box-price .retail { font-size: 0.75rem; color: var(--ink-soft); text-decoration: line-through; }
-  .btn-add-box {
-    background: var(--forest);
-    color: var(--lime);
-    padding: 9px 20px;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    transition: background 0.15s, transform 0.15s;
-  }
-  .btn-add-box:hover { background: var(--pine); transform: translateY(-1px); }
+  /* FOOTER */
+  footer{background:linear-gradient(135deg,var(--navy) 0%,var(--deep) 100%);color:rgba(255,255,255,.65);padding:56px 0 32px}
+  .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+  .footer-brand{font-size:1.2rem;font-weight:800;color:var(--white);margin-bottom:12px}
+  .footer-desc{font-size:.85rem;line-height:1.7;max-width:260px}
+  .footer-col h4{font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+  .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .footer-col a{font-size:.88rem;color:rgba(255,255,255,.55);transition:color .18s}
+  .footer-col a:hover{color:var(--white)}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  .footer-bottom p{font-size:.82rem}
 
-  /* ─── FOOTER ─── */
-  footer {
-    background: var(--forest);
-    color: rgba(255,255,255,0.65);
-    padding: 56px 0 32px;
-  }
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 48px;
-    margin-bottom: 48px;
-  }
-  .footer-brand { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--white); margin-bottom: 12px; }
-  .footer-desc { font-size: 0.85rem; line-height: 1.7; max-width: 260px; }
-  .footer-col h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--lime); margin-bottom: 16px; }
-  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-  .footer-col a { font-size: 0.88rem; color: rgba(255,255,255,0.55); transition: color 0.18s; }
-  .footer-col a:hover { color: var(--white); }
-  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-  .footer-bottom p { font-size: 0.82rem; }
+  /* LOGIN MODAL */
+  .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(7,31,46,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal-card{background:white;border-radius:var(--radius);padding:40px 36px;max-width:420px;width:calc(100% - 40px);box-shadow:var(--shadow);animation:pop-in .3s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes pop-in{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+  .modal-icon{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--navy),var(--deep));display:grid;place-items:center;font-size:1.8rem;margin:0 auto 20px}
+  .modal-card h2{font-size:1.6rem;font-weight:900;color:var(--navy);letter-spacing:-.04em;text-align:center;margin-bottom:8px}
+  .modal-card p{font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:24px}
+  .modal-field{margin-bottom:14px}
+  .modal-label{display:block;font-size:.74rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .modal-input{width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid var(--line);font-size:.93rem;font-weight:600;color:var(--ink);outline:none;transition:border-color .18s,box-shadow .18s;background:rgba(248,253,255,.9)}
+  .modal-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,199,190,.12)}
+  .modal-btn{width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;font-weight:900;font-size:1rem;border:none;cursor:pointer;box-shadow:0 12px 28px rgba(10,132,255,.25);transition:transform .15s,box-shadow .15s;margin-top:6px}
+  .modal-btn:hover{transform:translateY(-1px);box-shadow:0 18px 36px rgba(10,132,255,.32)}
+  .modal-error{color:var(--red);font-size:.82rem;font-weight:700;text-align:center;margin-top:8px;display:none}
+  .modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(7,31,46,.07);border:none;font-size:1.1rem;color:var(--navy);cursor:pointer;display:grid;place-items:center}
+  .modal-card{position:relative}
 
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 1024px) {
-    .food-grid { grid-template-columns: repeat(3, 1fr); }
-    .boxes-grid { grid-template-columns: repeat(2, 1fr); }
-    .features-grid { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 768px) {
-    .nav-links { display: none; }
-    .hero-img-side { display: none; }
-    .food-grid { grid-template-columns: repeat(2, 1fr); }
-    .boxes-grid { grid-template-columns: repeat(2, 1fr); }
-    .coverage-layout { grid-template-columns: 1fr; }
-    .boxes-intro { grid-template-columns: 1fr; }
-    .footer-grid { grid-template-columns: 1fr 1fr; }
-    .features-grid { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 520px) {
-    .food-grid { grid-template-columns: 1fr; }
-    .boxes-grid { grid-template-columns: 1fr; }
-  }
+  /* PROFILE HEADER */
+  .profile-bar{background:linear-gradient(90deg,var(--navy),var(--deep));color:white;padding:12px 0;display:none}
+  .profile-bar.visible{display:block}
+  .profile-inner{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .profile-welcome{display:flex;align-items:center;gap:12px}
+  .profile-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));display:grid;place-items:center;font-size:1.1rem;flex-shrink:0}
+  .profile-name{font-weight:800;font-size:.95rem}
+  .profile-sub{font-size:.78rem;color:rgba(255,255,255,.6)}
+  .logout-btn{padding:8px 18px;border-radius:50px;border:1px solid rgba(255,255,255,.25);color:white;font-size:.82rem;font-weight:700;background:transparent;cursor:pointer;transition:background .2s}
+  .logout-btn:hover{background:rgba(255,255,255,.12)}
+
+  /* RESPONSIVE */
+  @media(max-width:1400px){.boxes-grid{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:1200px){.boxes-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:1024px){.food-grid{grid-template-columns:repeat(3,1fr)}.boxes-grid{grid-template-columns:repeat(2,1fr)}.features-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:980px){.hero-grid{grid-template-columns:1fr}.hero-visual{max-width:720px}.hero-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media(max-width:768px){.nav-links{display:none}.food-grid{grid-template-columns:repeat(2,1fr)}.boxes-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr 1fr}.features-grid{grid-template-columns:1fr}.boxes-intro{grid-template-columns:1fr}.hero-stats{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.food-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.hero h1{font-size:2.4rem}}
 </style>
 </head>
 <body>
 
+<!-- PROFILE BAR (hidden until non-admin login) -->
+<div class="profile-bar" id="profileBar">
+  <div class="shell profile-inner">
+    <div class="profile-welcome">
+      <div class="profile-avatar">👤</div>
+      <div>
+        <div class="profile-name" id="profileName">Welcome back!</div>
+        <div class="profile-sub">DC Resident · Meals on Wheels member</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </div>
+</div>
+
 <!-- ANNOUNCEMENT -->
 <div class="announcement">
-  🌱 Now serving 11 DC neighborhoods — <a href="#coverage">See if you're covered</a>
+  Fresh food access across 17 DC neighborhoods — <a href="#coverage">check your nearest hub</a>
 </div>
 
 <!-- NAV -->
 <nav>
   <div class="shell nav-inner">
     <a class="nav-logo" href="#">
-      <span class="nav-logo-dot"></span>
-      Meals on Wheels DC
+      <img src="assets/logo-mow.png" alt="Meals on Wheels DC" />
     </a>
     <ul class="nav-links">
       <li><a href="#coverage">Coverage</a></li>
-      <li><a href="#catalog">Shop</a></li>
-      <li><a href="#boxes">Support boxes</a></li>
-      <li><a href="#coverage">Lockers</a></li>
-      <li><a class="btn-nav" href="#coverage">Find coverage</a></li>
+      <li><a href="#catalog">Groceries</a></li>
+      <li><a href="#boxes">Weekly packs</a></li>
+      <li><a href="#coverage">Pickup hubs</a></li>
     </ul>
+    <div class="nav-actions">
+      <a class="cart-btn" href="checkout.html">🛒 Checkout</a>
+      <button class="admin-btn" onclick="openLogin()" title="Admin / Account">🔒</button>
+    </div>
   </div>
 </nav>
 
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeLogin()">✕</button>
+    <div class="modal-icon">🔐</div>
+    <h2>Sign in</h2>
+    <p>Admin access or resident account</p>
+    <div class="modal-field">
+      <label class="modal-label" for="loginUser">User ID</label>
+      <input class="modal-input" id="loginUser" type="text" placeholder="Enter user ID" autocomplete="username" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="loginPass">Password</label>
+      <input class="modal-input" id="loginPass" type="password" placeholder="Enter password" autocomplete="current-password" />
+    </div>
+    <div class="modal-error" id="loginError">Invalid credentials. Please try again.</div>
+    <button class="modal-btn" onclick="handleLogin()">Sign in →</button>
+  </div>
+</div>
+
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg-img"></div>
+  <div class="hero-bg-img" style="background-image:url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=1800&auto=format&fit=crop&q=80')"></div>
   <div class="hero-overlay"></div>
   <div class="shell hero-content">
     <div class="hero-badge">
@@ -721,17 +309,18 @@
     </div>
     <h1>Fresh food.<br><span>Where you live.</span></h1>
     <p class="hero-sub">
-      Up to 40% below retail. 11 resident hubs across DC. Groceries, snacks, and bundled support boxes — all priced for the people who live here.
+      Up to 40% below retail. 17 resident hubs across DC. Groceries, fresh produce, snacks, and bundled support boxes — all priced for the people who live here.
     </p>
     <div class="hero-actions">
       <a class="btn-primary" href="#catalog">Shop groceries</a>
       <a class="btn-secondary-hero" href="#coverage">Find your hub</a>
+      <a class="btn-secondary-hero" href="checkout.html" style="border-color:var(--cyan);color:var(--cyan);">🛒 View cart</a>
     </div>
     <div class="hero-stats">
-      <div class="hero-stat"><strong>11</strong><span>Resident hubs</span></div>
+      <div class="hero-stat"><strong>17</strong><span>Resident hubs</span></div>
       <div class="hero-stat"><strong>40%</strong><span>Below retail</span></div>
       <div class="hero-stat"><strong>1 mi</strong><span>Service radius</span></div>
-      <div class="hero-stat"><strong>25+</strong><span>Catalog items</span></div>
+      <div class="hero-stat"><strong>47+</strong><span>Catalog items</span></div>
     </div>
   </div>
   <div class="hero-img-side">
@@ -743,24 +332,24 @@
 <section class="features">
   <div class="shell">
     <div class="features-header">
-      <span class="section-label">Why Meals on Wheels</span>
-      <h2 class="section-title">Built for DC residents,<br>not visitors</h2>
+      <span class="section-label">Why It Works</span>
+      <h2 class="section-title">Built around where DC actually lives.</h2>
     </div>
     <div class="features-grid">
       <div class="feature-card dark">
         <div class="feature-icon">🗺️</div>
-        <h3>11 resident hubs across DC</h3>
-        <p>No monument-area hub. Network centered on where people actually live — not tourists or commuters.</p>
+        <h3>Neighborhood-first coverage</h3>
+        <p>Pickup hubs are placed where residents live, study, and commute every day, not where tourists spend time.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">💰</div>
-        <h3>Up to 40% below retail</h3>
-        <p>Residents, seniors, and under-served households lead pricing. Bulk purchasing keeps costs down.</p>
+        <h3>Priced below retail</h3>
+        <p>Bulk purchasing and simple packaging keep staple groceries, produce, and meal packs more affordable.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📦</div>
-        <h3>Bundled support boxes</h3>
-        <p>EBT and subsidy-friendly bundles built for families, seniors, and low-income households — one box, one week.</p>
+        <h3>Weekly support packs</h3>
+        <p>Practical bundles for students, older adults, and family households with vegan, vegetarian, and non-veg options.</p>
       </div>
     </div>
   </div>
@@ -769,42 +358,18 @@
 <!-- COVERAGE MAP -->
 <section class="coverage" id="coverage">
   <div class="shell">
-    <div class="coverage-layout">
-      <div class="coverage-info">
+    <div class="section-header-row">
+      <div>
         <span class="section-label">Coverage</span>
-        <h2 class="section-title">Find your nearest hub</h2>
-        <p class="section-sub">Our 11 hubs are located in residential neighborhoods. Locker pickup and short-hop delivery available at most stops.</p>
-        <div class="coverage-cards">
-          <div class="cov-card" style="background: var(--forest); color: white;">
-            <div class="cov-card-label" style="color: var(--lime);">Coverage</div>
-            <h4 style="color: white;">11 resident hubs</h4>
-            <p style="color: rgba(255,255,255,0.65);">Network centered on where people live — not the monument district.</p>
-          </div>
-          <div class="cov-card">
-            <div class="cov-card-label">Matched hub</div>
-            <h4>Foggy Bottom West Hub</h4>
-            <p>Campus and apartment pickup. 0.82 mi — Foggy Bottom, West End, GW-area.</p>
-          </div>
-          <div class="cov-card">
-            <div class="cov-card-label">Pricing</div>
-            <h4>Up to 40% below retail</h4>
-            <p>Residents, seniors, and under-served households lead pricing.</p>
-          </div>
-        </div>
+        <h2 class="section-title">Find the hub closest to you.</h2>
+        <p class="section-sub">Every marker shows a live pickup point. Open any hub to view the neighborhood, service type, and hours.</p>
       </div>
-      <div class="map-container">
-        <iframe
-          title="DC Meals on Wheels hub locations"
-          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d24901.8!2d-77.0369!3d38.9072!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1713000000000!5m2!1sen!2sus"
-          allowfullscreen
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-        <div class="map-overlay-label">
-          <span class="map-dot"></span>
-          11 hubs across DC
-        </div>
-      </div>
+    </div>
+    <div class="map-full" id="dcMap"></div>
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#e05c00"></div>Hub location</div>
+      <div class="legend-item"><div class="legend-ring"></div>1-mile service radius</div>
+      <div class="legend-item"><span style="font-size:.9rem">📍</span>Click marker for details</div>
     </div>
   </div>
 </section>
@@ -814,41 +379,44 @@
   <div class="shell">
     <div class="catalog-header">
       <div>
-        <span class="section-label">Shop</span>
-        <h2 class="section-title">All groceries</h2>
+        <span class="section-label">Groceries</span>
+        <h2 class="section-title">Everyday food, picked for real routines.</h2>
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
         <select class="select-filter" id="dietFilter">
-          <option>All diets</option>
-          <option>Vegetarian</option>
-          <option>Vegan</option>
-          <option>High protein</option>
-          <option>Low sodium</option>
+          <option value="all">All diets</option>
+          <option value="veg">Vegetarian</option>
+          <option value="vegan">Vegan only</option>
+          <option value="nonveg">Non-veg</option>
+          <option value="high-protein">High protein</option>
         </select>
         <select class="select-filter" id="sortFilter">
-          <option>Featured</option>
-          <option>Price: Low</option>
-          <option>Price: High</option>
-          <option>Savings</option>
+          <option value="featured">Featured</option>
+          <option value="price-low">Price: Low</option>
+          <option value="price-high">Price: High</option>
+          <option value="savings">Savings %</option>
         </select>
       </div>
     </div>
 
-    <div class="catalog-filters">
-      <button class="filter-tab active" data-cat="all">All groceries (25)</button>
-      <button class="filter-tab" data-cat="snacks">Healthy snacks (6)</button>
-      <button class="filter-tab" data-cat="produce">Produce and veg (5)</button>
-      <button class="filter-tab" data-cat="protein">Protein and meals (5)</button>
-      <button class="filter-tab" data-cat="bread">Bread and wraps (4)</button>
-      <button class="filter-tab" data-cat="pantry">Pantry staples (5)</button>
+    <div class="catalog-filters" id="catTabs">
+      <button class="filter-tab active" data-cat="all">All (47)</button>
+      <button class="filter-tab" data-cat="fresh">🥦 Fresh produce</button>
+      <button class="filter-tab" data-cat="snacks">🍎 Snacks</button>
+      <button class="filter-tab" data-cat="produce">🥗 Prepared veg</button>
+      <button class="filter-tab" data-cat="protein">🍗 Protein</button>
+      <button class="filter-tab" data-cat="bread">🍞 Bread</button>
+      <button class="filter-tab" data-cat="pantry">🍚 Pantry</button>
     </div>
 
     <div class="catalog-search-row">
-      <input class="search-input" type="search" placeholder="Search fruit, wraps, beans, support items..." id="catalogSearch" />
+      <input class="search-input" type="search" placeholder="Search tomatoes, wraps, chicken, beans..." id="catalogSearch" />
     </div>
 
-    <div class="food-grid" id="foodGrid">
-      <!-- injected by JS -->
+    <div class="items-count" id="itemsCount"></div>
+    <div class="food-grid" id="foodGrid"></div>
+    <div class="show-more-wrap" id="showMoreWrap" style="display:none;">
+      <button class="show-more-btn" id="showMoreBtn" onclick="showMore()">Show more ↓</button>
     </div>
   </div>
 </section>
@@ -858,25 +426,28 @@
   <div class="shell">
     <div class="boxes-intro">
       <div class="boxes-aside">
-        <div class="boxes-aside-label">No family left behind</div>
-        <h3>One bundle.<br>One week.<br>Real essentials.</h3>
-        <p>Protein, staples, and produce — all in one support box.</p>
+        <div class="boxes-aside-label">Weekly Support</div>
+        <h3>One pack.<br>One week.<br>Food that covers the basics.</h3>
+        <p>Each pack combines protein, staples, and produce in a format that fits student routines, older-adult homes, and family households.</p>
         <ul>
           <li>EBT and subsidy friendly</li>
-          <li>Built for families, seniors, and low-income households</li>
+          <li>Built for students, older adults, and family households</li>
           <li>Priced below retail through bulk purchasing</li>
+          <li>Vegan, vegetarian, and non-veg options</li>
+          <li>Student pricing available with verified <strong>.edu</strong> logins</li>
         </ul>
+        <div class="bulk-notice">
+          ⚠️ <span>Bulk ordering for subsidized boxes is available exclusively for <strong>SNAP/EBT cardholders</strong> and income-qualified households. Standard single-box purchases are open to all.</span>
+        </div>
       </div>
       <div>
-        <span class="section-label">Support boxes</span>
-        <h2 class="section-title">Bundled for real life</h2>
-        <p class="section-sub">All boxes include protein, fiber-rich produce, and pantry staples. Priced well below retail. EBT accepted at all hubs.</p>
+        <span class="section-label">Weekly Packs</span>
+        <h2 class="section-title">Choose the pack that fits the household.</h2>
+        <p class="section-sub">These packs are sized for actual use: quick-prep student bundles, gentler 2-person senior packs, and fuller 4-person family support packs. EBT is accepted at every hub, and verified <strong>.edu</strong> accounts can unlock student pricing.</p>
       </div>
     </div>
 
-    <div class="boxes-grid" id="boxGrid">
-      <!-- injected by JS -->
-    </div>
+    <div class="boxes-grid" id="boxGrid"></div>
   </div>
 </section>
 
@@ -886,7 +457,7 @@
     <div class="footer-grid">
       <div>
         <div class="footer-brand">Meals on Wheels DC</div>
-        <p class="footer-desc">Fresh groceries at fair prices for DC residents. 11 hubs across the city, centered on where people live.</p>
+        <p class="footer-desc">Affordable groceries, produce, and weekly packs delivered through a neighborhood-first pickup network across DC.</p>
       </div>
       <div class="footer-col">
         <h4>Navigate</h4>
@@ -894,25 +465,25 @@
           <li><a href="#coverage">Coverage map</a></li>
           <li><a href="#catalog">Shop groceries</a></li>
           <li><a href="#boxes">Support boxes</a></li>
-          <li><a href="#">Lockers</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Programs</h4>
         <ul>
-          <li><a href="#">EBT / SNAP</a></li>
-          <li><a href="#">Senior pricing</a></li>
-          <li><a href="#">Family subsidy</a></li>
-          <li><a href="#">Partner hubs</a></li>
+          <li><a href="#boxes">EBT / SNAP</a></li>
+          <li><a href="#boxes">Senior pricing</a></li>
+          <li><a href="#boxes">Family subsidy</a></li>
+          <li><a href="#boxes">Vegan boxes</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>About</h4>
+        <h4>Account</h4>
         <ul>
-          <li><a href="#">Our mission</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="#" onclick="openLogin();return false;">Sign in</a></li>
+          <li><a href="#" onclick="openLogin();return false;">🔒 Admin portal</a></li>
+          <li><a href="#">Contact us</a></li>
           <li><a href="#">Volunteer</a></li>
-          <li><a href="#">Donate</a></li>
         </ul>
       </div>
     </div>
@@ -923,289 +494,549 @@
   </div>
 </footer>
 
+<script src="vendor/leaflet/leaflet.js"></script>
 <script>
+// ── HUB DATA ──────────────────────────────────────────────
+const hubs = [{"id": "foggy-bottom", "name": "Foggy Bottom West Hub", "area": "Foggy Bottom, West End, GW area", "lat": 38.8997, "lng": -77.047, "type": "Locker + pickup", "hours": "6 AM\u201310 PM", "zip": "20052"}, {"id": "shaw-howard", "name": "Shaw\u2013Howard Hub", "area": "Shaw, U Street, Howard University", "lat": 38.9228, "lng": -77.0211, "type": "Corner store + locker", "hours": "7 AM\u20139 PM", "zip": "20059"}, {"id": "columbia-heights", "name": "Columbia Heights Hub", "area": "Columbia Heights, Mount Pleasant", "lat": 38.9326, "lng": -77.0323, "type": "Locker pickup", "hours": "6 AM\u201311 PM", "zip": "20010"}, {"id": "capitol-hill", "name": "Capitol Hill Hub", "area": "Capitol Hill, Eastern Market", "lat": 38.8882, "lng": -76.9974, "type": "Locker + pickup", "hours": "24/7", "zip": "20003"}, {"id": "petworth", "name": "Petworth Community Hub", "area": "Petworth, 16th Street Heights", "lat": 38.9415, "lng": -77.0243, "type": "Community locker", "hours": "7 AM\u20139 PM", "zip": "20011"}, {"id": "anacostia", "name": "Anacostia Fresh Hub", "area": "Anacostia, Congress Heights", "lat": 38.8618, "lng": -76.9969, "type": "Locker + store", "hours": "7 AM\u20138 PM", "zip": "20020"}, {"id": "brookland", "name": "Brookland\u2013CUA Hub", "area": "Brookland, Catholic University area", "lat": 38.9342, "lng": -76.9975, "type": "Community locker", "hours": "8 AM\u20138 PM", "zip": "20017"}, {"id": "tenleytown", "name": "Tenleytown\u2013AU Hub", "area": "Tenleytown, American University, Van Ness", "lat": 38.9437, "lng": -77.0868, "type": "Campus pickup", "hours": "8 AM\u20139 PM", "zip": "20016"}, {"id": "trinidad", "name": "Trinidad\u2013Carver Hub", "area": "Trinidad, Carver-Langston, NoMa East", "lat": 38.9014, "lng": -76.9798, "type": "Locker pickup", "hours": "7 AM\u201310 PM", "zip": "20002"}, {"id": "brightwood", "name": "Brightwood Hub", "area": "Brightwood, Manor Park, Shepherd Park", "lat": 38.9619, "lng": -77.0172, "type": "Neighborhood locker", "hours": "8 AM\u20138 PM", "zip": "20012"}, {"id": "deanwood", "name": "Deanwood Hub", "area": "Deanwood, Burrville, Fort Lincoln", "lat": 38.8991, "lng": -76.935, "type": "Community store", "hours": "8 AM\u20137 PM", "zip": "20019"}, {"id": "eckington", "name": "Eckington Hub", "area": "Eckington, Bloomingdale, Edgewood", "lat": 38.9161, "lng": -77.006, "type": "Locker pickup", "hours": "7 AM\u201310 PM", "zip": "20002"}, {"id": "congress-heights", "name": "Congress Heights Hub", "area": "Congress Heights, Bellevue, Shipley Terrace", "lat": 38.8448, "lng": -76.9954, "type": "Community locker", "hours": "8 AM\u20138 PM", "zip": "20032"}, {"id": "hillcrest", "name": "Hillcrest Hub", "area": "Hillcrest, Fort Davis, Penn Branch", "lat": 38.8538, "lng": -76.974, "type": "Neighborhood pickup", "hours": "9 AM\u20137 PM", "zip": "20020"}, {"id": "noma-gallaudet", "name": "NoMa\u2013Gallaudet Hub", "area": "NoMa, Union Market, Gallaudet University", "lat": 38.9085, "lng": -76.9965, "type": "Locker + corner store", "hours": "7 AM\u201311 PM", "zip": "20002"}, {"id": "georgetown", "name": "Georgetown Hub", "area": "Georgetown, Burleith, Glover Park", "lat": 38.9076, "lng": -77.0723, "type": "Locker pickup", "hours": "8 AM\u20139 PM", "zip": "20007"}, {"id": "navy-yard", "name": "Navy Yard\u2013SW Hub", "area": "Navy Yard, SW Waterfront, Buzzard Point", "lat": 38.8766, "lng": -77.0025, "type": "Locker pickup", "hours": "7 AM\u201310 PM", "zip": "20024"}];
+
+// ── FOOD DATA ─────────────────────────────────────────────
+
 const foods = [
-  {
-    id: 1, cat: "snacks",
-    name: "Apple & peanut butter snack",
-    desc: "1 apple · 1.5 oz peanut butter · 1 snack",
-    img: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&auto=format&fit=crop&q=80",
-    tags: ["Healthy snack", "Student pick"],
-    pct: "35% below retail",
-    protein: "8g", fiber: "6g", energy: "260",
-    price: "$1.49", retail: "$2.29"
-  },
-  {
-    id: 2, cat: "snacks",
-    name: "Greek yogurt parfait",
-    desc: "7 oz cup · 1 cup",
-    img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&auto=format&fit=crop&q=80",
-    tags: ["High protein", "Student pick"],
-    pct: "40% below retail",
-    protein: "15g", fiber: "3g", energy: "190",
-    price: "$1.79", retail: "$2.99"
-  },
-  {
-    id: 3, cat: "snacks",
-    name: "Hummus & carrot cup",
-    desc: "6 oz cup · 1 snack",
-    img: "https://images.unsplash.com/photo-1614935151651-0bea6508db6b?w=400&auto=format&fit=crop&q=80",
-    tags: ["Veg snack", "Student pick"],
-    pct: "39% below retail",
-    protein: "7g", fiber: "7g", energy: "210",
-    price: "$1.69", retail: "$2.79"
-  },
-  {
-    id: 4, cat: "snacks",
-    name: "Trail mix mini",
-    desc: "3 oz pouch · 1 pouch",
-    img: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&auto=format&fit=crop&q=80",
-    tags: ["Shelf stable", "Student pick"],
-    pct: "43% below retail",
-    protein: "10g", fiber: "4g", energy: "360",
-    price: "$1.99", retail: "$3.49"
-  },
-  {
-    id: 5, cat: "produce",
-    name: "Mixed leafy greens bag",
-    desc: "5 oz bag · ready to eat",
-    img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80",
-    tags: ["Veg", "In stock"],
-    pct: "36% below retail",
-    protein: "3g", fiber: "2g", energy: "35",
-    price: "$1.29", retail: "$2.09"
-  },
-  {
-    id: 6, cat: "produce",
-    name: "Ripe banana bunch",
-    desc: "4 bananas · approx 1.2 lb",
-    img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&auto=format&fit=crop&q=80",
-    tags: ["Fruit", "Student pick"],
-    pct: "30% below retail",
-    protein: "4g", fiber: "3g", energy: "420",
-    price: "$0.89", retail: "$1.29"
-  },
-  {
-    id: 7, cat: "produce",
-    name: "Roma tomatoes pack",
-    desc: "4 tomatoes · approx 1 lb",
-    img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&auto=format&fit=crop&q=80",
-    tags: ["Veg", "In stock"],
-    pct: "33% below retail",
-    protein: "2g", fiber: "2g", energy: "80",
-    price: "$1.19", retail: "$1.79"
-  },
-  {
-    id: 8, cat: "protein",
-    name: "Hard-boiled eggs (6 pack)",
-    desc: "6 eggs · ready to eat",
-    img: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&auto=format&fit=crop&q=80",
-    tags: ["High protein", "In stock"],
-    pct: "38% below retail",
-    protein: "36g", fiber: "0g", energy: "420",
-    price: "$1.99", retail: "$3.29"
-  },
-  {
-    id: 9, cat: "protein",
-    name: "Black bean cup",
-    desc: "15 oz can, drained · 2 cups",
-    img: "https://images.unsplash.com/photo-1599371081055-b7c8aa8cdb3b?w=400&auto=format&fit=crop&q=80",
-    tags: ["Vegan", "High protein"],
-    pct: "41% below retail",
-    protein: "30g", fiber: "24g", energy: "660",
-    price: "$1.09", retail: "$1.89"
-  },
-  {
-    id: 10, cat: "protein",
-    name: "Tuna pouch",
-    desc: "2.6 oz · 1 pouch",
-    img: "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&auto=format&fit=crop&q=80",
-    tags: ["High protein", "Shelf stable"],
-    pct: "35% below retail",
-    protein: "17g", fiber: "0g", energy: "90",
-    price: "$1.49", retail: "$2.29"
-  },
-  {
-    id: 11, cat: "bread",
-    name: "Whole wheat tortillas (4pk)",
-    desc: "4 tortillas · 8-inch",
-    img: "https://images.unsplash.com/photo-1509482560494-4126f8225994?w=400&auto=format&fit=crop&q=80",
-    tags: ["Bread", "In stock"],
-    pct: "37% below retail",
-    protein: "12g", fiber: "8g", energy: "480",
-    price: "$1.39", retail: "$2.29"
-  },
-  {
-    id: 12, cat: "bread",
-    name: "Sourdough sandwich loaf",
-    desc: "Half loaf · 8 slices",
-    img: "https://images.unsplash.com/photo-1585478259715-876acc5be8eb?w=400&auto=format&fit=crop&q=80",
-    tags: ["Bread", "Student pick"],
-    pct: "32% below retail",
-    protein: "14g", fiber: "4g", energy: "560",
-    price: "$1.99", retail: "$2.99"
-  },
-  {
-    id: 13, cat: "pantry",
-    name: "Rolled oats bag",
-    desc: "1 lb bag · 8 servings",
-    img: "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=400&auto=format&fit=crop&q=80",
-    tags: ["Pantry", "Shelf stable"],
-    pct: "45% below retail",
-    protein: "20g", fiber: "16g", energy: "1200",
-    price: "$1.29", retail: "$2.39"
-  },
-  {
-    id: 14, cat: "pantry",
-    name: "Brown rice (2 lb bag)",
-    desc: "2 lb · approx 10 servings",
-    img: "https://images.unsplash.com/photo-1536304993881-ff86e0c68e62?w=400&auto=format&fit=crop&q=80",
-    tags: ["Pantry", "Shelf stable"],
-    pct: "40% below retail",
-    protein: "20g", fiber: "8g", energy: "3400",
-    price: "$1.79", retail: "$3.09"
-  },
-  {
-    id: 15, cat: "pantry",
-    name: "Canned diced tomatoes",
-    desc: "14.5 oz can",
-    img: "https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=400&auto=format&fit=crop&q=80",
-    tags: ["Pantry", "Vegan"],
-    pct: "38% below retail",
-    protein: "4g", fiber: "3g", energy: "140",
-    price: "$0.89", retail: "$1.49"
-  },
-  {
-    id: 16, cat: "produce",
-    name: "Baby spinach bag",
-    desc: "5 oz bag · pre-washed",
-    img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&auto=format&fit=crop&q=80",
-    tags: ["Veg", "In stock"],
-    pct: "34% below retail",
-    protein: "3g", fiber: "2g", energy: "30",
-    price: "$1.49", retail: "$2.29"
-  }
+  // ─ SNACKS ─
+  {id:"apple_pb",cat:"snacks",diet:"veg",vegan:false,emoji:"🍎",name:"Apple & peanut butter snack",desc:"1 apple plus 1.5 oz peanut butter · 1 snack",img:"assets/food/apple_pb.jpg",tags:["Healthy snack","Student pick"],pct:"35% below retail",protein:"8g",fiber:"6g",energy:"260",price:"$1.49",retail:"$2.29",priceNum:1.49,retailNum:2.29,savingsPct:35},
+  {id:"yogurt_parfait",cat:"snacks",diet:"veg",vegan:false,emoji:"🥣",name:"Greek yogurt parfait",desc:"7 oz cup · 1 cup",img:"assets/food/yogurt_parfait.jpg",tags:["High protein","Student pick"],pct:"40% below retail",protein:"15g",fiber:"3g",energy:"190",price:"$1.79",retail:"$2.99",priceNum:1.79,retailNum:2.99,savingsPct:40},
+  {id:"hummus_carrots",cat:"snacks",diet:"veg",vegan:true,emoji:"🥕",name:"Hummus & carrot cup",desc:"6 oz cup · 1 snack",img:"assets/food/hummus_carrots.jpg",tags:["Veg snack","Vegan","Student pick"],pct:"39% below retail",protein:"7g",fiber:"7g",energy:"210",price:"$1.69",retail:"$2.79",priceNum:1.69,retailNum:2.79,savingsPct:39},
+  {id:"trail_mix",cat:"snacks",diet:"veg",vegan:true,emoji:"🥜",name:"Trail mix mini",desc:"3 oz pouch · 1 pouch",img:"assets/food/trail_mix.jpg",tags:["Shelf stable","Vegan","Student pick"],pct:"43% below retail",protein:"10g",fiber:"4g",energy:"360",price:"$1.99",retail:"$3.49",priceNum:1.99,retailNum:3.49,savingsPct:43},
+  {id:"popcorn",cat:"snacks",diet:"veg",vegan:true,emoji:"🍿",name:"Low-salt popcorn",desc:"2.5 oz bag · 1 bag",img:"assets/food/popcorn.jpg",tags:["Whole grain","Vegan","Student pick"],pct:"43% below retail",protein:"4g",fiber:"5g",energy:"150",price:"$1.25",retail:"$2.19",priceNum:1.25,retailNum:2.19,savingsPct:43},
+  {id:"banana_oat",cat:"snacks",diet:"veg",vegan:true,emoji:"🍌",name:"Banana oat bites",desc:"2 bites · 1 snack",img:"assets/food/banana_oat.jpg",tags:["Breakfast","Vegan","Student pick"],pct:"39% below retail",protein:"6g",fiber:"4g",energy:"220",price:"$1.39",retail:"$2.29",priceNum:1.39,retailNum:2.29,savingsPct:39},
+  // ─ PRODUCE / VEG ─
+  {id:"salad_kit",cat:"produce",diet:"veg",vegan:true,emoji:"🥗",name:"Campus salad kit",desc:"11 oz kit · 2 portions",img:"assets/food/salad_kit.jpg",tags:["Fresh","Vegan","Student pick"],pct:"40% below retail",protein:"8g",fiber:"8g",energy:"240",price:"$2.99",retail:"$4.99",priceNum:2.99,retailNum:4.99,savingsPct:40},
+  {id:"lentil_bowl",cat:"produce",diet:"veg",vegan:true,emoji:"🫘",name:"Lentil protein bowl",desc:"14 oz bowl · 1 meal",img:"assets/food/lentil_bowl.jpg",tags:["High protein","Vegan","Student pick"],pct:"36% below retail",protein:"20g",fiber:"13g",energy:"420",price:"$3.49",retail:"$5.49",priceNum:3.49,retailNum:5.49,savingsPct:36},
+  {id:"tofu_kit",cat:"produce",diet:"veg",vegan:true,emoji:"🥦",name:"Tofu stir-fry kit",desc:"18 oz kit · 2 meals",img:"assets/food/tofu_kit.jpg",tags:["Dinner","Vegan"],pct:"36% below retail",protein:"26g",fiber:"10g",energy:"520",price:"$4.49",retail:"$6.99",priceNum:4.49,retailNum:6.99,savingsPct:36},
+  {id:"frozen_veg",cat:"produce",diet:"veg",vegan:true,emoji:"🌽",name:"Frozen veg mix",desc:"12 oz bag · 3 sides",img:"assets/food/frozen_veg.jpg",tags:["Freezer","Vegan"],pct:"40% below retail",protein:"6g",fiber:"9g",energy:"180",price:"$1.99",retail:"$3.29",priceNum:1.99,retailNum:3.29,savingsPct:40},
+  {id:"fruit_cup",cat:"produce",diet:"veg",vegan:true,emoji:"🍓",name:"Fresh fruit cup",desc:"8 oz cup · 1 snack",img:"assets/food/fruit_cup.jpg",tags:["Fresh","Vegan","Student pick"],pct:"43% below retail",protein:"2g",fiber:"4g",energy:"120",price:"$1.99",retail:"$3.49",priceNum:1.99,retailNum:3.49,savingsPct:43},
+  // ─ PROTEIN ─
+  {id:"egg_box",cat:"protein",diet:"nonveg",vegan:false,emoji:"🥚",name:"Egg protein box",desc:"2 eggs plus fruit · 1 meal or snack",img:"assets/food/egg_box.jpg",tags:["Protein","Student pick"],pct:"38% below retail",protein:"18g",fiber:"4g",energy:"310",price:"$2.99",retail:"$4.79",priceNum:2.99,retailNum:4.79,savingsPct:38},
+  {id:"chicken_rice",cat:"protein",diet:"nonveg",vegan:false,emoji:"🍗",name:"Chicken rice bowl",desc:"16 oz bowl · 1 meal",img:"assets/food/chicken_rice.jpg",tags:["Hot meal base","Student pick"],pct:"38% below retail",protein:"36g",fiber:"5g",energy:"560",price:"$4.99",retail:"$7.99",priceNum:4.99,retailNum:7.99,savingsPct:38},
+  {id:"tuna_pack",cat:"protein",diet:"nonveg",vegan:false,emoji:"🐟",name:"Tuna protein pack",desc:"tuna plus crackers · 1 meal or snack",img:"assets/food/tuna_pack.jpg",tags:["Shelf stable","Student pick"],pct:"40% below retail",protein:"24g",fiber:"3g",energy:"340",price:"$3.49",retail:"$5.79",priceNum:3.49,retailNum:5.79,savingsPct:40},
+  {id:"turkey_wrap",cat:"protein",diet:"nonveg",vegan:false,emoji:"🌯",name:"Turkey veg wrap",desc:"1 wrap · 1 meal",img:"assets/food/turkey_wrap.jpg",tags:["Grab and go","Student pick"],pct:"39% below retail",protein:"25g",fiber:"5g",energy:"430",price:"$3.99",retail:"$6.49",priceNum:3.99,retailNum:6.49,savingsPct:39},
+  {id:"chicken_pack",cat:"protein",diet:"nonveg",vegan:false,emoji:"🍗",name:"Chicken family pack",desc:"1.5 lb pack · 4 portions",img:"assets/food/chicken_pack.jpg",tags:["Bulk value"],pct:"31% below retail",protein:"132g",fiber:"0g",energy:"980",price:"$8.99",retail:"$12.99",priceNum:8.99,retailNum:12.99,savingsPct:31},
+  // ─ BREAD ─
+  {id:"wheat_bread",cat:"bread",diet:"veg",vegan:true,emoji:"🍞",name:"Whole wheat bread",desc:"20 oz loaf · 20 slices",img:"assets/food/wheat_bread.jpg",tags:["Bread","Vegan","Student pick"],pct:"34% below retail",protein:"4g",fiber:"2g",energy:"70",price:"$2.29",retail:"$3.49",priceNum:2.29,retailNum:3.49,savingsPct:34},
+  {id:"wraps",cat:"bread",diet:"veg",vegan:true,emoji:"🫓",name:"Whole grain wraps",desc:"6 count pack · 6 wraps",img:"assets/food/wraps.jpg",tags:["Meal prep","Vegan","Student pick"],pct:"40% below retail",protein:"5g",fiber:"4g",energy:"140",price:"$1.99",retail:"$3.29",priceNum:1.99,retailNum:3.29,savingsPct:40},
+  {id:"bagels",cat:"bread",diet:"veg",vegan:false,emoji:"🥯",name:"Mini bagel pack",desc:"6 mini bagels · 6 portions",img:"assets/food/bagels.jpg",tags:["Breakfast","Student pick"],pct:"42% below retail",protein:"5g",fiber:"2g",energy:"130",price:"$2.49",retail:"$4.29",priceNum:2.49,retailNum:4.29,savingsPct:42},
+  {id:"pita",cat:"bread",diet:"veg",vegan:true,emoji:"🥙",name:"Pita bread pack",desc:"5 count pack · 5 pitas",img:"assets/food/pita.jpg",tags:["Low cost","Vegan","Student pick"],pct:"40% below retail",protein:"6g",fiber:"3g",energy:"160",price:"$1.79",retail:"$2.99",priceNum:1.79,retailNum:2.99,savingsPct:40},
+  // ─ PANTRY ─
+  {id:"rice",cat:"pantry",diet:"veg",vegan:true,emoji:"🍚",name:"Brown rice",desc:"5 lb bag · 25 servings",img:"assets/food/rice.jpg",tags:["Staple","Vegan"],pct:"37% below retail",protein:"4g",fiber:"2g",energy:"170",price:"$3.99",retail:"$6.29",priceNum:3.99,retailNum:6.29,savingsPct:37},
+  {id:"beans",cat:"pantry",diet:"veg",vegan:true,emoji:"🫘",name:"Black beans",desc:"15 oz can · 3.5 servings",img:"assets/food/beans.jpg",tags:["Protein","Vegan","Student pick"],pct:"35% below retail",protein:"7g",fiber:"6g",energy:"110",price:"$1.29",retail:"$1.99",priceNum:1.29,retailNum:1.99,savingsPct:35},
+  {id:"oats",cat:"pantry",diet:"veg",vegan:true,emoji:"🥣",name:"Rolled oats",desc:"42 oz tub · 30 servings",img:"assets/food/oats.jpg",tags:["Breakfast","Vegan","Student pick"],pct:"38% below retail",protein:"5g",fiber:"4g",energy:"150",price:"$2.79",retail:"$4.49",priceNum:2.79,retailNum:4.49,savingsPct:38},
+  {id:"pasta",cat:"pantry",diet:"veg",vegan:true,emoji:"🍝",name:"Whole wheat pasta",desc:"16 oz box · 8 servings",img:"assets/food/pasta.jpg",tags:["Dinner","Vegan","Student pick"],pct:"39% below retail",protein:"7g",fiber:"5g",energy:"180",price:"$1.39",retail:"$2.29",priceNum:1.39,retailNum:2.29,savingsPct:39},
+  {id:"milk",cat:"pantry",diet:"veg",vegan:false,emoji:"🥛",name:"Low-fat milk",desc:"Half gallon · 8 cups",img:"assets/food/milk.jpg",tags:["Chilled"],pct:"32% below retail",protein:"8g",fiber:"0g",energy:"120",price:"$2.99",retail:"$4.39",priceNum:2.99,retailNum:4.39,savingsPct:32},
+  // ─ FRESH PRODUCE (new!) ─
+  {id:"potatoes",cat:"fresh",diet:"veg",vegan:true,emoji:"🥔",name:"Russet potatoes",desc:"5 lb bag · ~15 medium potatoes",tags:["Fresh","Vegan"],pct:"38% below retail",protein:"3g",fiber:"2g",energy:"77",price:"$2.49",retail:"$3.99",priceNum:2.49,retailNum:3.99,savingsPct:38},
+  {id:"tomatoes",cat:"fresh",diet:"veg",vegan:true,emoji:"🍅",name:"Roma tomatoes",desc:"1 lb pack · ~5 tomatoes",tags:["Fresh","Vegan"],pct:"36% below retail",protein:"1g",fiber:"1g",energy:"18",price:"$1.29",retail:"$2.09",priceNum:1.29,retailNum:2.09,savingsPct:36},
+  {id:"cilantro",cat:"fresh",diet:"veg",vegan:true,emoji:"🌿",name:"Fresh cilantro",desc:"1 bunch · fresh-cut herb",img:"assets/food/cilantro.jpg",tags:["Fresh herb","Vegan"],pct:"40% below retail",protein:"0g",fiber:"1g",energy:"4",price:"$0.79",retail:"$1.29",priceNum:0.79,retailNum:1.29,savingsPct:40},
+  {id:"onions",cat:"fresh",diet:"veg",vegan:true,emoji:"🧅",name:"Yellow onions",desc:"3 lb bag · ~6 medium onions",img:"assets/food/onions.jpg",tags:["Fresh","Vegan"],pct:"35% below retail",protein:"1g",fiber:"2g",energy:"40",price:"$1.99",retail:"$3.09",priceNum:1.99,retailNum:3.09,savingsPct:35},
+  {id:"garlic",cat:"fresh",diet:"veg",vegan:true,emoji:"🧄",name:"Garlic bulb pack",desc:"3-bulb pack · ~30 cloves",img:"assets/food/garlic.jpg",tags:["Fresh","Vegan"],pct:"42% below retail",protein:"1g",fiber:"0g",energy:"20",price:"$0.99",retail:"$1.79",priceNum:0.99,retailNum:1.79,savingsPct:42},
+  {id:"carrots_fresh",cat:"fresh",diet:"veg",vegan:true,emoji:"🥕",name:"Fresh carrots",desc:"1 lb bag · ~6 full carrots",img:"assets/food/carrots_fresh.jpg",tags:["Fresh","Vegan"],pct:"38% below retail",protein:"1g",fiber:"3g",energy:"41",price:"$1.09",retail:"$1.79",priceNum:1.09,retailNum:1.79,savingsPct:38},
+  {id:"spinach_fresh",cat:"fresh",diet:"veg",vegan:true,emoji:"🥬",name:"Baby spinach",desc:"5 oz bag · ~3 servings",img:"assets/food/spinach_fresh.jpg",tags:["Fresh","Vegan","High iron"],pct:"40% below retail",protein:"3g",fiber:"2g",energy:"33",price:"$1.99",retail:"$3.39",priceNum:1.99,retailNum:3.39,savingsPct:40},
+  {id:"bell_peppers",cat:"fresh",diet:"veg",vegan:true,emoji:"🫑",name:"Bell peppers mixed",desc:"3-pack · red, green, yellow",img:"assets/food/bell_peppers.jpg",tags:["Fresh","Vegan","Vitamin C"],pct:"37% below retail",protein:"1g",fiber:"2g",energy:"31",price:"$2.29",retail:"$3.69",priceNum:2.29,retailNum:3.69,savingsPct:37},
+  {id:"broccoli",cat:"fresh",diet:"veg",vegan:true,emoji:"🥦",name:"Broccoli crown",desc:"~12 oz head · fresh-cut",img:"assets/food/broccoli.jpg",tags:["Fresh","Vegan"],pct:"36% below retail",protein:"4g",fiber:"4g",energy:"55",price:"$1.49",retail:"$2.39",priceNum:1.49,retailNum:2.39,savingsPct:36},
+  {id:"cucumber",cat:"fresh",diet:"veg",vegan:true,emoji:"🥒",name:"English cucumber",desc:"1 large cucumber",img:"assets/food/cucumber.jpg",tags:["Fresh","Vegan"],pct:"34% below retail",protein:"1g",fiber:"1g",energy:"13",price:"$0.99",retail:"$1.59",priceNum:0.99,retailNum:1.59,savingsPct:34},
+  {id:"zucchini",cat:"fresh",diet:"veg",vegan:true,emoji:"🥬",name:"Zucchini",desc:"2-pack · ~1.5 lb total",img:"assets/food/zucchini.jpg",tags:["Fresh","Vegan"],pct:"35% below retail",protein:"2g",fiber:"1g",energy:"33",price:"$1.29",retail:"$1.99",priceNum:1.29,retailNum:1.99,savingsPct:35},
+  {id:"lemons",cat:"fresh",diet:"veg",vegan:true,emoji:"🍋",name:"Lemons",desc:"4-pack · juicing lemons",img:"assets/food/lemons.jpg",tags:["Fresh","Vegan","Vitamin C"],pct:"37% below retail",protein:"0g",fiber:"1g",energy:"17",price:"$1.19",retail:"$1.99",priceNum:1.19,retailNum:1.99,savingsPct:37},
+  {id:"sweet_potatoes",cat:"fresh",diet:"veg",vegan:true,emoji:"🍠",name:"Sweet potatoes",desc:"3 lb bag · ~4 medium",img:"assets/food/sweet_potatoes.jpg",tags:["Fresh","Vegan","Vitamin A"],pct:"38% below retail",protein:"2g",fiber:"4g",energy:"86",price:"$2.99",retail:"$4.89",priceNum:2.99,retailNum:4.89,savingsPct:38},
+  {id:"cabbage",cat:"fresh",diet:"veg",vegan:true,emoji:"🥬",name:"Green cabbage",desc:"~2 lb head",img:"assets/food/cabbage.jpg",tags:["Fresh","Vegan"],pct:"42% below retail",protein:"1g",fiber:"2g",energy:"25",price:"$1.49",retail:"$2.59",priceNum:1.49,retailNum:2.59,savingsPct:42},
+  {id:"kale",cat:"fresh",diet:"veg",vegan:true,emoji:"🥬",name:"Kale bunch",desc:"1 large bunch · ~200g",img:"assets/food/kale.jpg",tags:["Fresh","Vegan","High iron"],pct:"40% below retail",protein:"4g",fiber:"2g",energy:"50",price:"$1.69",retail:"$2.89",priceNum:1.69,retailNum:2.89,savingsPct:40},
+  {id:"celery",cat:"fresh",diet:"veg",vegan:true,emoji:"🌿",name:"Celery bunch",desc:"1 bunch · ~1.5 lb",img:"assets/food/celery.jpg",tags:["Fresh","Vegan"],pct:"36% below retail",protein:"1g",fiber:"2g",energy:"14",price:"$1.29",retail:"$2.09",priceNum:1.29,retailNum:2.09,savingsPct:36},
+  {id:"green_beans",cat:"fresh",diet:"veg",vegan:true,emoji:"🫛",name:"Fresh green beans",desc:"12 oz bag",img:"assets/food/green_beans.jpg",tags:["Fresh","Vegan"],pct:"38% below retail",protein:"2g",fiber:"4g",energy:"44",price:"$1.49",retail:"$2.49",priceNum:1.49,retailNum:2.49,savingsPct:38},
+  {id:"mushrooms",cat:"fresh",diet:"veg",vegan:true,emoji:"🍄",name:"White mushrooms",desc:"8 oz pack",img:"assets/food/mushrooms.jpg",tags:["Fresh","Vegan"],pct:"36% below retail",protein:"3g",fiber:"1g",energy:"22",price:"$1.79",retail:"$2.99",priceNum:1.79,retailNum:2.99,savingsPct:36},
+  {id:"avocados",cat:"fresh",diet:"veg",vegan:true,emoji:"🥑",name:"Avocados",desc:"2-pack · ripe and ready",img:"assets/food/avocados.jpg",tags:["Fresh","Vegan","Healthy fats"],pct:"35% below retail",protein:"2g",fiber:"7g",energy:"160",price:"$2.49",retail:"$3.89",priceNum:2.49,retailNum:3.89,savingsPct:35},
+  {id:"corn_fresh",cat:"fresh",diet:"veg",vegan:true,emoji:"🌽",name:"Fresh corn",desc:"2 ears · sweet corn",img:"assets/food/corn_fresh.jpg",tags:["Fresh","Vegan"],pct:"34% below retail",protein:"3g",fiber:"2g",energy:"86",price:"$0.99",retail:"$1.59",priceNum:0.99,retailNum:1.59,savingsPct:34},
+  {id:"ginger",cat:"fresh",diet:"veg",vegan:true,emoji:"🫚",name:"Fresh ginger root",desc:"4 oz piece",img:"assets/food/ginger.jpg",tags:["Fresh herb","Vegan"],pct:"40% below retail",protein:"0g",fiber:"1g",energy:"20",price:"$0.89",retail:"$1.49",priceNum:0.89,retailNum:1.49,savingsPct:40},
+  {id:"beets",cat:"fresh",diet:"veg",vegan:true,emoji:"🫀",name:"Fresh beets",desc:"1 lb pack · ~3 beets",img:"assets/food/beets.jpg",tags:["Fresh","Vegan","High folate"],pct:"36% below retail",protein:"2g",fiber:"3g",energy:"43",price:"$1.59",retail:"$2.59",priceNum:1.59,retailNum:2.59,savingsPct:36}
 ];
 
 const boxes = [
-  {
-    name: "Campus dorm box",
-    desc: "Mixed grocery box · 6 meal or snack portions",
-    img: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&auto=format&fit=crop&q=80",
-    tags: ["Support box", "Student pick", "53% below retail"],
-    protein: "60g", fiber: "26g", energy: "2450",
-    price: "$8.49", retail: "$18.20"
-  },
-  {
-    name: "Solo low-cost box",
-    desc: "Mixed grocery box · 4 portions",
-    img: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80",
-    tags: ["Support box", "Student pick", "49% below retail"],
-    protein: "42g", fiber: "20g", energy: "1650",
-    price: "$6.49", retail: "$12.80"
-  },
-  {
-    name: "Vegetarian support box",
-    desc: "Mixed veg box · 5 portions",
-    img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&auto=format&fit=crop&q=80",
-    tags: ["Veg support", "Student pick", "52% below retail"],
-    protein: "55g", fiber: "34g", energy: "2050",
-    price: "$7.99", retail: "$16.40"
-  },
-  {
-    name: "Family community box",
-    desc: "Family mixed box · 10 portions",
-    img: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400&auto=format&fit=crop&q=80",
-    tags: ["Support box", "47% below retail"],
-    protein: "118g", fiber: "48g", energy: "4300",
-    price: "$14.99", retail: "$28.40"
-  }
+  {id:"campus_balance_box",name:"Student vegetarian health pack",desc:"Student routine bundle · Vegetarian · 6 portions",img:"assets/food/campus_balance_box.jpg",
+   contents:["Rolled oats (18 oz)","Greek yogurt cups (2)","Bananas (4)","Black beans (15 oz can)","Whole grain wraps (6)","Trail mix pouches (2)","Baby spinach (5 oz)"],
+   tags:["Support box","Student deal","Vegetarian","53% below retail"],vegan:false,vegetarian:true,protein:"58g",fiber:"28g",energy:"2300",price:"$8.99",retail:"$18.95",priceNum:8.99,retailNum:18.95},
+  {id:"campus_plant_box",name:"Student vegan health pack",desc:"Student routine bundle · Vegan · 6 portions",img:"assets/food/campus_plant_box.jpg",
+   contents:["Red lentils (1 lb)","Chickpeas (15 oz can)","Brown rice (2 lb)","Baby spinach (5 oz)","Bananas (4)","Whole grain wraps (6)","Peanut butter (16 oz)"],
+   tags:["Support box","Student deal","Vegan","56% below retail"],vegan:true,vegetarian:true,protein:"66g",fiber:"39g",energy:"2480",price:"$9.49",retail:"$21.80",priceNum:9.49,retailNum:21.80},
+  {id:"campus_protein_box",name:"Student non-veg health pack",desc:"Student routine bundle · Non-veg · 6 portions",img:"assets/food/campus_protein_box.jpg",
+   contents:["Chicken family pack (1.5 lb)","Greek yogurt cups (2)","Brown rice (2 lb)","Bell peppers mixed (3-pack)","Whole grain wraps (6)","Apples (4)"],
+   tags:["Support box","Student deal","Non-veg","51% below retail"],vegan:false,vegetarian:false,protein:"116g",fiber:"20g",energy:"2620",price:"$11.99",retail:"$24.40",priceNum:11.99,retailNum:24.40},
+  {id:"hearth_veg_box",name:"Senior wellness pack vegetarian",desc:"2-person senior bundle · Vegetarian · 8 portions",img:"assets/food/hearth_veg_box.jpg",
+   contents:["Rolled oats (18 oz)","Low-fat milk (half gallon)","Egg protein box","Sweet potatoes (3 lb)","Green cabbage (1 head)","Bananas (4)","Whole wheat bread loaf"],
+   tags:["Support box","Senior wellness","Vegetarian","48% below retail"],vegan:false,vegetarian:true,protein:"54g",fiber:"31g",energy:"2460",price:"$10.49",retail:"$20.10",priceNum:10.49,retailNum:20.10},
+  {id:"hearth_plant_box",name:"Senior wellness pack vegan",desc:"2-person senior bundle · Vegan · 8 portions",img:"assets/food/hearth_plant_box.jpg",
+   contents:["Rolled oats (18 oz)","Black beans (2 cans)","Brown rice (2 lb)","Kale bunch","Sweet potatoes (3 lb)","Apples (4)","Whole grain wraps (6)"],
+   tags:["Support box","Senior wellness","Vegan","52% below retail"],vegan:true,vegetarian:true,protein:"52g",fiber:"42g",energy:"2520",price:"$10.99",retail:"$22.90",priceNum:10.99,retailNum:22.90},
+  {id:"hearth_protein_box",name:"Senior wellness pack non-veg",desc:"2-person senior bundle · Non-veg · 8 portions",img:"assets/food/hearth_protein_box.jpg",
+   contents:["Chicken family pack (1.5 lb)","Eggs (12)","Brown rice (2 lb)","Broccoli crowns (2)","Potatoes (5 lb)","Bananas (4)"],
+   tags:["Support box","Senior wellness","Non-veg","49% below retail"],vegan:false,vegetarian:false,protein:"146g",fiber:"26g",energy:"2860",price:"$12.99",retail:"$25.45",priceNum:12.99,retailNum:25.45},
+  {id:"table_plant_box",name:"Family support pack vegan",desc:"4-person family bundle · Vegan · 14 portions",img:"assets/food/table_plant_box.jpg",
+   contents:["Brown rice (5 lb)","Black beans (4 cans)","Kale bunches (2)","Green cabbage (1 head)","Carrots (2 lb)","Onions (3 lb)","Whole grain wraps (12)","Apples (8)"],
+   tags:["Support box","Family support","Vegan","54% below retail"],vegan:true,vegetarian:true,protein:"92g",fiber:"74g",energy:"4980",price:"$18.99",retail:"$41.50",priceNum:18.99,retailNum:41.50},
+  {id:"table_veg_box",name:"Family support pack vegetarian",desc:"4-person family bundle · Vegetarian · 14 portions",img:"assets/food/table_veg_box.jpg",
+   contents:["Brown rice (5 lb)","Eggs (18)","Low-fat milk (half gallon)","Sweet potatoes (3 lb)","Broccoli crowns (2)","Whole wheat bread loaves (2)","Bananas (8)","Black beans (2 cans)"],
+   tags:["Support box","Family support","Vegetarian","50% below retail"],vegan:false,vegetarian:true,protein:"118g",fiber:"52g",energy:"5360",price:"$19.99",retail:"$39.95",priceNum:19.99,retailNum:39.95},
+  {id:"table_protein_box",name:"Family support pack non-veg",desc:"4-person family bundle · Non-veg · 14 portions",img:"assets/food/table_protein_box.jpg",
+   contents:["Chicken family pack (2)","Brown rice (5 lb)","Black beans (2 cans)","Bell peppers mixed (2 packs)","Broccoli crowns (2)","Whole grain wraps (12)","Apples (8)"],
+   tags:["Support box","Family support","Non-veg","47% below retail"],vegan:false,vegetarian:false,protein:"286g",fiber:"46g",energy:"5840",price:"$23.99",retail:"$45.60",priceNum:23.99,retailNum:45.60}
 ];
 
-function renderFoods(items) {
-  const grid = document.getElementById('foodGrid');
-  grid.innerHTML = items.map(f => `
-    <div class="food-card">
-      <img class="food-img" src="${f.img}" alt="${f.name}" loading="lazy" />
-      <div class="food-body">
-        <div class="food-tags">
-          <span class="tag tag-cat">${f.cat === 'snacks' ? 'Snacks' : f.cat === 'produce' ? 'Veg' : f.cat === 'protein' ? 'Protein' : f.cat === 'bread' ? 'Bread' : 'Pantry'}</span>
-          <span class="tag tag-stock">In stock</span>
-        </div>
-        <div class="food-name">${f.name}</div>
-        <div class="food-desc">${f.desc}</div>
-        <div class="food-tags" style="margin-bottom:8px;">
-          ${f.tags.map(t => `<span class="tag tag-label">${t}</span>`).join('')}
-          <span class="tag tag-pct">${f.pct}</span>
-        </div>
-        <div class="food-macros">
-          <div class="macro"><div class="macro-label">Protein</div><div class="macro-val">${f.protein}</div></div>
-          <div class="macro"><div class="macro-label">Fiber</div><div class="macro-val">${f.fiber}</div></div>
-          <div class="macro"><div class="macro-label">Energy</div><div class="macro-val">${f.energy}</div></div>
-        </div>
-        <div class="food-footer">
-          <div class="food-price">
-            <strong>${f.price}</strong>
-            <div class="retail">Retail ${f.retail}</div>
-          </div>
-          <button class="btn-add" aria-label="Add to cart">+</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
+
+foods.find(item => item.id === "potatoes").img = "assets/food/potatoes.jpg";
+foods.find(item => item.id === "tomatoes").img = "assets/food/tomatoes.jpg";
+
+Object.assign(foods.find(item => item.id === "salad_kit"), {
+  name: "Fresh salad kit",
+  desc: "11 oz chilled tray · 2 side portions",
+  protein: "6g",
+  fiber: "7g",
+  energy: "190",
+  ingredients: ["Romaine + spinach 3.5 oz", "Baby carrots 2 oz", "Roma tomatoes 2.5 oz", "Cucumber 1.5 oz", "Herb dressing 1.5 oz"]
+});
+
+Object.assign(foods.find(item => item.id === "lentil_bowl"), {
+  name: "Lentil protein bowl",
+  desc: "14 oz meal bowl · 1 filling portion",
+  protein: "21g",
+  fiber: "13g",
+  energy: "410",
+  ingredients: ["Cooked lentils 6 oz", "Brown rice 3.5 oz", "Roasted vegetables 3 oz", "Chickpeas 1 oz", "Tahini herb sauce 0.5 oz"]
+});
+
+foods.push(
+  {id:"raw_beef",cat:"protein",diet:"nonveg",vegan:false,emoji:"",name:"Raw beef cuts",desc:"1 lb chilled pack · 4 servings",img:"assets/food/raw_beef.jpg",tags:["Fresh protein","Iron rich"],pct:"28% below retail",protein:"23g",fiber:"0g",energy:"190",price:"$8.49",retail:"$11.79",priceNum:8.49,retailNum:11.79,savingsPct:28},
+  {id:"raw_salmon",cat:"protein",diet:"nonveg",vegan:false,emoji:"",name:"Raw salmon fillets",desc:"12 oz chilled pack · 2 servings",img:"assets/food/raw_salmon.jpg",tags:["Omega-3","Fresh seafood"],pct:"24% below retail",protein:"22g",fiber:"0g",energy:"208",price:"$8.99",retail:"$11.89",priceNum:8.99,retailNum:11.89,savingsPct:24},
+  {id:"raw_tuna",cat:"protein",diet:"nonveg",vegan:false,emoji:"",name:"Raw tuna steaks",desc:"10 oz chilled pack · 2 servings",img:"assets/food/raw_tuna.jpg",tags:["Lean protein","Fresh seafood"],pct:"23% below retail",protein:"24g",fiber:"0g",energy:"132",price:"$7.99",retail:"$10.39",priceNum:7.99,retailNum:10.39,savingsPct:23},
+  {id:"raw_pork",cat:"protein",diet:"nonveg",vegan:false,emoji:"",name:"Raw pork cuts",desc:"1 lb chilled pack · 4 servings",img:"assets/food/raw_pork.jpg",tags:["Family cooking","Fresh protein"],pct:"27% below retail",protein:"21g",fiber:"0g",energy:"210",price:"$5.99",retail:"$8.19",priceNum:5.99,retailNum:8.19,savingsPct:27},
+  {id:"raw_turkey",cat:"protein",diet:"nonveg",vegan:false,emoji:"",name:"Raw turkey breast",desc:"1 lb chilled pack · 4 servings",img:"assets/food/raw_turkey.jpg",tags:["Lean protein","Meal prep"],pct:"26% below retail",protein:"24g",fiber:"0g",energy:"135",price:"$6.49",retail:"$8.79",priceNum:6.49,retailNum:8.79,savingsPct:26}
+);
+
+const STORAGE_KEY = "mow_cart_v2";
+const PAGE_SIZE = 12;
+let currentPage = 1;
+let filteredFoods = [...foods];
+let activeCategory = "all";
+
+function parseMoney(value) {
+  return typeof value === "number" ? value : Number(String(value).replace(/[^0-9.]/g, ""));
 }
+
+function money(value) {
+  return `$${value.toFixed(2)}`;
+}
+
+function ensureHeroContent() {
+  const hero = document.querySelector(".hero");
+  if (!hero) return;
+  hero.innerHTML = `
+    <div class="shell hero-grid">
+      <div class="hero-copy">
+        <div class="hero-badge"><span class="hero-badge-dot"></span>Neighborhood-first grocery access</div>
+        <h1>Fresh food support for<br><span>DC households.</span></h1>
+        <p class="hero-sub">Shop affordable groceries, produce, meal packs, and weekly support bundles matched to the pickup hub closest to where you live, study, or care for family.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#catalog">Shop the catalog</a>
+          <a class="btn-secondary-hero" href="#coverage">Find a nearby hub</a>
+          <a class="btn-secondary-hero" href="checkout.html" id="heroCheckoutLink">Open cart</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><strong>17</strong><span>Neighborhood hubs</span></div>
+          <div class="hero-stat"><strong>Temp-controlled</strong><span>Meal storage ensuring freshness</span></div>
+          <div class="hero-stat"><strong>1 mi</strong><span>Typical pickup reach</span></div>
+        </div>
+        <div class="hero-callout"><strong>2 hrs guaranteed delivery</strong>White and green fleet routing moves insulated meal trays, fresh produce, and refrigerated boxes safely into neighborhood pickup hubs.</div>
+      </div>
+      <div class="hero-visual">
+        <img src="assets/food/hero_truck_detail_v5.png" alt="White and green refrigerated grocery truck on a road with a magnified view into cold-packed individual food boxes, a nearby food storage locker hub, and a soft DC neighborhood background" />
+      </div>
+    </div>`;
+}
+
+function ensureCoverageNote() {
+  const map = document.getElementById("dcMap");
+  if (map && !document.querySelector(".coverage-note")) {
+    const note = document.createElement("div");
+    note.className = "coverage-note";
+    map.insertAdjacentElement("afterend", note);
+  }
+}
+
+function ensureCoachSlot() {
+  if (document.getElementById("nutritionCoach")) return;
+  const searchRow = document.querySelector(".catalog-search-row");
+  if (!searchRow) return;
+  const coach = document.createElement("div");
+  coach.id = "nutritionCoach";
+  coach.className = "nutrition-coach";
+  searchRow.insertAdjacentElement("afterend", coach);
+}
+
+function readCart() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  } catch (error) {
+    return [];
+  }
+}
+
+function writeCart(cart) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+}
+
+function cartCount() {
+  return readCart().reduce((sum, item) => sum + item.qty, 0);
+}
+
+function syncCartButtons() {
+  const count = cartCount();
+  const navCart = document.querySelector(".cart-btn");
+  const heroCart = document.getElementById("heroCheckoutLink");
+  if (navCart) navCart.textContent = count ? `Checkout (${count})` : "Checkout";
+  if (heroCart) heroCart.textContent = count ? `Checkout (${count})` : "Checkout";
+}
+
+function buildCartEntry(item) {
+  return {
+    id: item.id,
+    name: item.name,
+    img: item.img || "",
+    desc: item.desc,
+    priceNum: item.priceNum,
+    retailNum: item.retailNum,
+    protein: Number(String(item.protein).replace("g", "")) || 0,
+    fiber: Number(String(item.fiber).replace("g", "")) || 0,
+    energy: Number(String(item.energy).replace("g", "")) || 0,
+    qty: 1,
+    cat: item.cat,
+    tags: item.tags || []
+  };
+}
+
+function addToCart(id) {
+  const item = foods.concat(boxes).find(entry => entry.id === id);
+  if (!item) return;
+  const cart = readCart();
+  const existing = cart.find(entry => entry.id === id);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push(buildCartEntry(item));
+  }
+  writeCart(cart);
+  syncCartButtons();
+  renderNutritionCoach();
+  showToast(`${item.name} added to cart`);
+}
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.textContent = message;
+  toast.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#071f2e;color:#c8f558;padding:12px 22px;border-radius:999px;font-weight:800;font-size:.88rem;z-index:999;box-shadow:0 16px 36px rgba(7,31,46,.3);transition:opacity .4s";
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 400);
+  }, 1800);
+}
+
+function renderNutritionCoach() {
+  const coach = document.getElementById("nutritionCoach");
+  if (!coach) return;
+  const cart = readCart();
+  if (!cart.length) {
+    coach.className = "nutrition-coach";
+    coach.innerHTML = "";
+    return;
+  }
+  const totals = cart.reduce((sum, item) => {
+    sum.protein += item.protein * item.qty;
+    sum.fiber += item.fiber * item.qty;
+    sum.energy += item.energy * item.qty;
+    if (["bread", "pantry", "snacks"].includes(item.cat)) sum.carbLean += item.qty;
+    if (item.protein >= 20) sum.highProtein += item.qty;
+    return sum;
+  }, { protein: 0, fiber: 0, energy: 0, carbLean: 0, highProtein: 0 });
+
+  const targetProtein = Math.max(30, cart.length * 12);
+  const notes = [];
+  if (totals.protein < targetProtein) {
+    notes.push("Protein is running low. Add salmon, tuna, turkey, eggs, tofu, or the lentil bowl to balance meals.");
+  } else if (totals.carbLean > totals.highProtein + 1) {
+    notes.push("This basket is leaning carb-heavy. Keep the rice, oats, potatoes, or bread, but pair them with a stronger protein item.");
+  } else {
+    notes.push("This basket has a healthier protein balance already. Keep some produce and fiber in the mix for steadier energy.");
+  }
+  if (totals.fiber < 12) {
+    notes.push("Fiber is still light. Tomatoes, greens, beans, broccoli, oats, and fruit cups will make the basket more complete.");
+  }
+  if (!cart.some(item => item.cat === "produce" || item.cat === "fresh")) {
+    notes.push("You do not have much produce yet. Add a salad kit, tomatoes, spinach, broccoli, or fruit for micronutrients.");
+  }
+
+  coach.className = "nutrition-coach show";
+  coach.innerHTML = `
+    <h3>Nutrition coach</h3>
+    <p>${notes[0]}</p>
+    ${notes.length > 1 ? `<ul>${notes.slice(1).map(note => `<li>${note}</li>`).join("")}</ul>` : ""}
+    <div class="coach-pills">
+      <span>${totals.protein}g protein in cart</span>
+      <span>${totals.fiber}g fiber in cart</span>
+      <span>${totals.energy} total calories</span>
+      <span>${targetProtein}g protein target</span>
+    </div>`;
+}
+
+function buildIngredientMarkup(item) {
+  if (!item.ingredients || !item.ingredients.length) return "";
+  return `<div class="food-ingredients"><strong>Ingredients in this portion</strong><ul>${item.ingredients.map(line => `<li>${line}</li>`).join("")}</ul></div>`;
+}
+
+function categoryLabel(item) {
+  return item.cat === "fresh" ? "Fresh produce" :
+    item.cat === "snacks" ? "Snacks" :
+    item.cat === "produce" ? "Prepared meals" :
+    item.cat === "protein" ? "Protein" :
+    item.cat === "bread" ? "Bread" : "Pantry";
+}
+
+function renderFoods(items) {
+  const grid = document.getElementById("foodGrid");
+  grid.innerHTML = items.map(item => {
+    const veganTag = item.vegan ? '<span class="tag tag-vegan">Vegan</span>' : "";
+    const freshTag = item.cat === "fresh" ? '<span class="tag tag-fresh">Fresh</span>' : "";
+    return `
+      <div class="food-card">
+        <img class="food-img" src="${item.img}" alt="${item.name}" loading="lazy" />
+        <div class="food-body">
+          <div class="food-tags">
+            <span class="tag tag-cat">${categoryLabel(item)}</span>
+            <span class="tag tag-stock">In stock</span>
+            ${veganTag}${freshTag}
+          </div>
+          <div class="food-name">${item.name}</div>
+          <div class="food-desc">${item.desc}</div>
+          ${buildIngredientMarkup(item)}
+          <div class="food-tags" style="margin-bottom:8px">
+            ${item.tags.map(tag => `<span class="tag tag-label">${tag}</span>`).join("")}
+            <span class="tag tag-pct">${item.pct}</span>
+          </div>
+          <div class="food-macros">
+            <div class="macro"><div class="macro-label">Protein</div><div class="macro-val">${item.protein}</div></div>
+            <div class="macro"><div class="macro-label">Fiber</div><div class="macro-val">${item.fiber}</div></div>
+            <div class="macro"><div class="macro-label">Cal</div><div class="macro-val">${item.energy}</div></div>
+          </div>
+          <div class="food-footer">
+            <div class="food-price">
+              <strong>${item.price}</strong>
+              <div class="retail">Retail ${item.retail}</div>
+            </div>
+            <button class="btn-add" aria-label="Add to cart" onclick="addToCart('${item.id}')">+</button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function applyFilters() {
+  const query = document.getElementById("catalogSearch").value.trim().toLowerCase();
+  const diet = document.getElementById("dietFilter").value;
+  const sort = document.getElementById("sortFilter").value;
+  let filtered = foods.filter(item => activeCategory === "all" || item.cat === activeCategory);
+  if (query) filtered = filtered.filter(item => (item.name + " " + item.desc + " " + item.tags.join(" ") + " " + (item.ingredients || []).join(" ")).toLowerCase().includes(query));
+  if (diet === "veg") filtered = filtered.filter(item => item.diet === "veg");
+  if (diet === "vegan") filtered = filtered.filter(item => item.vegan);
+  if (diet === "nonveg") filtered = filtered.filter(item => item.diet === "nonveg");
+  if (diet === "high-protein") filtered = filtered.filter(item => Number(String(item.protein).replace("g", "")) >= 15);
+  if (sort === "price-low") filtered.sort((a, b) => a.priceNum - b.priceNum);
+  if (sort === "price-high") filtered.sort((a, b) => b.priceNum - a.priceNum);
+  if (sort === "savings") filtered.sort((a, b) => b.savingsPct - a.savingsPct);
+  filteredFoods = filtered;
+  currentPage = 1;
+  renderPage();
+}
+
+function renderPage() {
+  const slice = filteredFoods.slice(0, currentPage * PAGE_SIZE);
+  renderFoods(slice);
+  const total = filteredFoods.length;
+  const showing = Math.min(slice.length, total);
+  document.getElementById("itemsCount").textContent = `Showing ${showing} of ${total} items`;
+  const wrap = document.getElementById("showMoreWrap");
+  const btn = document.getElementById("showMoreBtn");
+  wrap.style.display = showing < total ? "block" : "none";
+  if (showing < total) btn.textContent = `Show ${Math.min(PAGE_SIZE, total - showing)} more ↓`;
+}
+
+function showMore() {
+  currentPage += 1;
+  renderPage();
+}
+
+document.getElementById("catTabs").addEventListener("click", event => {
+  const tab = event.target.closest(".filter-tab");
+  if (!tab) return;
+  document.querySelectorAll(".filter-tab").forEach(button => button.classList.remove("active"));
+  tab.classList.add("active");
+  activeCategory = tab.dataset.cat;
+  applyFilters();
+});
+
+document.getElementById("catalogSearch").addEventListener("input", applyFilters);
+document.getElementById("dietFilter").addEventListener("change", applyFilters);
+document.getElementById("sortFilter").addEventListener("change", applyFilters);
 
 function renderBoxes() {
-  const grid = document.getElementById('boxGrid');
-  grid.innerHTML = boxes.map(b => `
-    <div class="box-card">
-      <img class="box-img" src="${b.img}" alt="${b.name}" loading="lazy" />
-      <div class="box-body">
-        <div class="box-tags">
-          <span class="tag tag-stock">Boxes</span>
-          <span class="tag tag-stock">In stock</span>
-        </div>
-        <div class="box-name">${b.name}</div>
-        <div class="box-desc">${b.desc}</div>
-        <div class="box-tags" style="margin-bottom:8px;">
-          ${b.tags.map(t => `<span class="tag tag-label">${t}</span>`).join('')}
-        </div>
-        <div class="box-macros">
-          <div class="macro"><div class="macro-label">Protein</div><div class="macro-val">${b.protein}</div></div>
-          <div class="macro"><div class="macro-label">Fiber</div><div class="macro-val">${b.fiber}</div></div>
-          <div class="macro"><div class="macro-label">Energy</div><div class="macro-val">${b.energy}</div></div>
-        </div>
-        <div class="box-footer">
-          <div class="box-price">
-            <strong>${b.price}</strong>
-            <div class="retail">Retail ${b.retail}</div>
+  const grid = document.getElementById("boxGrid");
+  grid.innerHTML = boxes.map(box => {
+    const veganBadge = box.vegan ? '<span class="tag tag-vegan">Vegan</span>' : box.vegetarian ? '<span class="tag" style="background:rgba(48,209,88,.12);color:#1a6640">Vegetarian</span>' : "";
+    return `
+      <div class="box-card">
+        <img class="box-img" src="${box.img}" alt="${box.name}" loading="lazy" />
+        <div class="box-body">
+          <div class="box-tags">${veganBadge}${box.tags.map(tag => `<span class="tag tag-label">${tag}</span>`).join("")}</div>
+          <div class="box-name">${box.name}</div>
+          <div class="box-desc">${box.desc}</div>
+          <div class="box-contents"><strong>What's inside</strong><ul>${box.contents.map(item => `<li>${item}</li>`).join("")}</ul></div>
+          <div class="box-macros">
+            <div class="macro"><div class="macro-label">Protein</div><div class="macro-val">${box.protein}</div></div>
+            <div class="macro"><div class="macro-label">Fiber</div><div class="macro-val">${box.fiber}</div></div>
+            <div class="macro"><div class="macro-label">Cal</div><div class="macro-val">${box.energy}</div></div>
           </div>
-          <button class="btn-add-box">Add</button>
+          <div class="box-footer">
+            <div class="box-price"><strong>${box.price}</strong><div class="retail">Retail ${box.retail}</div></div>
+            <button class="btn-add-box" onclick="addToCart('${box.id}')">Add</button>
+          </div>
         </div>
-      </div>
-    </div>
-  `).join('');
+      </div>`;
+  }).join("");
 }
 
-// Category tabs
-document.querySelectorAll('.filter-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const cat = tab.dataset.cat;
-    const filtered = cat === 'all' ? foods : foods.filter(f => f.cat === cat);
-    renderFoods(filtered);
-  });
+const dcMap = L.map("dcMap", { zoomControl: true, attributionControl: true }).setView([38.9072, -77.0369], 12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(dcMap);
+const hubIcon = L.divIcon({
+  className: "",
+  html: '<div style="width:16px;height:16px;border-radius:50%;background:#e05c00;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.35)"></div>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8]
 });
 
-// Search
-document.getElementById('catalogSearch').addEventListener('input', e => {
-  const q = e.target.value.toLowerCase();
-  const filtered = foods.filter(f => f.name.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q));
-  renderFoods(filtered);
+const hubBounds = [];
+hubs.forEach(hub => {
+  hubBounds.push([hub.lat, hub.lng]);
+  L.circle([hub.lat, hub.lng], {
+    radius: 1609,
+    color: "#0a84ff",
+    fillColor: "#0a84ff",
+    fillOpacity: 0.08,
+    weight: 1.5,
+    opacity: 0.35
+  }).addTo(dcMap);
+  L.marker([hub.lat, hub.lng], { icon: hubIcon }).bindPopup(`
+    <div style="font-family:-apple-system,sans-serif;min-width:200px">
+      <strong style="font-size:.95rem;color:#071f2e">${hub.name}</strong><br>
+      <span style="font-size:.8rem;color:#5e7681">${hub.area}</span><br><br>
+      <span style="display:inline-block;padding:3px 10px;border-radius:50px;background:rgba(0,199,190,.12);color:#00a99d;font-size:.72rem;font-weight:700">${hub.type}</span>
+      <span style="display:inline-block;padding:3px 10px;border-radius:50px;background:rgba(48,209,88,.12);color:#1a6640;font-size:.72rem;font-weight:700;margin-left:5px">${hub.hours}</span><br>
+      <small style="color:#5e7681;font-size:.75rem">ZIP ${hub.zip}</small>
+    </div>`, { maxWidth: 260 }).addTo(dcMap);
+});
+if (hubBounds.length) {
+  dcMap.fitBounds(hubBounds, { padding: [28, 28] });
+}
+
+function handleLogin() {
+  const user = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value;
+  if (user === "admin" && pass === "admin") {
+    window.location.href = "admin.html";
+  } else if (user && pass) {
+    closeLogin();
+    const bar = document.getElementById("profileBar");
+    document.getElementById("profileName").textContent = "Welcome, " + user + "!";
+    bar.classList.add("visible");
+    showToast("Signed in as " + user);
+  } else {
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+
+function openLogin() {
+  document.getElementById("loginModal").classList.add("open");
+  document.getElementById("loginUser").focus();
+  document.getElementById("loginError").style.display = "none";
+}
+
+function closeLogin() {
+  document.getElementById("loginModal").classList.remove("open");
+  document.getElementById("loginUser").value = "";
+  document.getElementById("loginPass").value = "";
+}
+
+function logout() {
+  document.getElementById("profileBar").classList.remove("visible");
+  showToast("Signed out");
+}
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Enter" && document.getElementById("loginModal").classList.contains("open")) handleLogin();
+});
+document.getElementById("loginModal").addEventListener("click", event => {
+  if (event.target === event.currentTarget) closeLogin();
 });
 
-renderFoods(foods);
+ensureHeroContent();
+ensureCoverageNote();
+ensureCoachSlot();
+renderBoxes();
+applyFilters();
+syncCartButtons();
+renderNutritionCoach();
+
+// ── LOGIN ─────────────────────────────────────────────────
+function openLogin() {
+  document.getElementById('loginModal').classList.add('open');
+  document.getElementById('loginUser').focus();
+  document.getElementById('loginError').style.display='none';
+}
+function closeLogin() {
+  document.getElementById('loginModal').classList.remove('open');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+function handleLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if(user==='admin' && pass==='admin') {
+    window.location.href='admin.html';
+  } else if(user && pass) {
+    closeLogin();
+    const bar = document.getElementById('profileBar');
+    document.getElementById('profileName').textContent = 'Welcome, '+user+'!';
+    bar.classList.add('visible');
+    showToast('Signed in as '+user);
+  } else {
+    document.getElementById('loginError').style.display='block';
+  }
+}
+function logout() {
+  document.getElementById('profileBar').classList.remove('visible');
+  showToast('Signed out');
+}
+// Enter key support
+document.addEventListener('keydown', e=>{ if(e.key==='Enter' && document.getElementById('loginModal').classList.contains('open')) handleLogin(); });
+document.getElementById('loginModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeLogin(); });
+
+// ── INIT ──────────────────────────────────────────────────
+applyFilters();
 renderBoxes();
 </script>
 </body>

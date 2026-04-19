@@ -231,6 +231,7 @@
 
   function itemCardMarkup(item) {
     const meta = data.categoryMeta[item.cat];
+    const imageSrc = item.image || meta.image;
     const stock = utils.stockFor(item, state.activePitStop);
     const status = stockStatus(stock);
     const savings = Math.max(0, Math.round((1 - item.price / item.retail) * 100));
@@ -245,7 +246,7 @@
       '<article class="product-card">' +
       '<div class="product-visual">' +
       '<img class="product-image" src="' +
-      utils.escapeHtml(meta.image) +
+      utils.escapeHtml(imageSrc) +
       '" alt="' +
       utils.escapeHtml(item.name) +
       '" loading="lazy" />' +
