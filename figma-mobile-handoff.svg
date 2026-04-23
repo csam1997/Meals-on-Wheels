@@ -1,0 +1,197 @@
+<svg width="2550" height="980" viewBox="0 0 2550 980" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #F6FBF9; }
+      .surface { fill: #FFFFFF; stroke: rgba(16,34,40,.10); stroke-width: 1; }
+      .mint { fill: #EAF7F1; }
+      .soft { fill: #F3FBF7; }
+      .navy { fill: #102228; }
+      .muted { fill: #5A7078; }
+      .teal { fill: #1E8B78; }
+      .blue { fill: #2EA7FF; }
+      .white { fill: #FFFFFF; }
+      .pill { rx: 18; ry: 18; }
+      .card { rx: 24; ry: 24; }
+      .small { font: 600 12px Manrope, Arial, sans-serif; }
+      .label { font: 800 11px Manrope, Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+      .body { font: 500 14px Manrope, Arial, sans-serif; }
+      .bodyBold { font: 700 14px Manrope, Arial, sans-serif; }
+      .title { font: 700 18px Fraunces, Georgia, serif; }
+      .hero { font: 700 34px Fraunces, Georgia, serif; }
+      .screenTitle { font: 700 22px Fraunces, Georgia, serif; }
+    </style>
+  </defs>
+
+  <rect width="2550" height="980" fill="#EEF6F3"/>
+
+  <!-- Screen 1 -->
+  <g transform="translate(40 40)">
+    <rect width="390" height="844" rx="34" class="bg"/>
+    <rect x="0" y="0" width="390" height="70" rx="34" class="surface"/>
+    <text x="24" y="42" class="bodyBold navy">Meals on Wheels DC</text>
+    <rect x="278" y="18" width="88" height="34" class="surface pill"/>
+    <text x="300" y="40" class="small navy">Cart (7)</text>
+
+    <rect x="20" y="92" width="198" height="28" rx="14" class="surface"/>
+    <text x="34" y="110" class="label teal">Neighborhood-first grocery access</text>
+    <text x="20" y="165" class="hero navy">Fresh food</text>
+    <text x="20" y="205" class="hero navy">support for</text>
+    <text x="20" y="245" class="hero teal">DC households.</text>
+    <text x="20" y="285" class="body muted">Shop affordable groceries, produce, meal packs, and weekly</text>
+    <text x="20" y="305" class="body muted">support bundles matched to the pickup pit stop closest to you.</text>
+
+    <rect x="20" y="330" width="160" height="46" rx="23" class="blue"/>
+    <text x="42" y="358" class="bodyBold white">Shop the catalog</text>
+    <rect x="192" y="330" width="160" height="46" class="surface pill"/>
+    <text x="222" y="358" class="bodyBold navy">Find a pit stop</text>
+
+    <rect x="20" y="398" width="350" height="210" class="surface card"/>
+    <text x="42" y="505" class="screenTitle navy">Hero image</text>
+    <text x="42" y="530" class="body muted">Truck + refrigerated lens + pit stop locker + DC rowhouses</text>
+
+    <rect x="20" y="628" width="110" height="88" class="surface card"/>
+    <rect x="140" y="628" width="110" height="88" class="surface card"/>
+    <rect x="260" y="628" width="110" height="88" class="surface card"/>
+    <text x="34" y="662" class="title navy">17</text>
+    <text x="34" y="688" class="small muted">Neighborhood pit stops</text>
+    <text x="154" y="662" class="title navy">Temp-controlled</text>
+    <text x="154" y="688" class="small muted">Meal storage ensuring freshness</text>
+    <text x="274" y="662" class="title navy">1 mi</text>
+    <text x="274" y="688" class="small muted">Typical pickup reach</text>
+
+    <rect x="20" y="736" width="350" height="76" class="soft card"/>
+    <text x="34" y="764" class="bodyBold navy">2 hrs guaranteed delivery</text>
+    <text x="34" y="788" class="body muted">Fresh produce and insulated trays routed safely into neighborhood pit stops.</text>
+  </g>
+
+  <!-- Screen 2 -->
+  <g transform="translate(470 40)">
+    <rect width="390" height="844" rx="34" class="bg"/>
+    <rect width="390" height="70" rx="34" class="surface"/>
+    <text x="24" y="42" class="bodyBold navy">Groceries</text>
+    <rect x="20" y="92" width="350" height="46" rx="23" class="mint"/>
+    <text x="34" y="120" class="body muted">Search produce, wraps, beans, chicken...</text>
+    <rect x="20" y="152" width="72" height="32" rx="16" class="blue"/><text x="43" y="172" class="small white">All</text>
+    <rect x="100" y="152" width="98" height="32" class="surface pill"/><text x="122" y="172" class="small muted">Fresh produce</text>
+    <rect x="206" y="152" width="70" height="32" class="surface pill"/><text x="228" y="172" class="small muted">Snacks</text>
+    <rect x="284" y="152" width="86" height="32" class="surface pill"/><text x="304" y="172" class="small muted">Protein</text>
+
+    <rect x="20" y="200" width="350" height="90" class="soft card"/>
+    <text x="34" y="226" class="bodyBold navy">Nutrition coach</text>
+    <text x="34" y="248" class="body muted">Protein is running low. Add salmon, tuna, turkey, eggs, tofu, or lentils.</text>
+    <rect x="34" y="260" width="78" height="24" class="surface pill"/><text x="46" y="276" class="small navy">34g protein</text>
+    <rect x="118" y="260" width="70" height="24" class="surface pill"/><text x="132" y="276" class="small navy">15g fiber</text>
+    <rect x="194" y="260" width="74" height="24" class="surface pill"/><text x="208" y="276" class="small navy">665 cal</text>
+    <rect x="274" y="260" width="78" height="24" class="surface pill"/><text x="286" y="276" class="small navy">60g target</text>
+
+    <rect x="20" y="316" width="168" height="242" class="surface card"/>
+    <rect x="202" y="316" width="168" height="242" class="surface card"/>
+    <rect x="20" y="574" width="168" height="242" class="surface card"/>
+    <rect x="202" y="574" width="168" height="242" class="surface card"/>
+    <text x="44" y="340" class="bodyBold navy">Apple &amp; peanut butter snack</text>
+    <text x="44" y="358" class="small muted">1 apple + 1.5 oz peanut butter</text>
+    <text x="44" y="392" class="small teal">Healthy snack</text>
+    <text x="44" y="426" class="bodyBold navy">$1.49</text>
+    <circle cx="160" cy="522" r="14" class="blue"/><text x="155" y="527" class="bodyBold white">+</text>
+    <text x="224" y="340" class="bodyBold navy">Greek yogurt parfait</text>
+    <text x="224" y="358" class="small muted">7 oz cup • 1 cup</text>
+    <text x="224" y="392" class="small teal">High protein</text>
+    <text x="224" y="426" class="bodyBold navy">$1.79</text>
+  </g>
+
+  <!-- Screen 3 -->
+  <g transform="translate(900 40)">
+    <rect width="390" height="844" rx="34" class="bg"/>
+    <rect width="390" height="70" rx="34" class="surface"/>
+    <text x="24" y="42" class="bodyBold navy">Weekly packs</text>
+    <text x="20" y="118" class="label teal">Weekly support</text>
+    <text x="20" y="154" class="screenTitle navy">Choose the pack that fits the household.</text>
+    <rect x="20" y="180" width="350" height="118" class="surface card"/>
+    <text x="34" y="208" class="bodyBold navy">One pack. One week. Food that covers the basics.</text>
+    <text x="34" y="232" class="body muted">EBT and subsidy friendly • Vegan, vegetarian, and non-veg options</text>
+    <text x="34" y="254" class="body muted">Student pricing available with verified .edu logins</text>
+
+    <rect x="20" y="318" width="82" height="32" rx="16" class="blue"/><text x="37" y="338" class="small white">Students</text>
+    <rect x="110" y="318" width="76" height="32" class="surface pill"/><text x="130" y="338" class="small muted">Seniors</text>
+    <rect x="194" y="318" width="110" height="32" class="surface pill"/><text x="216" y="338" class="small muted">Family support</text>
+
+    <rect x="20" y="372" width="350" height="138" class="surface card"/>
+    <text x="34" y="400" class="bodyBold navy">Student vegan health pack</text>
+    <text x="34" y="420" class="small muted">Student routine bundle • Vegan • 6 portions</text>
+    <text x="34" y="452" class="small teal">Red lentils • Chickpeas • Brown rice • Baby spinach</text>
+    <text x="34" y="486" class="bodyBold navy">$9.49</text>
+    <rect x="278" y="466" width="72" height="34" rx="17" class="blue"/><text x="305" y="487" class="small white">Add</text>
+
+    <rect x="20" y="526" width="350" height="138" class="surface card"/>
+    <text x="34" y="554" class="bodyBold navy">Senior wellness pack vegetarian</text>
+    <text x="34" y="574" class="small muted">2-person senior bundle • Vegetarian • 8 portions</text>
+    <text x="34" y="606" class="small teal">Oats • Milk • Egg protein items • Sweet potatoes</text>
+    <text x="34" y="640" class="bodyBold navy">$10.49</text>
+
+    <rect x="20" y="680" width="350" height="138" class="surface card"/>
+    <text x="34" y="708" class="bodyBold navy">Family support pack non-veg</text>
+    <text x="34" y="728" class="small muted">4-person family bundle • Non-veg • 14 portions</text>
+    <text x="34" y="760" class="small teal">Chicken packs • Rice • Beans • Bell peppers • Broccoli</text>
+    <text x="34" y="794" class="bodyBold navy">$23.99</text>
+  </g>
+
+  <!-- Screen 4 -->
+  <g transform="translate(1330 40)">
+    <rect width="390" height="844" rx="34" class="bg"/>
+    <rect width="390" height="70" rx="34" class="surface"/>
+    <text x="24" y="42" class="bodyBold navy">Your cart</text>
+    <text x="20" y="104" class="screenTitle navy">Review your basket and pick your pit stop.</text>
+    <text x="20" y="130" class="body muted">Choose the pickup pit stop that works for you and place your order when the basket looks right.</text>
+
+    <rect x="20" y="162" width="350" height="120" class="surface card"/>
+    <text x="34" y="190" class="bodyBold navy">Apple &amp; peanut butter snack</text>
+    <text x="34" y="210" class="small muted">1 apple + 1.5 oz peanut butter</text>
+    <rect x="34" y="226" width="84" height="28" class="surface pill"/><text x="54" y="244" class="small navy">Qty 1</text>
+    <text x="292" y="246" class="bodyBold navy">$1.49</text>
+    <text x="34" y="266" class="small teal">Remove</text>
+
+    <rect x="20" y="302" width="350" height="198" class="surface card"/>
+    <text x="34" y="330" class="bodyBold navy">Pickup details</text>
+    <text x="34" y="358" class="label muted">Pickup pit stop</text>
+    <rect x="34" y="368" width="322" height="46" rx="16" class="mint"/>
+    <text x="48" y="396" class="body muted">Foggy Bottom West Hub (20052)</text>
+    <text x="34" y="438" class="label muted">Name</text>
+    <rect x="34" y="448" width="322" height="46" rx="16" class="surface"/>
+    <text x="48" y="476" class="body muted">Your name</text>
+
+    <rect x="20" y="520" width="350" height="130" class="soft card"/>
+    <text x="34" y="548" class="bodyBold navy">Nutrition coach</text>
+    <text x="34" y="572" class="body muted">This basket is short on protein. Add salmon, tuna, turkey, eggs, chicken, tofu, or lentils.</text>
+    <rect x="34" y="590" width="88" height="24" class="surface pill"/><text x="48" y="606" class="small navy">34g protein</text>
+
+    <rect x="20" y="670" width="350" height="116" class="surface card"/>
+    <text x="34" y="700" class="body muted">Items</text><text x="318" y="700" class="bodyBold navy">7</text>
+    <text x="34" y="724" class="body muted">Subtotal</text><text x="292" y="724" class="bodyBold navy">$23.45</text>
+    <text x="34" y="748" class="body muted">Pit stop pickup</text><text x="306" y="748" class="bodyBold navy">Free</text>
+    <rect x="34" y="760" width="302" height="40" rx="20" class="blue"/><text x="141" y="785" class="bodyBold white">Place pickup order</text>
+  </g>
+
+  <!-- Screen 5 -->
+  <g transform="translate(1760 40)">
+    <rect width="390" height="844" rx="34" class="bg"/>
+    <rect width="390" height="70" rx="34" class="surface"/>
+    <text x="24" y="42" class="bodyBold navy">Coverage</text>
+    <text x="20" y="108" class="label teal">Coverage</text>
+    <text x="20" y="142" class="screenTitle navy">Find the pit stop closest to you.</text>
+    <text x="20" y="166" class="body muted">Every marker shows a live pickup point with neighborhood, service type, and hours.</text>
+    <rect x="20" y="194" width="350" height="360" class="surface card"/>
+    <text x="145" y="380" class="screenTitle navy">Leaflet map</text>
+    <text x="94" y="406" class="body muted">DC pit stops + 1-mile service areas</text>
+    <rect x="20" y="572" width="350" height="64" class="surface card"/>
+    <text x="34" y="598" class="small muted">Pit stop location • 1-mile service radius • Tap marker for details</text>
+  </g>
+
+  <!-- Notes -->
+  <g transform="translate(2190 70)">
+    <text x="0" y="0" class="screenTitle navy">Import to Figma</text>
+    <text x="0" y="34" class="body muted">1. Open Figma</text>
+    <text x="0" y="56" class="body muted">2. Drag this SVG into a new file</text>
+    <text x="0" y="78" class="body muted">3. Use each phone frame as a starting artboard</text>
+    <text x="0" y="100" class="body muted">4. Replace placeholder blocks with final images/components</text>
+  </g>
+</svg>
